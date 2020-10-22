@@ -28,7 +28,7 @@ class ZirconConsoleComponent extends Roact.Component<ConsoleProps, ConsoleState>
 
 	public didUpdate(prevProps: ConsoleProps) {
 		if (prevProps.isVisible !== this.props.isVisible) {
-			this.sizeYMotor.setGoal(new Spring(this.props.isVisible ? 50 : 0));
+			this.sizeYMotor.setGoal(new Spring(this.props.isVisible ? 18 + 10 : 0));
 		}
 	}
 

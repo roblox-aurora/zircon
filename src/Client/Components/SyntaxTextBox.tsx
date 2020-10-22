@@ -20,9 +20,7 @@ export default class ZirconSyntaxTextBox extends Roact.Component<SyntaxTextBoxPr
 		};
 	}
 	public render() {
-		const textStream = new ZrTextStream(this.state.source);
-		const lexer = new ZrLexer(textStream, { ParseCommentsAsTokens: true, ParseWhitespaceAsTokens: true });
-		const highlighter = new ZrRichTextHighlighter(lexer);
+		const highlighter = new ZrRichTextHighlighter(this.state.source);
 		return (
 			<frame Size={new UDim2(1, 0, 1, 0)} BackgroundColor3={Color3.fromRGB(33, 37, 43)} BorderSizePixel={0}>
 				<uipadding
@@ -37,11 +35,13 @@ export default class ZirconSyntaxTextBox extends Roact.Component<SyntaxTextBoxPr
 					TextSize={18}
 					TextXAlignment="Left"
 					TextYAlignment="Top"
-					ClearTextOnFocus={false}
+					// ClearTextOnFocus={false}
 					Size={new UDim2(1, 0, 1, 0)}
 					Text={this.state.source}
 					Change={{ Text: (rbx) => this.setState({ source: rbx.Text }) }}
 					TextTransparency={0.75}
+					PlaceholderText="Run a command"
+					PlaceholderColor3={Color3.fromRGB(220, 220, 220)}
 					TextColor3={Color3.fromRGB(204, 204, 204)}
 				/>
 				<textlabel

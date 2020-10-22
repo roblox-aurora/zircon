@@ -1,4 +1,4 @@
-import { ZrLexer } from "@rbxts/zirconium-ast";
+import { ZrLexer, ZrTextStream } from "@rbxts/zirconium-ast";
 import { ZrTokenKind, isToken } from "@rbxts/zirconium-ast/out/Tokens/Tokens";
 
 interface ZrThemeOptions {
@@ -28,7 +28,11 @@ function font(text: string, color: string) {
 }
 
 export default class ZrRichTextHighlighter {
-	constructor(private lexer: ZrLexer, private options: ZrThemeOptions = DARK_THEME) {}
+	private lexer: ZrLexer;
+	constructor(source: string, private options: ZrThemeOptions = DARK_THEME) {
+		const stream = new ZrTextStream(source);
+		this.lexer = new ZrLexer(stream, { ParseCommentsAsTokens: true, ParseWhitespaceAsTokens: true });
+	}
 
 	public parse() {
 		let str = "";
