@@ -5,6 +5,8 @@ import { ContextActionService, Players } from "@rbxts/services";
 import ZirconClientStore from "./BuiltInConsole/Store";
 import { ConsoleActionName } from "./BuiltInConsole/Store/_reducers/ConsoleReducer";
 import ZirconConsole from "./BuiltInConsole/UI/Console";
+import ZirconWindow from "./Components/Window";
+import UIKTheme, { BaseTheme, ZirconTheme } from "./UIKit/ThemeContext";
 
 const enum Const {
 	ActionId = "ZirconConsoleActivate",
@@ -28,11 +30,22 @@ namespace ZirconClient {
 	 *
 	 * *This is not required, you can use your own console solution!*
 	 */
-	export function bindConsole(keys: Array<Enum.KeyCode> = [Enum.KeyCode.F10]) {
+	export function bindConsole(keys: Array<Enum.KeyCode> = [Enum.KeyCode.F10, Enum.KeyCode.Slash]) {
 		bindActivationKeys(keys);
 		handle = Roact.mount(
 			<RoactRodux.StoreProvider store={ZirconClientStore as Rodux.Store<unknown>}>
-				<ZirconConsole />
+				<Roact.Fragment>
+					<ZirconConsole />
+					<UIKTheme.Provider value={ZirconTheme}>
+						<ZirconWindow
+							IsDraggable
+							TitlebarEnabled
+							TitleText="Collections"
+							Size={new UDim2(0, 600, 0, 500)}
+							TitlebarCloseAction={() => {}}
+						/>
+					</UIKTheme.Provider>
+				</Roact.Fragment>
 			</RoactRodux.StoreProvider>,
 			Players.LocalPlayer.FindFirstChildOfClass("PlayerGui"),
 		);

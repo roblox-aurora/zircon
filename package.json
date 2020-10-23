@@ -30,11 +30,13 @@
   },
   "dependencies": {
     "@rbxts/flipper": "^1.2.0",
+    "@rbxts/maid": "^1.0.0-ts.1",
     "@rbxts/net": "^1.2.8",
     "@rbxts/roact": "^1.3.0-ts.5",
     "@rbxts/roact-rodux": "^0.1.1",
     "@rbxts/rodux": "^1.1.0",
     "@rbxts/services": "^1.1.1",
+    "@rbxts/snapdragon": "^2.0.0-beta.0",
     "@rbxts/t": "^1.3.5",
     "@rbxts/zirconium": "github:roblox-aurora/zirconium#1.0.0-beta"
   }

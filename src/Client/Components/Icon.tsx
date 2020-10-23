@@ -20,6 +20,10 @@ const IconsV2 = {
 	TypeProperty: identity<IconDefinition>({ Offset: new Vector2(16 * 3, 16) }),
 	TypeKeyword: identity<IconDefinition>({ Offset: new Vector2(16 * 4, 16) }),
 	ActionExecute: identity<IconDefinition>({ Offset: new Vector2(0, 16 * 2) }),
+	ContextClient: identity<IconDefinition>({ Offset: new Vector2(0, 16 * 3) }),
+	ContextServer: identity<IconDefinition>({ Offset: new Vector2(16, 16 * 3) }),
+	ActionContextClient: identity<IconDefinition>({ Offset: new Vector2(16 * 2, 16 * 3) }),
+	ActionContextServer: identity<IconDefinition>({ Offset: new Vector2(16 * 3, 16 * 3) }),
 };
 
 export type IconEnum = keyof typeof IconsV2;
