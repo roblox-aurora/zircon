@@ -1,6 +1,7 @@
 import Roact from "@rbxts/roact";
 import { ZrLexer, ZrTextStream } from "@rbxts/zirconium-ast";
 import ZrRichTextHighlighter from "../TemporaryHighlighter";
+import ZirconIcon from "./Icon";
 
 interface SyntaxTextBoxState {
 	source: string;
@@ -55,6 +56,18 @@ export default class ZirconSyntaxTextBox extends Roact.Component<SyntaxTextBoxPr
 					Text={highlighter.parse()}
 					TextColor3={Color3.fromRGB(198, 204, 215)}
 				/>
+				{this.state.source !== "" && (
+					<textbutton
+						BackgroundTransparency={1}
+						Text=""
+						Size={new UDim2(0, 20, 0, 20)}
+						Position={new UDim2(1, -25, 0, 0)}
+						Event={{ MouseButton1Click: () => this.setState({ source: "" }) }}
+					>
+						<uilistlayout VerticalAlignment="Center" HorizontalAlignment="Center" />
+						<ZirconIcon Icon="Close" />
+					</textbutton>
+				)}
 			</frame>
 		);
 	}

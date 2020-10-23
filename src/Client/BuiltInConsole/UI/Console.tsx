@@ -7,6 +7,7 @@ import ZirconSyntaxTextBox from "../../Components/SyntaxTextBox";
 interface ConsoleProps extends MappedProps {}
 interface ConsoleState {
 	isVisible: boolean;
+	isFullView: boolean;
 }
 
 /**
