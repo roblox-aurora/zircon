@@ -1,5 +1,4 @@
 import Roact from "@rbxts/roact";
-import { ZrLexer, ZrTextStream } from "@rbxts/zirconium-ast";
 import ZrRichTextHighlighter from "../TemporaryHighlighter";
 import ZirconIcon from "./Icon";
 

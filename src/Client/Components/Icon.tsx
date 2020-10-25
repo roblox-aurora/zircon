@@ -24,6 +24,10 @@ const IconsV2 = {
 	ContextServer: identity<IconDefinition>({ Offset: new Vector2(16, 16 * 3) }),
 	ActionContextClient: identity<IconDefinition>({ Offset: new Vector2(16 * 2, 16 * 3) }),
 	ActionContextServer: identity<IconDefinition>({ Offset: new Vector2(16 * 3, 16 * 3) }),
+	ActionTrash: identity<IconDefinition>({ Offset: new Vector2(16 * 2, 16 * 2) }),
+	ActionAdd: identity<IconDefinition>({ Offset: new Vector2(16 * 3, 16 * 2) }),
+	ActionElipsisMenu: identity<IconDefinition>({ Offset: new Vector2(16, 16 * 2) }),
+	SplitPanels: identity<IconDefinition>({ Offset: new Vector2(16 * 4, 16 * 2) }),
 };
 
 export type IconEnum = keyof typeof IconsV2;

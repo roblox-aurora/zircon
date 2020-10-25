@@ -6,6 +6,8 @@ import { GetCommandService } from "../Services";
 import Lazy from "../Shared/Lazy";
 const IsServer = RunService.IsServer();
 
+type ZirconTag = string | Instance | { ToString(): string };
+
 namespace Zircon {
 	export const Registry = Lazy(() => {
 		assert(IsServer, "Zircon Service only accessible on server");
