@@ -15,7 +15,7 @@ namespace ZirconClient {
 	let handle: ComponentInstanceHandle | undefined;
 	let isVisible = false;
 	function activateBuiltInConsole(actionName: string, state: Enum.UserInputState, io: InputObject) {
-		if (state === Enum.UserInputState.End) {
+		if (state === Enum.UserInputState.End && ZirconClientStore.getState().hotkeyEnabled) {
 			isVisible = !isVisible;
 			ZirconClientStore.dispatch({ type: ConsoleActionName.SetConsoleVisible, visible: isVisible });
 		}
@@ -30,21 +30,12 @@ namespace ZirconClient {
 	 *
 	 * *This is not required, you can use your own console solution!*
 	 */
-	export function bindConsole(keys: Array<Enum.KeyCode> = [Enum.KeyCode.F10, Enum.KeyCode.Slash]) {
+	export function bindConsole(keys: Array<Enum.KeyCode> = [Enum.KeyCode.F10]) {
 		bindActivationKeys(keys);
 		handle = Roact.mount(
-			<RoactRodux.StoreProvider store={ZirconClientStore as Rodux.Store<unknown>}>
+			<RoactRodux.StoreProvider store={ZirconClientStore}>
 				<Roact.Fragment>
 					<ZirconConsole />
-					<UIKTheme.Provider value={ZirconTheme}>
-						<ZirconWindow
-							IsDraggable
-							TitlebarEnabled
-							TitleText="Collections"
-							Size={new UDim2(0, 600, 0, 500)}
-							TitlebarCloseAction={() => {}}
-						/>
-					</UIKTheme.Provider>
 				</Roact.Fragment>
 			</RoactRodux.StoreProvider>,
 			Players.LocalPlayer.FindFirstChildOfClass("PlayerGui"),

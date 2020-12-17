@@ -29,5 +29,8 @@
                 }
             }
         }
-    }
+    },
+    "globIgnorePaths": [
+        "**/package.json"
+    ]
 }

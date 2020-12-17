@@ -8,7 +8,7 @@
     "build": "rbxtsc",
     "build:example": "rbxtsc-dev --type=game -p ./example -i ./include",
     "watch:example": "rbxtsc-dev -w --type=game -p ./example -i ./include",
-    "serve": "rojo serve ./example/default.project.json --port 34000"
+    "serve:example": "rojo serve ./example/default.project.json --port 34000"
   },
   "keywords": [],
   "author": "",
@@ -18,7 +18,7 @@
   },
   "types": "out/index.d.ts",
   "devDependencies": {
-    "@rbxts/types": "^1.0.420",
+    "@rbxts/types": "^1.0.428",
     "@typescript-eslint/eslint-plugin": "^4.4.1",
     "@typescript-eslint/parser": "^4.4.1",
     "eslint": "^7.11.0",
@@ -31,13 +31,13 @@
   "dependencies": {
     "@rbxts/flipper": "^1.2.0",
     "@rbxts/maid": "^1.0.0-ts.1",
-    "@rbxts/net": "^1.2.8",
-    "@rbxts/roact": "^1.3.0-ts.5",
-    "@rbxts/roact-rodux": "^0.1.1",
+    "@rbxts/net": "^2.0.0-alpha.5",
+    "@rbxts/roact": "^1.3.0-ts.7",
+    "@rbxts/roact-rodux": "^0.1.2",
     "@rbxts/rodux": "^1.1.0",
     "@rbxts/services": "^1.1.1",
     "@rbxts/snapdragon": "^2.0.0-beta.0",
     "@rbxts/t": "^1.3.5",
-    "@rbxts/zirconium": "github:roblox-aurora/zirconium#1.0.0-beta"
+    "@rbxts/zirconium": "^1.0.0-beta.2"
   }
 }

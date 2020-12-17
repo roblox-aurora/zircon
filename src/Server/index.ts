@@ -1,4 +1,5 @@
 import Net from "@rbxts/net";
+import { createTypeChecker } from "@rbxts/net/out/middleware";
 import { RunService } from "@rbxts/services";
 import t from "@rbxts/t";
 import { RemoteId } from "../RemoteId";
@@ -19,9 +20,9 @@ namespace Zircon {
 	});
 
 	if (RunService.IsServer()) {
-		const stdout = new Net.ServerEvent(RemoteId.StandardOutput);
-		const stderr = new Net.ServerEvent(RemoteId.StandardError);
-		const DispatchToServer = new Net.ServerEvent(RemoteId.DispatchToServer, t.string);
+		const stdout = new Net.Server.Event<[], [string]>(RemoteId.StandardOutput);
+		const stderr = new Net.Server.Event<[], [string]>(RemoteId.StandardError);
+		const DispatchToServer = new Net.Server.Event(RemoteId.DispatchToServer, [createTypeChecker(t.string)]);
 		DispatchToServer.Connect((player, text) => {});
 	}
 }

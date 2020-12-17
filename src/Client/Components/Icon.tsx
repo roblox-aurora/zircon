@@ -4,7 +4,7 @@ interface IconDefinition {
 	Offset: Vector2;
 }
 
-const ICONS_V2_ID = "rbxasset://icons/zirconicons.png";
+const ICONS_V2_ID = "rbxasset://icons/zirconicons2.png";
 const IconsV2 = {
 	DownArrow: identity<IconDefinition>({ Offset: new Vector2(0, 0) }),
 	UpArrow: identity<IconDefinition>({ Offset: new Vector2(16, 0) }),
@@ -52,4 +52,24 @@ export default class ZirconIcon extends Roact.PureComponent<IconProps> {
 			/>
 		);
 	}
+}
+
+interface IconButtonProps extends IconProps {
+	OnClick: () => void;
+	Position?: UDim2;
+	Size?: UDim2;
+}
+export function ZirconIconButton({ Icon, OnClick, Position, Size }: IconButtonProps) {
+	return (
+		<imagebutton
+			Image=""
+			Position={Position}
+			Event={{ MouseButton1Down: OnClick }}
+			BackgroundTransparency={1}
+			Size={Size ?? new UDim2(0, 20, 0, 20)}
+		>
+			<uilistlayout VerticalAlignment="Center" HorizontalAlignment="Center" />
+			<ZirconIcon Icon={Icon} />
+		</imagebutton>
+	);
 }
