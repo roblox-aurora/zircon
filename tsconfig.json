@@ -19,7 +19,18 @@
 		"baseUrl": "src",
 		"incremental": true,
 		"tsBuildInfoFile": "out/tsconfig.tsbuildinfo",
-		"declaration": true
+		"declaration": true,
+		"plugins": [
+			{
+				"transform": "rbxts-transform-env"
+			},
+			{
+				"transform": "rbxts-transform-debug",
+				"environmentRequires": {
+					"NODE_ENV": "development"
+				}
+			}
+		]
 	},
 	"exclude": [
 		"example/**",

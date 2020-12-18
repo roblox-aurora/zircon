@@ -27,7 +27,15 @@
             "@zircon/*": ["../src/*"]
         },
         "jsx": "react",
-        "jsxFactory": "Roact.createElement"
+        "jsxFactory": "Roact.createElement",
+        "plugins": [
+			{
+				"transform": "rbxts-transform-env"
+			},
+			{
+				"transform": "rbxts-transform-debug"
+			}
+		]
     },
     "include": [
         "**/*",

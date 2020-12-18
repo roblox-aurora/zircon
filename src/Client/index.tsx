@@ -5,8 +5,8 @@ import { ContextActionService, Players } from "@rbxts/services";
 import ZirconClientStore from "./BuiltInConsole/Store";
 import { ConsoleActionName } from "./BuiltInConsole/Store/_reducers/ConsoleReducer";
 import ZirconConsole from "./BuiltInConsole/UI/Console";
-import ZirconWindow from "./Components/Window";
-import UIKTheme, { BaseTheme, ZirconTheme } from "./UIKit/ThemeContext";
+import { $ifEnv } from "rbxts-transform-env";
+import { $dbg } from "rbxts-transform-debug";
 
 const enum Const {
 	ActionId = "ZirconConsoleActivate",
@@ -14,10 +14,11 @@ const enum Const {
 namespace ZirconClient {
 	let handle: ComponentInstanceHandle | undefined;
 	let isVisible = false;
-	function activateBuiltInConsole(actionName: string, state: Enum.UserInputState, io: InputObject) {
-		if (state === Enum.UserInputState.End && ZirconClientStore.getState().hotkeyEnabled) {
+	function activateBuiltInConsole(actionName: string, state: Enum.UserInputState) {
+		const { hotkeyEnabled } = ZirconClientStore.getState();
+		if (state === Enum.UserInputState.End && $dbg(hotkeyEnabled)) {
 			isVisible = !isVisible;
-			ZirconClientStore.dispatch({ type: ConsoleActionName.SetConsoleVisible, visible: isVisible });
+			ZirconClientStore.dispatch({ type: ConsoleActionName.SetConsoleVisible, visible: $dbg(isVisible) });
 		}
 		return Enum.ContextActionResult.Sink;
 	}
@@ -31,6 +32,9 @@ namespace ZirconClient {
 	 * *This is not required, you can use your own console solution!*
 	 */
 	export function bindConsole(keys: Array<Enum.KeyCode> = [Enum.KeyCode.F10]) {
+		$ifEnv("NODE_ENV", "development", () => {
+			print("[zircon-debug] bindConsole called with", ...keys);
+		});
 		bindActivationKeys(keys);
 		handle = Roact.mount(
 			<RoactRodux.StoreProvider store={ZirconClientStore}>
