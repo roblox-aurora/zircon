@@ -6,6 +6,7 @@
   "scripts": {
     "prepare": "npm run build",
     "build": "rbxtsc",
+    "dev": "concurrently npm:watch:example npm:serve:example",
     "build:example": "rbxtsc --type=game -p ./example -i ./include",
     "watch:example": "cross-env NODE_ENV=development rbxtsc -w --type=game -p ./example -i ./include",
     "serve:example": "rojo serve ./example/default.project.json --port 34000"
@@ -21,6 +22,7 @@
     "@rbxts/types": "^1.0.428",
     "@typescript-eslint/eslint-plugin": "^4.4.1",
     "@typescript-eslint/parser": "^4.4.1",
+    "concurrently": "^5.3.0",
     "cross-env": "^7.0.3",
     "eslint": "^7.11.0",
     "eslint-config-prettier": "^6.13.0",
@@ -34,7 +36,7 @@
   "dependencies": {
     "@rbxts/flipper": "^1.2.0",
     "@rbxts/maid": "^1.0.0-ts.1",
-    "@rbxts/net": "^2.0.0-alpha.5",
+    "@rbxts/net": "^2.0.0-rc.1",
     "@rbxts/roact": "^1.3.0-ts.7",
     "@rbxts/roact-rodux": "^0.1.2",
     "@rbxts/rodux": "^1.1.0",

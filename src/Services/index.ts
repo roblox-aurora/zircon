@@ -36,7 +36,7 @@ function GetServiceInt<K extends keyof ServiceMap>(service: K, importingFrom?: k
 		// eslint-disable-next-line @typescript-eslint/no-var-requires
 		// const serviceMaster = require(script.FindFirstChild(service) as ModuleScript) as Map<string, ServiceMap[K]>;
 
-		const serviceMaster = TSRequire(service) as Map<string, ServiceMap[K]>;
+		const serviceMaster = TSRequire(script, service) as Map<string, ServiceMap[K]>;
 
 		const importId = IS_SERVER ? `Zircon${service}` : `ZirconClient${service}`;
 		svcImport = serviceMaster.get(importId) as ServiceMap[K];

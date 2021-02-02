@@ -1,10 +1,10 @@
 import Roact from "@rbxts/roact";
+import UIKTheme from "Client/UIKit/ThemeContext";
 
 interface IconDefinition {
 	Offset: Vector2;
 }
 
-const ICONS_V2_ID = "rbxasset://icons/zirconicons2.png";
 const IconsV2 = {
 	DownArrow: identity<IconDefinition>({ Offset: new Vector2(0, 0) }),
 	UpArrow: identity<IconDefinition>({ Offset: new Vector2(16, 0) }),
@@ -43,12 +43,18 @@ export default class ZirconIcon extends Roact.PureComponent<IconProps> {
 	public render() {
 		const icon = IconsV2[this.props.Icon];
 		return (
-			<imagelabel
-				Size={new UDim2(0, 16, 0, 16)}
-				BackgroundTransparency={1}
-				Image={ICONS_V2_ID}
-				ImageRectOffset={icon.Offset}
-				ImageRectSize={new Vector2(16, 16)}
+			<UIKTheme.Consumer
+				render={(theme) => {
+					return (
+						<imagelabel
+							Size={new UDim2(0, 16, 0, 16)}
+							BackgroundTransparency={1}
+							Image={theme.IconAssetUri}
+							ImageRectOffset={icon.Offset}
+							ImageRectSize={new Vector2(16, 16)}
+						/>
+					);
+				}}
 			/>
 		);
 	}

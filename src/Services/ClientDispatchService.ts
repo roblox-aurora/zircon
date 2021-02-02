@@ -1,3 +1,5 @@
+import { RemoteId } from "../RemoteId";
+import Remotes from "../Shared/Remotes";
 import { ZirconClientRegistryService } from "./ClientRegistryService";
 
 export enum DispatchContext {
@@ -12,5 +14,13 @@ export namespace ZirconClientDispatchService {
 
 	/** @internal */
 	export const dependencies = ["ClientRegistryService"];
+
+	const DispatchToServer = Remotes.Client.Get(RemoteId.DispatchToServer);
+	export function Dispatch(input: string) {
+		DispatchToServer.SendToServer(input);
+	}
+
+	export const StandardOutput = Remotes.Server.Create(RemoteId.StandardOutput);
+	export const StandardError = Remotes.Server.Create(RemoteId.StandardError);
 }
 export type ZirconClientDispatchService = typeof ZirconClientDispatchService;

@@ -6,11 +6,30 @@ interface SyntaxTextBoxState {
 	source: string;
 }
 interface SyntaxTextBoxProps {
+	/**
+	 * The source string
+	 */
 	Source: string;
+
+	/** The size of this textbox */
 	Size?: UDim2;
+	/** The position of this textbox */
 	Position?: UDim2;
+	/** Whether or not this textbox is focused */
 	Focused?: boolean;
+	/**
+	 * Whether or not to auto focus this text box
+	 */
 	AutoFocus?: boolean;
+	/**
+	 * Whether or not this textbox is multi lined
+	 */
+	MultiLine?: boolean;
+
+	/**
+	 * When this text box is submitted (if not `MultiLine`)
+	 */
+	OnEnterSubmit?: (input: string) => void;
 }
 
 /**
@@ -59,13 +78,19 @@ export default class ZirconSyntaxTextBox extends Roact.Component<SyntaxTextBoxPr
 					TextSize={18}
 					TextXAlignment="Left"
 					TextYAlignment="Top"
+					MultiLine={this.props.MultiLine}
 					// ClearTextOnFocus={false}
 					Size={new UDim2(1, 0, 1, 0)}
 					Text={this.state.source}
 					Change={{ Text: (rbx) => this.setState({ source: rbx.Text }) }}
 					TextTransparency={0.75}
-					//PlaceholderText="Run a command"
-					//PlaceholderColor3={Color3.fromRGB(220, 220, 220)}
+					Event={{
+						FocusLost: (textBox, enterPressed, inputThatCausedFocusLoss) => {
+							if (enterPressed && !this.props.MultiLine) {
+								this.props.OnEnterSubmit?.(textBox.Text);
+							}
+						},
+					}}
 					TextColor3={Color3.fromRGB(204, 204, 204)}
 				/>
 				<textlabel

@@ -3,28 +3,34 @@ import { SingleMotor, Spring } from "@rbxts/flipper";
 import { connect } from "@rbxts/roact-rodux";
 import { ConsoleReducer } from "../Store/_reducers/ConsoleReducer";
 import ZirconSyntaxTextBox from "../../Components/SyntaxTextBox";
-import ZirconIcon, { ZirconIconButton } from "../../Components/Icon";
+import { ZirconIconButton } from "../../Components/Icon";
+import Zircon from "../..";
+import Remotes from "../../../Shared/Remotes";
+import { RemoteId } from "../../../RemoteId";
+import ClientEvent from "@rbxts/net/out/client/ClientEvent";
+import { $dbg } from "rbxts-transform-debug";
+import ZirconOutput from "../../../Client/Components/Output";
 
-interface ConsoleProps extends MappedProps {}
-interface ConsoleState {
+export interface DockedConsoleProps extends MappedProps {}
+interface DockedConsoleState {
 	isVisible: boolean;
 	isFullView: boolean;
 	sizeY: number;
 }
 
-const MINIMUM_SIZE = 28; // LOL
 const MAX_SIZE = 28 * 10; // 18
 
 /**
  * The console
  */
-class ZirconConsoleComponent extends Roact.Component<ConsoleProps, ConsoleState> {
+class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedConsoleState> {
 	private sizeY: Roact.RoactBinding<number>;
 	private outputTransparency: Roact.RoactBinding<number>;
 	private sizeYMotor: SingleMotor;
 	private outputTransparencyMotor: SingleMotor;
+	private dispatch: ClientEvent<[], [input: string]>;
 
-	public constructor(props: ConsoleProps) {
+	public constructor(props: DockedConsoleProps) {
 		super(props);
 		this.state = {
 			isVisible: props.isVisible,
@@ -45,11 +51,14 @@ class ZirconConsoleComponent extends Roact.Component<ConsoleProps, ConsoleState>
 		//  Binding updates
 		this.sizeYMotor.onStep((value) => setSizeY(value));
 		this.outputTransparencyMotor.onStep((value) => setOutputTransparency(value));
+
+		const DispatchToServer = Remotes.Client.Get(RemoteId.DispatchToServer);
+		this.dispatch = DispatchToServer;
 	}
 
 	public didMount() {}
 
-	public didUpdate(prevProps: ConsoleProps) {
+	public didUpdate(prevProps: DockedConsoleProps) {
 		if (prevProps.isVisible !== this.props.isVisible) {
 			this.sizeYMotor.setGoal(new Spring(this.props.isVisible ? this.state.sizeY : 0));
 			this.setState({ isVisible: this.props.isVisible });
@@ -70,6 +79,9 @@ class ZirconConsoleComponent extends Roact.Component<ConsoleProps, ConsoleState>
 					// Size={this.sizeY.map((v) => new UDim2(1, 0, 0, v))}
 					Position={this.sizeY.map((v) => new UDim2(0, 0, 1, -v))}
 				>
+					<frame Size={new UDim2(1, 0, 1, -30)} BackgroundTransparency={1}>
+						<ZirconOutput />
+					</frame>
 					{this.props.executionEnabled && (
 						<frame
 							BorderColor3={Color3.fromRGB(40, 40, 40)}
@@ -86,6 +98,10 @@ class ZirconConsoleComponent extends Roact.Component<ConsoleProps, ConsoleState>
 								Focused={this.state.isVisible}
 								AutoFocus
 								Source=""
+								OnEnterSubmit={(input) => {
+									$dbg(input);
+									this.dispatch.SendToServer(input);
+								}}
 							/>
 						</frame>
 					)}
@@ -106,5 +122,8 @@ const mapStateToProps = (state: ConsoleReducer): MappedProps => {
 	};
 };
 
-const ZirconConsole = connect(mapStateToProps)(ZirconConsoleComponent);
-export default ZirconConsole;
+/**
+ * A docked console
+ */
+const ZirconDockedConsole = connect(mapStateToProps)(ZirconConsoleComponent);
+export default ZirconDockedConsole;
