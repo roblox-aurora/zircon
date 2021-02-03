@@ -56,7 +56,7 @@ function OutputError(props: { Message: ConsoleStderrMessage | ConsoleLuauError }
 					if (error.script !== undefined) {
 						let inner = getRichTextColor3(theme, "Cyan", error.script);
 						if (error.source) {
-							inner += ` ${getRichTextColor3(
+							inner += `:${getRichTextColor3(
 								theme,
 								"Yellow",
 								tostring(error.source[0]),
