@@ -41,7 +41,12 @@ namespace Zircon {
 				.then((output) => {
 					print("output");
 					for (const message of output) {
-						StandardOutput.SendToPlayer(player, message);
+						StandardOutput.SendToPlayer(player, {
+							type: "ExecutionOutput",
+							time: DateTime.now().UnixTimestamp,
+							script: "&lt;ZirconConsole&gt;",
+							message,
+						});
 					}
 				})
 				.catch((err: (ZrRuntimeError | ParserError)[]) => {
@@ -51,12 +56,22 @@ namespace Zircon {
 						if (isParserError(error)) {
 							StandardError.SendToPlayer(player, {
 								type: "ParserError",
+								script: "&lt;ZirconConsole&gt;",
+								time: DateTime.now().UnixTimestamp,
+								source: error.node
+									? ([error.node.startPos ?? 0, error.node.endPos ?? 0] as const)
+									: undefined,
 								message: error.message,
 								code: error.code,
 							});
 						} else {
 							StandardError.SendToPlayer(player, {
 								type: "RuntimeError",
+								time: DateTime.now().UnixTimestamp,
+								script: "&lt;ZirconConsole&gt;", // come the fuck on
+								source: error.node
+									? ([error.node.startPos ?? 0, error.node.endPos ?? 0] as const)
+									: undefined,
 								message: error.message,
 								code: error.code,
 							});

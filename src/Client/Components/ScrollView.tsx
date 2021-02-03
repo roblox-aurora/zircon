@@ -2,6 +2,7 @@ import Maid from "@rbxts/maid";
 import Roact from "@rbxts/roact";
 import UIKTheme from "../../Client/UIKit/ThemeContext";
 import delayAsync from "../BuiltInConsole/DelayAsync";
+import ZirconIcon from "./Icon";
 import { CalculatePadding, CalculatePaddingUDim2, WidgetAxisPadding, WidgetPadding } from "./Padding";
 
 interface ScrollViewEvents {
@@ -204,7 +205,9 @@ export default class ScrollView<T extends ScrollViewProps> extends Roact.Compone
 								Size={new UDim2(1, 0, this.state.barScale, 0)}
 								Position={new UDim2(0, 0, this.state.barPos * (1 - this.state.barScale), 0)}
 							>
-								<imagelabel
+								<ZirconIcon Icon="UpArrow" Position={UDim2.fromOffset(2, 2)} />
+								<ZirconIcon Icon="DownArrow" Position={new UDim2(0, 2, 1, -20)} />
+								{/* <imagelabel
 									Image="rbxassetid://2657038128"
 									Size={new UDim2(0, 20, 0, 20)}
 									BackgroundTransparency={1}
@@ -215,7 +218,7 @@ export default class ScrollView<T extends ScrollViewProps> extends Roact.Compone
 									Position={new UDim2(0, 0, 1, -20)}
 									Size={new UDim2(0, 20, 0, 20)}
 									BackgroundTransparency={1}
-								/>
+								/> */}
 							</frame>
 						);
 					}}
@@ -283,55 +286,62 @@ export default class ScrollView<T extends ScrollViewProps> extends Roact.Compone
 
 		const useButtons = Style === "Buttons";
 		return (
-			<frame Size={this.props.Size || new UDim2(1, 0, 1, 0)} BackgroundTransparency={1}>
-				<scrollingframe
-					Ref={(frame) => (this.scrollFrame = frame)}
-					Key="ScrollFrameHost"
-					Size={new UDim2(1, 0, 1, 0)}
-					Position={this.props.Position}
-					BackgroundTransparency={1}
-					BorderSizePixel={0}
-					CanvasSize={new UDim2(0, this.state.size.X, 0, this.state.size.Y)}
-					BottomImage=""
-					MidImage=""
-					ScrollingDirection="Y"
-					TopImage=""
-					Change={{
-						CanvasPosition: this.canvasPositionUpdated,
-					}}
-					ScrollBarThickness={20}
-				>
-					{this.renderContentHandler()}
-					<uipadding Key="ScrollPadding" {...padding} />
-					{this.props[Roact.Children]}
-				</scrollingframe>
-				<frame
-					Key="ScrollFrameBar"
-					BackgroundTransparency={1}
-					Size={true ? new UDim2(0, 20, 1, 0) : new UDim2(0, 0, 1, 0)}
-					Position={new UDim2(1, -20, 0, 0)}
-				>
-					<frame
-						Key="ScrollFrameBarTrackUpButtonContainer"
-						Size={new UDim2(0, 20, 0, 20)}
-						BackgroundTransparency={1}
-					/>
-					<frame
-						Key="ScrollFrameBarTrack"
-						Size={useButtons ? new UDim2(1, 0, 1, -40) : new UDim2(1, 0, 1, 0)}
-						Position={new UDim2(0, 0, 0, useButtons ? 20 : 0)}
-						BackgroundTransparency={1}
-					>
-						{this.renderBar()}
+			<UIKTheme.Consumer
+				render={(theme) => (
+					<frame Size={this.props.Size || new UDim2(1, 0, 1, 0)} BackgroundTransparency={1}>
+						<scrollingframe
+							Ref={(frame) => (this.scrollFrame = frame)}
+							Key="ScrollFrameHost"
+							Size={new UDim2(1, 0, 1, 0)}
+							Position={this.props.Position}
+							BackgroundTransparency={1}
+							BorderSizePixel={0}
+							CanvasSize={new UDim2(0, this.state.size.X, 0, this.state.size.Y)}
+							BottomImage=""
+							MidImage=""
+							ScrollingDirection="Y"
+							TopImage=""
+							Change={{
+								CanvasPosition: this.canvasPositionUpdated,
+							}}
+							ScrollBarThickness={20}
+						>
+							{this.renderContentHandler()}
+							<uipadding Key="ScrollPadding" {...padding} />
+							{this.props[Roact.Children]}
+						</scrollingframe>
+						<frame
+							Key="ScrollFrameBar"
+							BackgroundTransparency={1}
+							Size={true ? new UDim2(0, 20, 1, 0) : new UDim2(0, 0, 1, 0)}
+							Position={new UDim2(1, -20, 0, 0)}
+						>
+							<frame
+								Key="ScrollFrameBarTrackUpButtonContainer"
+								Size={new UDim2(0, 20, 0, 20)}
+								BackgroundTransparency={1}
+							/>
+							<frame
+								Key="ScrollFrameBarTrack"
+								Size={useButtons ? new UDim2(1, 0, 1, -40) : new UDim2(1, 0, 1, 0)}
+								Position={new UDim2(0, 0, 0, useButtons ? 20 : 0)}
+								BackgroundTransparency={0}
+								BackgroundColor3={theme.PrimaryBackgroundColor3}
+								BorderColor3={theme.SecondaryBackgroundColor3}
+								BorderSizePixel={1}
+							>
+								{this.renderBar()}
+							</frame>
+							<frame
+								Key="ScrollFrameBarTrackDnButtonContainer"
+								Size={new UDim2(0, 20, 0, 20)}
+								Position={new UDim2(0, 0, 1, -20)}
+								BackgroundTransparency={1}
+							/>
+						</frame>
 					</frame>
-					<frame
-						Key="ScrollFrameBarTrackDnButtonContainer"
-						Size={new UDim2(0, 20, 0, 20)}
-						Position={new UDim2(0, 0, 1, -20)}
-						BackgroundTransparency={1}
-					/>
-				</frame>
-			</frame>
+				)}
+			/>
 		);
 	}
 }

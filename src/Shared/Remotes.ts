@@ -6,19 +6,33 @@ import { ZrParserErrorCode } from "@rbxts/zirconium-ast/out/Parser";
 interface RuntimeErrorMessage {
 	type: "RuntimeError";
 	message: string;
+	time: number;
+	script?: string;
+	source?: readonly [number, number];
 	code: ZrRuntimeErrorCode;
 }
 
 interface ParserErrorMessage {
 	type: "ParserError";
 	message: string;
+	time: number;
+	script?: string;
+	source?: readonly [number, number];
 	code: ZrParserErrorCode;
 }
 
+interface ExecutionOutput {
+	type: "ExecutionOutput";
+	time: number;
+	script?: string;
+	message: string;
+}
+
+export type Output = ExecutionOutput;
 export type ErrorMessage = RuntimeErrorMessage | ParserErrorMessage;
 
 const Remotes = Net.Definitions.Create({
-	[RemoteId.StandardOutput]: Net.Definitions.Event<[], [output: string]>(),
+	[RemoteId.StandardOutput]: Net.Definitions.Event<[], [output: Output]>(),
 	[RemoteId.StandardError]: Net.Definitions.Event<[], [output: ErrorMessage]>(),
 	[RemoteId.DispatchToServer]: Net.Definitions.Event<[message: string]>([
 		Net.Middleware.TypeChecking((value: unknown): value is string => typeIs(value, "string")),

@@ -34,6 +34,7 @@ export type IconEnum = keyof typeof IconsV2;
 
 interface IconProps {
 	Icon: IconEnum;
+	Position?: UDim2;
 }
 
 export default class ZirconIcon extends Roact.PureComponent<IconProps> {
@@ -51,6 +52,7 @@ export default class ZirconIcon extends Roact.PureComponent<IconProps> {
 							BackgroundTransparency={1}
 							Image={theme.IconAssetUri}
 							ImageRectOffset={icon.Offset}
+							Position={this.props.Position}
 							ImageRectSize={new Vector2(16, 16)}
 						/>
 					);

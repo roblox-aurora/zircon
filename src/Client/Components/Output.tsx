@@ -10,23 +10,38 @@ function OutputError(props: { Message: ConsoleStderrMessage }) {
 	return (
 		<UIKTheme.Consumer
 			render={(theme) => {
-				const grey = getThemeRichTextColor(theme, "Grey");
+				const message = new Array<string>();
+				message.push(
+					getRichTextColor3(
+						theme,
+						"Grey",
+						`[${DateTime.fromUnixTimestamp(error.time).FormatLocalTime("LT", "en-us")}]`,
+					),
+				);
+				// message.push(getRichTextColor3(theme, "Cyan", `[Zr]`));
+				if (error.script !== undefined) {
+					let inner = getRichTextColor3(theme, "Cyan", error.script);
+					if (error.source) {
+						inner += ` ${getRichTextColor3(theme, "Yellow", tostring(error.source[0]))}:${getRichTextColor3(
+							theme,
+							"Yellow",
+							tostring(error.source[1]),
+						)}`;
+					}
+					message.push(getRichTextColor3(theme, "White", inner + " -"));
+				}
+				message.push(getRichTextColor3(theme, "Red", "error"));
+				message.push(getRichTextColor3(theme, "Grey", `ZR${"%.4d".format(error.code)}:`));
+				message.push(getRichTextColor3(theme, "White", error.message));
+
 				return (
 					<textlabel
 						RichText
 						Size={new UDim2(1, 0, 0, 25)}
-						Text={`${getRichTextColor3(theme, "Grey", "[Zr]")} ${getRichTextColor3(
-							theme,
-							"Red",
-							"error",
-						)} ${getRichTextColor3(theme, "Grey", `ZR${"%.4d".format(error.code)}:`)} ${getRichTextColor3(
-							theme,
-							"White",
-							error.message,
-						)}`}
+						Text={message.join(" ")}
 						BackgroundTransparency={1}
 						Font={theme.ConsoleFont}
-						TextColor3={theme.ErrorTextColor3}
+						TextColor3={theme.PrimaryTextColor3}
 						TextXAlignment="Left"
 						TextSize={20}
 					/>
@@ -37,14 +52,29 @@ function OutputError(props: { Message: ConsoleStderrMessage }) {
 }
 
 function OutputMessage(props: { Message: ConsoleStdoutMessage }) {
+	const { message } = props.Message;
+
 	return (
 		<UIKTheme.Consumer
 			render={(theme) => {
+				const str = new Array<string>();
+				str.push(
+					getRichTextColor3(
+						theme,
+						"Grey",
+						`[${DateTime.fromUnixTimestamp(message.time).FormatLocalTime("LT", "en-us")}]`,
+					),
+				);
+				if (message.script !== undefined) {
+					const inner = getRichTextColor3(theme, "Cyan", message.script);
+					str.push(getRichTextColor3(theme, "White", inner + " -"));
+				}
+				str.push(message.message);
 				return (
 					<textlabel
 						RichText
 						Size={new UDim2(1, 0, 0, 25)}
-						Text={`${getRichTextColor3(theme, "Grey", "[Zr]")} ${props.Message.message}`}
+						Text={str.join(" ")}
 						BackgroundTransparency={1}
 						Font={theme.ConsoleFont}
 						TextColor3={theme.PrimaryTextColor3}
