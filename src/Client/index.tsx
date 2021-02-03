@@ -90,18 +90,20 @@ namespace ZirconClient {
 		StandardOutput.Connect((message) =>
 			ZirconClientStore.dispatch({
 				type: ConsoleActionName.AddOutput,
-				message: { type: "stdout", context: ExecutionContext.Server, message },
+				message: { type: "zr:output", context: ExecutionContext.Server, message },
 			}),
 		);
 
-		StandardError.Connect((message) =>
+		StandardError.Connect((err) =>
 			ZirconClientStore.dispatch({
 				type: ConsoleActionName.AddOutput,
-				message: { type: "stderr", context: ExecutionContext.Server, message },
+				message: {
+					type: "zr:error",
+					context: ExecutionContext.Server,
+					error: err,
+				},
 			}),
 		);
-
-		print("registered client");
 	}
 }
 export default ZirconClient;

@@ -1,15 +1,17 @@
+import { ErrorMessage } from "../Shared/Remotes";
+
 export const enum ExecutionContext {
 	Server,
 	Client,
 }
-interface ConsoleStdoutMessage {
-	type: "stdout";
+export interface ConsoleStdoutMessage {
+	type: "zr:output";
 	context: ExecutionContext;
 	message: string;
 }
-interface CosnoleStderrMessage {
-	type: "stderr";
+export interface ConsoleStderrMessage {
+	type: "zr:error";
 	context: ExecutionContext;
-	message: string;
+	error: ErrorMessage;
 }
-export type ConsoleMessage = ConsoleStdoutMessage | CosnoleStderrMessage;
+export type ConsoleMessage = ConsoleStdoutMessage | ConsoleStderrMessage;

@@ -49,9 +49,17 @@ namespace Zircon {
 
 					for (const error of err) {
 						if (isParserError(error)) {
-							StandardError.SendToPlayer(player, `ParserError: ${error.message}`);
+							StandardError.SendToPlayer(player, {
+								type: "ParserError",
+								message: error.message,
+								code: error.code,
+							});
 						} else {
-							StandardError.SendToPlayer(player, `RuntimeError: ${error.message}`);
+							StandardError.SendToPlayer(player, {
+								type: "RuntimeError",
+								message: error.message,
+								code: error.code,
+							});
 						}
 					}
 				});

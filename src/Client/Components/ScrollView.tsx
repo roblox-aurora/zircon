@@ -1,5 +1,6 @@
 import Maid from "@rbxts/maid";
 import Roact from "@rbxts/roact";
+import UIKTheme from "../../Client/UIKit/ThemeContext";
 import delayAsync from "../BuiltInConsole/DelayAsync";
 import { CalculatePadding, CalculatePaddingUDim2, WidgetAxisPadding, WidgetPadding } from "./Padding";
 
@@ -193,26 +194,32 @@ export default class ScrollView<T extends ScrollViewProps> extends Roact.Compone
 	public renderBar() {
 		if (this.state.barShown) {
 			return (
-				<frame
-					BorderSizePixel={0}
-					BackgroundTransparency={1}
-					BackgroundColor3={Color3.fromRGB(255, 0, 255)}
-					Size={new UDim2(1, 0, this.state.barScale, 0)}
-					Position={new UDim2(0, 0, this.state.barPos * (1 - this.state.barScale), 0)}
-				>
-					<imagelabel
-						Image="rbxassetid://2657038128"
-						Size={new UDim2(0, 20, 0, 20)}
-						BackgroundTransparency={1}
-					/>
-					<imagelabel
-						Image="rbxassetid://2657038128"
-						Rotation={180}
-						Position={new UDim2(0, 0, 1, -20)}
-						Size={new UDim2(0, 20, 0, 20)}
-						BackgroundTransparency={1}
-					/>
-				</frame>
+				<UIKTheme.Consumer
+					render={(theme) => {
+						return (
+							<frame
+								BorderSizePixel={0}
+								BackgroundTransparency={0}
+								BackgroundColor3={theme.SecondaryBackgroundColor3}
+								Size={new UDim2(1, 0, this.state.barScale, 0)}
+								Position={new UDim2(0, 0, this.state.barPos * (1 - this.state.barScale), 0)}
+							>
+								<imagelabel
+									Image="rbxassetid://2657038128"
+									Size={new UDim2(0, 20, 0, 20)}
+									BackgroundTransparency={1}
+								/>
+								<imagelabel
+									Image="rbxassetid://2657038128"
+									Rotation={180}
+									Position={new UDim2(0, 0, 1, -20)}
+									Size={new UDim2(0, 20, 0, 20)}
+									BackgroundTransparency={1}
+								/>
+							</frame>
+						);
+					}}
+				/>
 			);
 		} else {
 			return undefined;

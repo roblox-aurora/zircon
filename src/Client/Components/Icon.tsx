@@ -1,5 +1,5 @@
 import Roact from "@rbxts/roact";
-import UIKTheme from "Client/UIKit/ThemeContext";
+import UIKTheme from "../../Client/UIKit/ThemeContext";
 
 interface IconDefinition {
 	Offset: Vector2;
