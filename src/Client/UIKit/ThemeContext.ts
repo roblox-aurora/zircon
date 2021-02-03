@@ -18,6 +18,8 @@ interface UIKTheme {
 	readonly SecondaryBackgroundColor3: Color3;
 	readonly PrimaryTextColor3: Color3;
 	readonly ErrorTextColor3: Color3;
+	readonly ServerContextColor: Color3;
+	readonly ClientContextColor: Color3;
 	readonly ConsoleColors: ConsoleColors;
 }
 
@@ -29,6 +31,8 @@ export const BaseTheme = identity<UIKTheme>({
 	PrimaryTextColor3: Color3.fromRGB(220, 220, 220),
 	SecondaryBackgroundColor3: Color3.fromRGB(24, 26, 31),
 	ErrorTextColor3: Color3.fromRGB(224, 108, 117),
+	ServerContextColor: Color3.fromRGB(0, 255, 144),
+	ClientContextColor: Color3.fromRGB(0, 148, 255),
 
 	ConsoleColors: {
 		Red: Color3.fromRGB(224, 108, 117),

@@ -20,4 +20,10 @@ export interface ConsoleStderrMessage {
 	script?: string;
 	error: ErrorMessage;
 }
-export type ConsoleMessage = ConsoleStdoutMessage | ConsoleStderrMessage | ConsolePlainMessage;
+export interface ConsoleLuauError {
+	type: "luau:error";
+	context: ExecutionContext;
+	error: string;
+	stackTrace?: string[];
+}
+export type ConsoleMessage = ConsoleStdoutMessage | ConsoleStderrMessage | ConsolePlainMessage | ConsoleLuauError;

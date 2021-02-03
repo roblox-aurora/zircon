@@ -83,6 +83,18 @@ namespace ZirconClient {
 		ContextActionService.BindAction(Const.ActionId, activateBuiltInConsole, false, ...keys);
 	}
 
+	// const LogService = game.GetService("LogService");
+	// LogService.MessageOut.Connect((message, messageType) => {
+	// 	if (messageType === Enum.MessageType.MessageError) {
+	// 		ZirconClientStore.dispatch({
+	// 			type: ConsoleActionName.AddOutput,
+	// 			message: { type: "luau:error", error: message, context: ExecutionContext.Client },
+	// 		});
+	// 	}
+	// });
+
+	export function setLuauErrorLoggingEnabled(enabled: boolean) {}
+
 	if (IsClient) {
 		const StandardOutput = Remotes.Client.Get(RemoteId.StandardOutput);
 		const StandardError = Remotes.Client.Get(RemoteId.StandardError);

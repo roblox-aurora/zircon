@@ -1,6 +1,13 @@
 import Roact from "@rbxts/roact";
 import { connect } from "@rbxts/roact-rodux";
-import { ConsoleMessage, ConsolePlainMessage, ConsoleStderrMessage, ConsoleStdoutMessage } from "../../Client/Types";
+import {
+	ConsoleLuauError,
+	ConsoleMessage,
+	ConsolePlainMessage,
+	ConsoleStderrMessage,
+	ConsoleStdoutMessage,
+	ExecutionContext,
+} from "../../Client/Types";
 import UIKTheme, { getRichTextColor3, getThemeRichTextColor } from "../../Client/UIKit/ThemeContext";
 import { ConsoleReducer } from "../../Client/BuiltInConsole/Store/_reducers/ConsoleReducer";
 import ScrollView from "./ScrollView";
@@ -27,46 +34,68 @@ function OutputPlain(props: { Message: ConsolePlainMessage }) {
 	);
 }
 
-function OutputError(props: { Message: ConsoleStderrMessage }) {
-	const { error } = props.Message;
+function OutputError(props: { Message: ConsoleStderrMessage | ConsoleLuauError }) {
+	const output = props.Message;
+
 	return (
 		<UIKTheme.Consumer
 			render={(theme) => {
 				const message = new Array<string>();
-				message.push(
-					getRichTextColor3(
-						theme,
-						"Grey",
-						`[${DateTime.fromUnixTimestamp(error.time).FormatLocalTime("LT", "en-us")}]`,
-					),
-				);
-				// message.push(getRichTextColor3(theme, "Cyan", `[Zr]`));
-				if (error.script !== undefined) {
-					let inner = getRichTextColor3(theme, "Cyan", error.script);
-					if (error.source) {
-						inner += ` ${getRichTextColor3(theme, "Yellow", tostring(error.source[0]))}:${getRichTextColor3(
+
+				if (output.type === "zr:error") {
+					const { error } = output;
+					message.push(
+						getRichTextColor3(
 							theme,
-							"Yellow",
-							tostring(error.source[1]),
-						)}`;
+							"Grey",
+							`[${DateTime.fromUnixTimestamp(error.time).FormatLocalTime("LT", "en-us")}]`,
+						),
+					);
+
+					// message.push(getRichTextColor3(theme, "Cyan", `[Zr]`));
+					if (error.script !== undefined) {
+						let inner = getRichTextColor3(theme, "Cyan", error.script);
+						if (error.source) {
+							inner += ` ${getRichTextColor3(
+								theme,
+								"Yellow",
+								tostring(error.source[0]),
+							)}:${getRichTextColor3(theme, "Yellow", tostring(error.source[1]))}`;
+						}
+						message.push(getRichTextColor3(theme, "White", inner + " -"));
 					}
-					message.push(getRichTextColor3(theme, "White", inner + " -"));
+					message.push(getRichTextColor3(theme, "Red", "error"));
+					message.push(getRichTextColor3(theme, "Grey", `ZR${"%.4d".format(error.code)}:`));
+					message.push(getRichTextColor3(theme, "White", error.message));
+				} else {
+					message.push(getRichTextColor3(theme, "Red", "error"));
+					message.push(getRichTextColor3(theme, "Grey", `Luau`));
+					message.push(getRichTextColor3(theme, "Orange", output.error));
 				}
-				message.push(getRichTextColor3(theme, "Red", "error"));
-				message.push(getRichTextColor3(theme, "Grey", `ZR${"%.4d".format(error.code)}:`));
-				message.push(getRichTextColor3(theme, "White", error.message));
 
 				return (
-					<textlabel
-						RichText
-						Size={new UDim2(1, 0, 0, 25)}
-						Text={message.join(" ")}
-						BackgroundTransparency={1}
-						Font={theme.ConsoleFont}
-						TextColor3={theme.PrimaryTextColor3}
-						TextXAlignment="Left"
-						TextSize={20}
-					/>
+					<frame Size={new UDim2(1, 0, 0, 25)} BackgroundTransparency={1}>
+						<frame
+							Size={new UDim2(0, 5, 1, 0)}
+							BackgroundColor3={
+								props.Message.context === ExecutionContext.Server
+									? theme.ServerContextColor
+									: theme.ClientContextColor
+							}
+							BorderSizePixel={0}
+						/>
+						<textlabel
+							RichText
+							Position={new UDim2(0, 10, 0, 0)}
+							Size={new UDim2(1, -15, 0, 25)}
+							Text={message.join(" ")}
+							BackgroundTransparency={1}
+							Font={theme.ConsoleFont}
+							TextColor3={theme.PrimaryTextColor3}
+							TextXAlignment="Left"
+							TextSize={20}
+						/>
+					</frame>
 				);
 			}}
 		/>
@@ -93,16 +122,28 @@ function OutputMessage(props: { Message: ConsoleStdoutMessage }) {
 				}
 				str.push(message.message);
 				return (
-					<textlabel
-						RichText
-						Size={new UDim2(1, 0, 0, 25)}
-						Text={str.join(" ")}
-						BackgroundTransparency={1}
-						Font={theme.ConsoleFont}
-						TextColor3={theme.PrimaryTextColor3}
-						TextXAlignment="Left"
-						TextSize={20}
-					/>
+					<frame Size={new UDim2(1, 0, 0, 25)} BackgroundTransparency={1}>
+						<frame
+							Size={new UDim2(0, 5, 1, 0)}
+							BackgroundColor3={
+								props.Message.context === ExecutionContext.Server
+									? theme.ServerContextColor
+									: theme.ClientContextColor
+							}
+							BorderSizePixel={0}
+						/>
+						<textlabel
+							RichText
+							Position={new UDim2(0, 10, 0, 0)}
+							Size={new UDim2(1, 0, 0, 25)}
+							Text={str.join(" ")}
+							BackgroundTransparency={1}
+							Font={theme.ConsoleFont}
+							TextColor3={theme.PrimaryTextColor3}
+							TextXAlignment="Left"
+							TextSize={20}
+						/>
+					</frame>
 				);
 			}}
 		/>
@@ -132,11 +173,15 @@ class OutputComponent extends Roact.Component<OutputProps, OutputState> {
 			<UIKTheme.Consumer
 				render={(theme) => {
 					return (
-						<ScrollView AutoScrollToEnd Padding={{ PaddingHorizontal: 10 }}>
+						<ScrollView
+							AutoScrollToEnd
+							Padding={{ PaddingHorizontal: 5, PaddingVertical: 5 }}
+							ItemPadding={new UDim(0, 5)}
+						>
 							{this.state.output.map((r) => {
 								if (r.type === "zr:output") {
 									return <OutputMessage Message={r} />;
-								} else if (r.type === "zr:error") {
+								} else if (r.type === "zr:error" || r.type === "luau:error") {
 									return <OutputError Message={r} />;
 								} else {
 									return <OutputPlain Message={r} />;
