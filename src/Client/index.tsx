@@ -52,7 +52,7 @@ namespace ZirconClient {
 
 	interface ConsoleOptions {
 		Keys?: Array<Enum.KeyCode>;
-		ConsoleComponent?: typeof Roact.Component;
+		ConsoleComponent?: typeof Roact.Component | ((props: defined) => Roact.Element);
 	}
 
 	/**

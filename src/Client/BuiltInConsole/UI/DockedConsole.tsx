@@ -12,6 +12,7 @@ import { $dbg } from "rbxts-transform-debug";
 import ZirconOutput from "../../../Client/Components/Output";
 import { DispatchParam } from "@rbxts/rodux";
 import ZirconClientStore from "../Store";
+import UIKTheme from "../../../Client/UIKit/ThemeContext";
 
 export interface DockedConsoleProps extends MappedProps, MappedDispatch {}
 interface DockedConsoleState {
@@ -69,47 +70,55 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 
 	public render() {
 		return (
-			<screengui DisplayOrder={10000}>
-				<frame
-					Key="ZirconViewport"
-					BorderSizePixel={0}
-					BackgroundTransparency={this.outputTransparency}
-					BackgroundColor3={Color3.fromRGB(33, 37, 43)}
-					//BackgroundColor3={Color3.fromRGB(24, 26, 31)}
-					ClipsDescendants
-					Size={new UDim2(1, 0, 0, this.state.sizeY)}
-					// Size={this.sizeY.map((v) => new UDim2(1, 0, 0, v))}
-					Position={this.sizeY.map((v) => new UDim2(0, 0, 1, -v))}
-				>
-					<frame Size={new UDim2(1, 0, 1, -30)} BackgroundTransparency={1}>
-						<ZirconOutput />
-					</frame>
-					{this.props.executionEnabled && (
+			<UIKTheme.Consumer
+				render={(theme) => (
+					<screengui DisplayOrder={10000}>
 						<frame
-							BorderColor3={Color3.fromRGB(40, 40, 40)}
-							//BorderSizePixel={0}
-							// BackgroundColor3={Color3.fromRGB(33, 37, 43)}
-							BackgroundColor3={Color3.fromRGB(24, 26, 31)}
-							Size={new UDim2(1, 0, 0, 28)}
-							Position={new UDim2(0, 0, 1, -28)}
+							Key="ZirconViewport"
+							BorderSizePixel={0}
+							//BackgroundTransparency={this.outputTransparency}
+							BackgroundTransparency={theme.Dock.Transparency ?? this.outputTransparency}
+							BackgroundColor3={theme.PrimaryBackgroundColor3}
+							ClipsDescendants
+							Size={new UDim2(1, 0, 0, this.state.sizeY)}
+							Position={this.sizeY.map((v) => new UDim2(0, 0, 1, -v))}
 						>
-							<ZirconIconButton Size={new UDim2(0, 16, 0, 28)} Icon="RightArrow" OnClick={() => {}} />
-							<ZirconSyntaxTextBox
-								Size={new UDim2(1, -16, 1, 0)}
-								Position={new UDim2(0, 16, 0, 0)}
-								Focused={this.state.isVisible}
-								AutoFocus
-								Source=""
-								OnEnterSubmit={(input) => {
-									$dbg(input);
-									this.props.addMessage("> " + input);
-									this.dispatch.SendToServer(input);
-								}}
-							/>
+							<frame
+								Size={new UDim2(1, 0, 1, this.props.executionEnabled ? -30 : 0)}
+								BackgroundTransparency={1}
+							>
+								<ZirconOutput />
+							</frame>
+							{this.props.executionEnabled && (
+								<frame
+									BorderColor3={Color3.fromRGB(40, 40, 40)}
+									BackgroundColor3={theme.SecondaryBackgroundColor3}
+									Size={new UDim2(1, 0, 0, 28)}
+									Position={new UDim2(0, 0, 1, -28)}
+								>
+									<ZirconIconButton
+										Size={new UDim2(0, 16, 0, 28)}
+										Icon="RightArrow"
+										OnClick={() => {}}
+									/>
+									<ZirconSyntaxTextBox
+										Size={new UDim2(1, -16, 1, 0)}
+										Position={new UDim2(0, 16, 0, 0)}
+										Focused={this.state.isVisible}
+										AutoFocus
+										Source=""
+										OnEnterSubmit={(input) => {
+											$dbg(input);
+											this.props.addMessage("> " + input);
+											this.dispatch.SendToServer(input);
+										}}
+									/>
+								</frame>
+							)}
 						</frame>
-					)}
-				</frame>
-			</screengui>
+					</screengui>
+				)}
+			/>
 		);
 	}
 }

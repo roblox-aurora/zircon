@@ -10,6 +10,21 @@ interface ConsoleColors {
 	readonly Red: Color3;
 }
 
+export interface ThemeSyntaxColors {
+	VariableColor: Color3 | string;
+	KeywordColor: Color3 | string;
+	NumberColor: Color3 | string;
+	StringColor: Color3 | string;
+	OperatorColor: Color3 | string;
+	CommentColor?: Color3 | string;
+	BooleanLiteral?: Color3 | string;
+	ControlCharacters: Color3 | string;
+}
+
+interface DockOptions {
+	Transparency?: number;
+}
+
 interface UIKTheme {
 	readonly IconAssetUri: string;
 	readonly Font: Enum.Font | InferEnumNames<Enum.Font>;
@@ -21,6 +36,8 @@ interface UIKTheme {
 	readonly ServerContextColor: Color3;
 	readonly ClientContextColor: Color3;
 	readonly ConsoleColors: ConsoleColors;
+	readonly Dock: DockOptions;
+	readonly SyntaxHighlighter?: ThemeSyntaxColors;
 }
 
 export const BaseTheme = identity<UIKTheme>({
@@ -33,6 +50,7 @@ export const BaseTheme = identity<UIKTheme>({
 	ErrorTextColor3: Color3.fromRGB(224, 108, 117),
 	ServerContextColor: Color3.fromRGB(0, 255, 144),
 	ClientContextColor: Color3.fromRGB(0, 148, 255),
+	Dock: {},
 
 	ConsoleColors: {
 		Red: Color3.fromRGB(224, 108, 117),
@@ -46,10 +64,28 @@ export const BaseTheme = identity<UIKTheme>({
 });
 
 type Color3Keys<T> = { [P in keyof T]: T[P] extends Color3 ? P & string : never }[keyof T];
+type Color3ToHex<T> = {
+	[P in keyof T]: T[P] extends Color3 | string
+		? string
+		: T[P] extends Color3 | string | undefined
+		? string | undefined
+		: T[P];
+};
 export function getThemeRichTextColor(theme: UIKTheme, color3: Color3Keys<UIKTheme["ConsoleColors"]>) {
 	const color = theme.ConsoleColors[color3];
 	const numeric = ((color.r * 255) << 16) | ((color.g * 255) << 8) | ((color.b * 255) << 0);
 	return "#%.6X".format(numeric);
+}
+
+export function convertColorObjectToHex<T>(values: T): Color3ToHex<T> {
+	const newArr: Partial<Record<keyof T, unknown>> = {};
+	for (const [key, value] of pairs(values)) {
+		if (typeIs(value, "Color3")) {
+			const numeric = ((value.r * 255) << 16) | ((value.g * 255) << 8) | ((value.b * 255) << 0);
+			newArr[key] = "#%.6X".format(numeric);
+		}
+	}
+	return newArr as Color3ToHex<T>;
 }
 
 export function getRichTextColor3(theme: UIKTheme, color3: Color3Keys<UIKTheme["ConsoleColors"]>, text: string) {
