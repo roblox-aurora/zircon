@@ -43,6 +43,6 @@
     "@rbxts/services": "^1.1.1",
     "@rbxts/snapdragon": "^2.0.0-beta.0",
     "@rbxts/t": "^1.3.5",
-    "@rbxts/zirconium": "^1.0.0-beta.2"
+    "@rbxts/zirconium": "^1.0.0-beta.4"
   }
 }

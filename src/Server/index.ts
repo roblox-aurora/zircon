@@ -4,7 +4,7 @@ import { RemoteId } from "../RemoteId";
 import { GetCommandService } from "../Services";
 import Lazy from "../Shared/Lazy";
 import { ZrRuntimeError } from "@rbxts/zirconium/out/Runtime/Runtime";
-import { ParserError } from "@rbxts/zirconium-ast/out/Parser";
+import { ZrParserError } from "@rbxts/zirconium-ast/out/Parser";
 const IsServer = RunService.IsServer();
 
 namespace Zircon {
@@ -22,7 +22,7 @@ namespace Zircon {
 		// return ZrSO4Definitions;
 	});
 
-	function isParserError(err: ZrRuntimeError | ParserError): err is ParserError {
+	function isParserError(err: ZrRuntimeError | ZrParserError): err is ZrParserError {
 		return err.code >= 1000;
 	}
 
@@ -49,7 +49,7 @@ namespace Zircon {
 						});
 					}
 				})
-				.catch((err: (ZrRuntimeError | ParserError)[]) => {
+				.catch((err: (ZrRuntimeError | ZrParserError)[]) => {
 					print("err", err);
 
 					for (const error of err) {
