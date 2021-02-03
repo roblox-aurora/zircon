@@ -1,7 +1,7 @@
 import Roact from "@rbxts/roact";
 import { SingleMotor, Spring } from "@rbxts/flipper";
 import { connect } from "@rbxts/roact-rodux";
-import { ConsoleReducer } from "../Store/_reducers/ConsoleReducer";
+import { ConsoleActionName, ConsoleReducer } from "../Store/_reducers/ConsoleReducer";
 import ZirconSyntaxTextBox from "../../Components/SyntaxTextBox";
 import { ZirconIconButton } from "../../Components/Icon";
 import Zircon from "../..";
@@ -10,8 +10,10 @@ import { RemoteId } from "../../../RemoteId";
 import ClientEvent from "@rbxts/net/out/client/ClientEvent";
 import { $dbg } from "rbxts-transform-debug";
 import ZirconOutput from "../../../Client/Components/Output";
+import { DispatchParam } from "@rbxts/rodux";
+import ZirconClientStore from "../Store";
 
-export interface DockedConsoleProps extends MappedProps {}
+export interface DockedConsoleProps extends MappedProps, MappedDispatch {}
 interface DockedConsoleState {
 	isVisible: boolean;
 	isFullView: boolean;
@@ -100,6 +102,7 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 								Source=""
 								OnEnterSubmit={(input) => {
 									$dbg(input);
+									this.props.addMessage("> " + input);
 									this.dispatch.SendToServer(input);
 								}}
 							/>
@@ -111,6 +114,9 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 	}
 }
 
+interface MappedDispatch {
+	addMessage: (message: string) => void;
+}
 interface MappedProps {
 	isVisible: boolean;
 	executionEnabled: boolean;
@@ -121,9 +127,22 @@ const mapStateToProps = (state: ConsoleReducer): MappedProps => {
 		executionEnabled: state.executionEnabled,
 	};
 };
+const mapPropsToDispatch = (dispatch: DispatchParam<ZirconClientStore>): MappedDispatch => {
+	return {
+		addMessage: (message) => {
+			dispatch({
+				type: ConsoleActionName.AddOutput,
+				message: {
+					type: "plain",
+					message,
+				},
+			});
+		},
+	};
+};
 
 /**
  * A docked console
  */
-const ZirconDockedConsole = connect(mapStateToProps)(ZirconConsoleComponent);
+const ZirconDockedConsole = connect(mapStateToProps, mapPropsToDispatch)(ZirconConsoleComponent);
 export default ZirconDockedConsole;

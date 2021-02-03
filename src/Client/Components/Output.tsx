@@ -1,9 +1,31 @@
 import Roact from "@rbxts/roact";
 import { connect } from "@rbxts/roact-rodux";
-import { ConsoleMessage, ConsoleStderrMessage, ConsoleStdoutMessage } from "../../Client/Types";
+import { ConsoleMessage, ConsolePlainMessage, ConsoleStderrMessage, ConsoleStdoutMessage } from "../../Client/Types";
 import UIKTheme, { getRichTextColor3, getThemeRichTextColor } from "../../Client/UIKit/ThemeContext";
 import { ConsoleReducer } from "../../Client/BuiltInConsole/Store/_reducers/ConsoleReducer";
 import ScrollView from "./ScrollView";
+
+function OutputPlain(props: { Message: ConsolePlainMessage }) {
+	const { message } = props.Message;
+	return (
+		<UIKTheme.Consumer
+			render={(theme) => {
+				return (
+					<textlabel
+						RichText
+						Size={new UDim2(1, 0, 0, 25)}
+						Text={message}
+						BackgroundTransparency={1}
+						Font={theme.ConsoleFont}
+						TextColor3={theme.PrimaryTextColor3}
+						TextXAlignment="Left"
+						TextSize={20}
+					/>
+				);
+			}}
+		/>
+	);
+}
 
 function OutputError(props: { Message: ConsoleStderrMessage }) {
 	const { error } = props.Message;
@@ -111,9 +133,15 @@ class OutputComponent extends Roact.Component<OutputProps, OutputState> {
 				render={(theme) => {
 					return (
 						<ScrollView AutoScrollToEnd Padding={{ PaddingHorizontal: 10 }}>
-							{this.state.output.map((r) =>
-								r.type === "zr:error" ? <OutputError Message={r} /> : <OutputMessage Message={r} />,
-							)}
+							{this.state.output.map((r) => {
+								if (r.type === "zr:output") {
+									return <OutputMessage Message={r} />;
+								} else if (r.type === "zr:error") {
+									return <OutputError Message={r} />;
+								} else {
+									return <OutputPlain Message={r} />;
+								}
+							})}
 						</ScrollView>
 					);
 				}}

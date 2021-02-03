@@ -10,10 +10,14 @@ export interface ConsoleStdoutMessage {
 	script?: string;
 	message: Output;
 }
+export interface ConsolePlainMessage {
+	type: "plain";
+	message: string;
+}
 export interface ConsoleStderrMessage {
 	type: "zr:error";
 	context: ExecutionContext;
 	script?: string;
 	error: ErrorMessage;
 }
-export type ConsoleMessage = ConsoleStdoutMessage | ConsoleStderrMessage;
+export type ConsoleMessage = ConsoleStdoutMessage | ConsoleStderrMessage | ConsolePlainMessage;
