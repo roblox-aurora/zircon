@@ -3,6 +3,7 @@ import { LocalizationService } from "@rbxts/services";
 import { ZirconDebugInformation } from "../../Shared/Remotes";
 import { ConsoleLuauError, ConsoleMessage, ConsoleStderrMessage, ExecutionContext } from "../../Client/Types";
 import UIKTheme, { getRichTextColor3 } from "../../Client/UIKit/ThemeContext";
+import { ZrRichTextHighlighter } from "@rbxts/zirconium-ast";
 
 function OutputError(props: { Message: ConsoleStderrMessage | ConsoleLuauError }) {
 	const output = props.Message;
@@ -80,16 +81,40 @@ function ErrorLine({ TokenInfo }: { TokenInfo: ZirconDebugInformation }) {
 		<UIKTheme.Consumer
 			render={(theme) => {
 				return (
-					<textlabel
-						BackgroundTransparency={1}
-						TextXAlignment="Left"
-						RichText
-						Font={theme.ConsoleFont}
-						TextSize={20}
-						TextColor3={theme.PrimaryTextColor3}
-						Text={getErrorLine(TokenInfo)}
-						Size={new UDim2(1, 0, 0, 30)}
-					/>
+					<frame BackgroundTransparency={1} Size={new UDim2(1, 0, 0, 30)} Position={new UDim2(0.1, 0, 0, 0)}>
+						<textlabel
+							Text={tostring(TokenInfo.LineAndColumn[0])}
+							TextColor3={theme.PrimaryBackgroundColor3}
+							BackgroundColor3={theme.PrimaryTextColor3}
+							Size={new UDim2(0, 20, 1, 0)}
+							Position={new UDim2(0, 20, 0, 0)}
+							Font={theme.ConsoleFont}
+							TextSize={20}
+							TextXAlignment="Center"
+						/>
+						<textlabel
+							RichText
+							BackgroundTransparency={1}
+							Size={new UDim2(1, 0, 0, 30)}
+							Position={new UDim2(0, 20 + 25, 0, 0)}
+							Text={new ZrRichTextHighlighter(TokenInfo.Line).parse()}
+							Font={theme.ConsoleFont}
+							TextSize={20}
+							TextXAlignment="Left"
+							TextColor3={theme.PrimaryTextColor3}
+						/>
+						<textlabel
+							BackgroundTransparency={1}
+							TextXAlignment="Left"
+							RichText
+							Font={theme.ConsoleFont}
+							TextSize={20}
+							TextColor3={theme.PrimaryTextColor3}
+							Text={getErrorLine(TokenInfo).ErrorLine}
+							Size={new UDim2(1, 0, 0, 30)}
+							Position={new UDim2(0, 20 + 25, 0, 0)}
+						/>
+					</frame>
 				);
 			}}
 		/>
@@ -98,18 +123,25 @@ function ErrorLine({ TokenInfo }: { TokenInfo: ZirconDebugInformation }) {
 
 function getErrorLine({ Line, TokenLinePosition }: ZirconDebugInformation) {
 	let resultingString = "";
+	let errorArrows = "";
 	for (let i = 1; i <= Line.size(); i++) {
-		const char = Line.sub(i, i);
+		const char = " "; // Line.sub(i, i);
 		if (i === TokenLinePosition[0]) {
 			resultingString += '<font color="#ff0000"><u>' + char;
+			errorArrows += '<font color="#ff0000"><u>^';
+		} else if (i > TokenLinePosition[0] && i < TokenLinePosition[1]) {
+			resultingString += " ";
+			errorArrows += "^";
 		} else if (i === TokenLinePosition[1]) {
 			resultingString += char + "</u></font>";
+			errorArrows += char + "^</u></font>";
 		} else {
 			resultingString += char;
 		}
-		//resultingString +=
 	}
-	return resultingString;
+	return {
+		ErrorLine: resultingString,
+	};
 }
 
 interface ZirconOutputMessageProps {
