@@ -12,11 +12,20 @@ interface RuntimeErrorMessage {
 	code: ZrRuntimeErrorCode;
 }
 
+export interface ZirconDebugInformation {
+	LineAndColumn: readonly [number, number];
+	CodeLine: readonly [number, number];
+	TokenPosition: readonly [number, number];
+	TokenLinePosition: readonly [number, number];
+	Line: string;
+}
+
 interface ParserErrorMessage {
 	type: "ParserError";
 	message: string;
 	time: number;
 	script?: string;
+	debug?: ZirconDebugInformation;
 	source?: readonly [number, number];
 	code: ZrParserErrorCode;
 }

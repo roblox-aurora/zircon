@@ -1,9 +1,7 @@
 import Zr from "@rbxts/zirconium";
 import ZrScript from "@rbxts/zirconium/out/Runtime/Script";
 import { ZrScriptCreateResult } from "@rbxts/zirconium/out/Runtime/ScriptContext";
-import { $dbg } from "rbxts-transform-debug";
 import { GetCommandService } from "../Services";
-import { ZirconRegistryService } from "./RegistryService";
 
 interface stdio {
 	stdout: Array<string>;
@@ -33,7 +31,6 @@ export namespace ZirconDispatchService {
 
 	export async function ExecuteScript(player: Player, text: string) {
 		const Registry = GetCommandService("RegistryService");
-		$dbg(text);
 		return Promise.defer<ZrScript>((resolve, reject) => {
 			const [mainScript] = Registry.GetScriptContextsForPlayer(player);
 			const execution = mainScript.createScriptFromSource(text);

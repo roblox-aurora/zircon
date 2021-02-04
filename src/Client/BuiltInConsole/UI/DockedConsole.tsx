@@ -4,15 +4,14 @@ import { connect } from "@rbxts/roact-rodux";
 import { ConsoleActionName, ConsoleReducer } from "../Store/_reducers/ConsoleReducer";
 import ZirconSyntaxTextBox from "../../Components/SyntaxTextBox";
 import { ZirconIconButton } from "../../Components/Icon";
-import Zircon from "../..";
 import Remotes from "../../../Shared/Remotes";
 import { RemoteId } from "../../../RemoteId";
 import ClientEvent from "@rbxts/net/out/client/ClientEvent";
-import { $dbg } from "rbxts-transform-debug";
 import ZirconOutput from "../../../Client/Components/Output";
 import { DispatchParam } from "@rbxts/rodux";
 import ZirconClientStore from "../Store";
 import UIKTheme from "../../../Client/UIKit/ThemeContext";
+import { ZrRichTextHighlighter } from "@rbxts/zirconium-ast";
 
 export interface DockedConsoleProps extends MappedProps, MappedDispatch {}
 interface DockedConsoleState {
@@ -108,8 +107,7 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 										AutoFocus
 										Source=""
 										OnEnterSubmit={(input) => {
-											$dbg(input);
-											this.props.addMessage("> " + input);
+											this.props.addMessage(input);
 											this.dispatch.SendToServer(input);
 										}}
 									/>
@@ -138,12 +136,12 @@ const mapStateToProps = (state: ConsoleReducer): MappedProps => {
 };
 const mapPropsToDispatch = (dispatch: DispatchParam<ZirconClientStore>): MappedDispatch => {
 	return {
-		addMessage: (message) => {
+		addMessage: (source) => {
 			dispatch({
 				type: ConsoleActionName.AddOutput,
 				message: {
-					type: "plain",
-					message,
+					type: "zr:execute",
+					source,
 				},
 			});
 		},

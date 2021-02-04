@@ -14,6 +14,12 @@ export interface ConsolePlainMessage {
 	type: "plain";
 	message: string;
 }
+
+export interface ConsoleSyntaxMessage {
+	type: "zr:execute";
+	source: string;
+}
+
 export interface ConsoleStderrMessage {
 	type: "zr:error";
 	context: ExecutionContext;
@@ -26,4 +32,9 @@ export interface ConsoleLuauError {
 	error: string;
 	stackTrace?: string[];
 }
-export type ConsoleMessage = ConsoleStdoutMessage | ConsoleStderrMessage | ConsolePlainMessage | ConsoleLuauError;
+export type ConsoleMessage =
+	| ConsoleStdoutMessage
+	| ConsoleStderrMessage
+	| ConsolePlainMessage
+	| ConsoleLuauError
+	| ConsoleSyntaxMessage;

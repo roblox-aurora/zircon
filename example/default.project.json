@@ -1,5 +1,5 @@
 {
-    "name": "zirconium-test",
+    "name": "@zircon/example",
     "tree": {
         "$className": "DataModel",
         "ServerScriptService": {

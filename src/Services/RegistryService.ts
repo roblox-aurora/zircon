@@ -28,9 +28,11 @@ export namespace ZirconRegistryService {
 	export function GetScriptContextsForPlayer(player: Player) {
 		let contextArray: Array<ZrScriptContext>;
 		if (!contexts.has(player)) {
+			print("createContext", player);
 			contextArray = [];
 			const context = new ZrScriptContext();
 			for (const [name, fun] of playerFunctionIterator(player)) {
+				print("registerGlobal", name, fun);
 				context.registerGlobal(name, fun);
 			}
 			contextArray.push(context);
@@ -80,6 +82,10 @@ export namespace ZirconRegistryService {
 	Players.PlayerAdded.Connect((player) => {
 		playerGroupMap.set(player, [User]);
 	});
+
+	for (const player of Players.GetPlayers()) {
+		playerGroupMap.set(player, [User]);
+	}
 }
 
 export type ZirconRegistryService = typeof ZirconRegistryService;

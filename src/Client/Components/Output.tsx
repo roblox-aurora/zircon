@@ -6,32 +6,62 @@ import {
 	ConsolePlainMessage,
 	ConsoleStderrMessage,
 	ConsoleStdoutMessage,
+	ConsoleSyntaxMessage,
 	ExecutionContext,
 } from "../../Client/Types";
 import UIKTheme, { getRichTextColor3, getThemeRichTextColor } from "../../Client/UIKit/ThemeContext";
 import { ConsoleReducer } from "../../Client/BuiltInConsole/Store/_reducers/ConsoleReducer";
 import ScrollView from "./ScrollView";
+import { ZrRichTextHighlighter } from "@rbxts/zirconium-ast";
+import ZirconIcon from "./Icon";
+import { LocalizationService } from "@rbxts/services";
+import ZirconOutputMessage from "./OutputMessage";
 
-function OutputPlain(props: { Message: ConsolePlainMessage }) {
-	const { message } = props.Message;
-	return (
-		<UIKTheme.Consumer
-			render={(theme) => {
-				return (
-					<textlabel
-						RichText
-						Size={new UDim2(1, 0, 0, 25)}
-						Text={message}
-						BackgroundTransparency={1}
-						Font={theme.ConsoleFont}
-						TextColor3={theme.PrimaryTextColor3}
-						TextXAlignment="Left"
-						TextSize={20}
-					/>
-				);
-			}}
-		/>
-	);
+function OutputPlain(props: { Message: ConsolePlainMessage | ConsoleSyntaxMessage }) {
+	const message = props.Message;
+	if (message.type === "zr:execute") {
+		return (
+			<UIKTheme.Consumer
+				render={(theme) => {
+					return (
+						<frame Size={new UDim2(1, 0, 0, 25)} BackgroundTransparency={1}>
+							<ZirconIcon Icon="RightArrow" Position={new UDim2(0, -3, 0, 6)} />
+							<textlabel
+								RichText
+								Position={new UDim2(0, 20, 0, 0)}
+								Size={new UDim2(1, -20, 1, 0)}
+								Text={new ZrRichTextHighlighter(message.source).parse()}
+								BackgroundTransparency={1}
+								Font={theme.ConsoleFont}
+								TextColor3={theme.PrimaryTextColor3}
+								TextXAlignment="Left"
+								TextSize={20}
+							/>
+						</frame>
+					);
+				}}
+			/>
+		);
+	} else {
+		return (
+			<UIKTheme.Consumer
+				render={(theme) => {
+					return (
+						<textlabel
+							RichText
+							Size={new UDim2(1, 0, 0, 25)}
+							Text={message.message}
+							BackgroundTransparency={1}
+							Font={theme.ConsoleFont}
+							TextColor3={theme.PrimaryTextColor3}
+							TextXAlignment="Left"
+							TextSize={20}
+						/>
+					);
+				}}
+			/>
+		);
+	}
 }
 
 function OutputError(props: { Message: ConsoleStderrMessage | ConsoleLuauError }) {
@@ -48,7 +78,10 @@ function OutputError(props: { Message: ConsoleStderrMessage | ConsoleLuauError }
 						getRichTextColor3(
 							theme,
 							"Grey",
-							`[${DateTime.fromUnixTimestamp(error.time).FormatLocalTime("LT", "en-us")}]`,
+							`[${DateTime.fromUnixTimestamp(error.time).FormatLocalTime(
+								"LT",
+								LocalizationService.SystemLocaleId,
+							)}]`,
 						),
 					);
 
@@ -113,7 +146,10 @@ function OutputMessage(props: { Message: ConsoleStdoutMessage }) {
 					getRichTextColor3(
 						theme,
 						"Grey",
-						`[${DateTime.fromUnixTimestamp(message.time).FormatLocalTime("LT", "en-us")}]`,
+						`[${DateTime.fromUnixTimestamp(message.time).FormatLocalTime(
+							"LT",
+							LocalizationService.SystemLocaleId,
+						)}]`,
 					),
 				);
 				if (message.script !== undefined) {
@@ -182,7 +218,8 @@ class OutputComponent extends Roact.Component<OutputProps, OutputState> {
 								if (r.type === "zr:output") {
 									return <OutputMessage Message={r} />;
 								} else if (r.type === "zr:error" || r.type === "luau:error") {
-									return <OutputError Message={r} />;
+									// return <OutputError Message={r} />;
+									return <ZirconOutputMessage Message={r} />;
 								} else {
 									return <OutputPlain Message={r} />;
 								}
