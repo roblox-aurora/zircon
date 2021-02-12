@@ -20,7 +20,7 @@
         ],
 
         "outDir": "build",
-        "baseUrl": ".",
+        "baseUrl": "../src",
 
         "paths": {
             "@zircon": ["../src"],
