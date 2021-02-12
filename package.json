@@ -31,7 +31,7 @@
     "prettier": "^2.1.2",
     "rbxts-transform-debug": "^0.2.0",
     "rbxts-transform-env": "^0.3.0",
-    "typescript": "^4.0.3"
+    "typescript": "^4.1.3"
   },
   "dependencies": {
     "@rbxts/flipper": "^1.2.0",

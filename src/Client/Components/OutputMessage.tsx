@@ -1,57 +1,74 @@
 import Roact from "@rbxts/roact";
 import { LocalizationService } from "@rbxts/services";
-import { ZirconDebugInformation, ZirconNetworkMessageType } from "../../Shared/Remotes";
-import { ConsoleLuauError, ConsoleMessage, ZrErrorMessage, ZirconContext, ZirconMessageType } from "../../Client/Types";
+import {
+	ZrOutputMessage,
+	ZirconLogMessage,
+	ZirconMessageType,
+	ZirconLogLevel,
+	ZirconContext,
+	ZrErrorMessage,
+	ZirconLogError,
+	ConsoleMessage,
+} from "../../Client/Types";
 import ThemeContext, {
 	getRichTextColor3,
-	getThemeRichTextColor,
 	ZirconThemeDefinition,
+	getThemeRichTextColor,
 } from "../../Client/UIKit/ThemeContext";
+import { ZirconDebugInformation, ZirconNetworkMessageType } from "../../Shared/Remotes";
 import { ZrRichTextHighlighter } from "@rbxts/zirconium-ast";
 
-function OutputError(props: { Message: ZrErrorMessage | ConsoleLuauError }) {
+interface OutputMessageProps {
+	Message: ZrOutputMessage | ZirconLogMessage;
+}
+function OutputMessage(props: OutputMessageProps) {
 	const output = props.Message;
 
 	return (
 		<ThemeContext.Consumer
 			render={(theme) => {
-				const message = new Array<string>();
+				const messages = new Array<string>();
 
-				if (output.type === ZirconMessageType.ZirconiumError) {
-					const { error } = output;
-					message.push(
-						getRichTextColor3(
-							theme,
-							"Grey",
-							`[${DateTime.fromUnixTimestamp(error.time).FormatLocalTime(
-								"LT",
-								LocalizationService.SystemLocaleId,
-							)}]`,
-						),
-					);
-
-					if (error.type === ZirconNetworkMessageType.ZirconStandardErrorMessage) {
-					} else {
-						// message.push(getRichTextColor3(theme, "Cyan", `[Zr]`));
-						if (error.script !== undefined) {
-							let inner = getRichTextColor3(theme, "Cyan", error.script);
-							if (error.source) {
-								inner += `:${getRichTextColor3(
-									theme,
-									"Yellow",
-									tostring(error.source[0]),
-								)}:${getRichTextColor3(theme, "Yellow", tostring(error.source[1]))}`;
-							}
-							message.push(getRichTextColor3(theme, "White", inner + " -"));
-						}
-						message.push(getRichTextColor3(theme, "Red", "error"));
-						message.push(getRichTextColor3(theme, "Grey", `ZR${"%.4d".format(error.code)}:`));
-						message.push(getRichTextColor3(theme, "White", error.message));
+				switch (output.type) {
+					case ZirconMessageType.ZirconiumOutput: {
+						const { message } = output;
+						messages.push(
+							getRichTextColor3(
+								theme,
+								"Grey",
+								`[${DateTime.fromUnixTimestamp(message.time).FormatLocalTime(
+									"LT",
+									LocalizationService.SystemLocaleId,
+								)}]`,
+							),
+						);
+						break;
 					}
-				} else {
-					message.push(getRichTextColor3(theme, "Red", "error"));
-					message.push(getRichTextColor3(theme, "Grey", `Luau`));
-					message.push(getRichTextColor3(theme, "Orange", output.error));
+					case ZirconMessageType.ZirconLogOutputMesage: {
+						const { message } = output;
+						messages.push(
+							getRichTextColor3(
+								theme,
+								"Grey",
+								`[${DateTime.fromUnixTimestamp(message.time).FormatLocalTime(
+									"LT",
+									LocalizationService.SystemLocaleId,
+								)}]`,
+							),
+						);
+
+						if (message.level === ZirconLogLevel.Info) {
+							messages.push(getRichTextColor3(theme, "Cyan", "info"));
+							messages.push(getRichTextColor3(theme, "White", message.message));
+						} else if (message.level === ZirconLogLevel.Debug) {
+							messages.push(getRichTextColor3(theme, "Green", "debug"));
+							messages.push(getRichTextColor3(theme, "White", message.message));
+						} else if (message.level === ZirconLogLevel.Warning) {
+							messages.push(getRichTextColor3(theme, "Orange", "warn"));
+							messages.push(getRichTextColor3(theme, "White", message.message));
+						}
+						break;
+					}
 				}
 
 				return (
@@ -69,7 +86,93 @@ function OutputError(props: { Message: ZrErrorMessage | ConsoleLuauError }) {
 							RichText
 							Position={new UDim2(0, 10, 0, 0)}
 							Size={new UDim2(1, -15, 0, 25)}
-							Text={message.join(" ")}
+							Text={messages.join(" ")}
+							BackgroundTransparency={1}
+							Font={theme.ConsoleFont}
+							TextColor3={theme.PrimaryTextColor3}
+							TextXAlignment="Left"
+							TextSize={20}
+						/>
+					</frame>
+				);
+			}}
+		/>
+	);
+}
+
+function OutputError(props: { Message: ZrErrorMessage | ZirconLogError }) {
+	const output = props.Message;
+
+	return (
+		<ThemeContext.Consumer
+			render={(theme) => {
+				const messages = new Array<string>();
+
+				if (output.type === ZirconMessageType.ZirconiumError) {
+					const { error } = output;
+					messages.push(
+						getRichTextColor3(
+							theme,
+							"Grey",
+							`[${DateTime.fromUnixTimestamp(error.time).FormatLocalTime(
+								"LT",
+								LocalizationService.SystemLocaleId,
+							)}]`,
+						),
+					);
+
+					if (error.script !== undefined) {
+						let inner = getRichTextColor3(theme, "Cyan", error.script);
+						if (error.source !== undefined) {
+							inner += `:${getRichTextColor3(
+								theme,
+								"Yellow",
+								tostring(error.source[0]),
+							)}:${getRichTextColor3(theme, "Yellow", tostring(error.source[1]))}`;
+						}
+						messages.push(getRichTextColor3(theme, "White", inner + " -"));
+					}
+					messages.push(getRichTextColor3(theme, "Red", "error"));
+					messages.push(getRichTextColor3(theme, "Grey", `ZR${"%.4d".format(error.code)}:`));
+					messages.push(getRichTextColor3(theme, "White", error.message));
+				} else if (output.type === ZirconMessageType.ZirconLogErrorMessage) {
+					const { error } = output;
+					messages.push(
+						getRichTextColor3(
+							theme,
+							"Grey",
+							`[${DateTime.fromUnixTimestamp(error.time).FormatLocalTime(
+								"LT",
+								LocalizationService.SystemLocaleId,
+							)}]`,
+						),
+					);
+
+					if (error.level === ZirconLogLevel.Error) {
+						messages.push(getRichTextColor3(theme, "Red", "error"));
+						messages.push(getRichTextColor3(theme, "White", error.message));
+					} else if (error.level === ZirconLogLevel.Wtf) {
+						messages.push(getRichTextColor3(theme, "Red", "wtf"));
+						messages.push(getRichTextColor3(theme, "Orange", error.message));
+					}
+				}
+
+				return (
+					<frame Size={new UDim2(1, 0, 0, 25)} BackgroundTransparency={1}>
+						<frame
+							Size={new UDim2(0, 5, 1, 0)}
+							BackgroundColor3={
+								props.Message.context === ZirconContext.Server
+									? theme.ServerContextColor
+									: theme.ClientContextColor
+							}
+							BorderSizePixel={0}
+						/>
+						<textlabel
+							RichText
+							Position={new UDim2(0, 10, 0, 0)}
+							Size={new UDim2(1, -15, 0, 25)}
+							Text={messages.join(" ")}
 							BackgroundTransparency={1}
 							Font={theme.ConsoleFont}
 							TextColor3={theme.PrimaryTextColor3}
@@ -169,7 +272,7 @@ export default class ZirconOutputMessage extends Roact.PureComponent<ZirconOutpu
 				error.type === ZirconNetworkMessageType.ZirconiumParserError ||
 				error.type === ZirconNetworkMessageType.ZirconiumRuntimeError
 			) {
-				if (error.debug) {
+				if (error.debug !== undefined) {
 					return (
 						<Roact.Fragment>
 							<OutputError Message={Message} />
@@ -180,8 +283,14 @@ export default class ZirconOutputMessage extends Roact.PureComponent<ZirconOutpu
 			}
 
 			return <OutputError Message={Message} />;
+		} else if (
+			Message.type === ZirconMessageType.ZirconiumOutput ||
+			Message.type === ZirconMessageType.ZirconLogOutputMesage
+		) {
+			return <OutputMessage Message={Message} />;
 		}
 
+		print(`undefined === "${Message.type}"`);
 		return undefined;
 	}
 }

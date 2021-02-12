@@ -1,16 +1,14 @@
 import Roact from "@rbxts/roact";
 import { connect } from "@rbxts/roact-rodux";
 import {
-	ConsoleLuauError,
 	ConsoleMessage,
 	ConsolePlainMessage,
-	ZrErrorMessage,
 	ZrOutputMessage,
 	ConsoleSyntaxMessage,
 	ZirconContext,
 	ZirconMessageType,
 } from "../../Client/Types";
-import ThemeContext, { getRichTextColor3, getThemeRichTextColor } from "../../Client/UIKit/ThemeContext";
+import ThemeContext, { getRichTextColor3 } from "../../Client/UIKit/ThemeContext";
 import { ConsoleReducer } from "../../Client/BuiltInConsole/Store/_reducers/ConsoleReducer";
 import ScrollView from "./ScrollView";
 import { ZrRichTextHighlighter } from "@rbxts/zirconium-ast";
@@ -66,60 +64,56 @@ function OutputPlain(props: { Message: ConsolePlainMessage | ConsoleSyntaxMessag
 	}
 }
 
-function OutputMessage(props: { Message: ZrOutputMessage }) {
-	const { message } = props.Message;
+// function OutputMessage(props: { Message: ZrOutputMessage }) {
+// 	const { message } = props.Message;
 
-	if (message.type === ZirconNetworkMessageType.ZirconStandardOutputMessage) {
-		return <Roact.Fragment />;
-	}
-
-	return (
-		<ThemeContext.Consumer
-			render={(theme) => {
-				const str = new Array<string>();
-				str.push(
-					getRichTextColor3(
-						theme,
-						"Grey",
-						`[${DateTime.fromUnixTimestamp(message.time).FormatLocalTime(
-							"LT",
-							LocalizationService.SystemLocaleId,
-						)}]`,
-					),
-				);
-				if (message.script !== undefined) {
-					const inner = getRichTextColor3(theme, "Cyan", message.script);
-					str.push(getRichTextColor3(theme, "White", inner + " -"));
-				}
-				str.push(message.message);
-				return (
-					<frame Size={new UDim2(1, 0, 0, 25)} BackgroundTransparency={1}>
-						<frame
-							Size={new UDim2(0, 5, 1, 0)}
-							BackgroundColor3={
-								props.Message.context === ZirconContext.Server
-									? theme.ServerContextColor
-									: theme.ClientContextColor
-							}
-							BorderSizePixel={0}
-						/>
-						<textlabel
-							RichText
-							Position={new UDim2(0, 10, 0, 0)}
-							Size={new UDim2(1, 0, 0, 25)}
-							Text={str.join(" ")}
-							BackgroundTransparency={1}
-							Font={theme.ConsoleFont}
-							TextColor3={theme.PrimaryTextColor3}
-							TextXAlignment="Left"
-							TextSize={20}
-						/>
-					</frame>
-				);
-			}}
-		/>
-	);
-}
+// 	return (
+// 		<ThemeContext.Consumer
+// 			render={(theme) => {
+// 				const str = new Array<string>();
+// 				str.push(
+// 					getRichTextColor3(
+// 						theme,
+// 						"Grey",
+// 						`[${DateTime.fromUnixTimestamp(message.time).FormatLocalTime(
+// 							"LT",
+// 							LocalizationService.SystemLocaleId,
+// 						)}]`,
+// 					),
+// 				);
+// 				if (message.type === ZirconNetworkMessageType.ZirconiumOutput && message.script !== undefined) {
+// 					const inner = getRichTextColor3(theme, "Cyan", message.script);
+// 					str.push(getRichTextColor3(theme, "White", inner + " -"));
+// 				}
+// 				str.push(message.message);
+// 				return (
+// 					<frame Size={new UDim2(1, 0, 0, 25)} BackgroundTransparency={1}>
+// 						<frame
+// 							Size={new UDim2(0, 5, 1, 0)}
+// 							BackgroundColor3={
+// 								props.Message.context === ZirconContext.Server
+// 									? theme.ServerContextColor
+// 									: theme.ClientContextColor
+// 							}
+// 							BorderSizePixel={0}
+// 						/>
+// 						<textlabel
+// 							RichText
+// 							Position={new UDim2(0, 10, 0, 0)}
+// 							Size={new UDim2(1, 0, 0, 25)}
+// 							Text={str.join(" ")}
+// 							BackgroundTransparency={1}
+// 							Font={theme.ConsoleFont}
+// 							TextColor3={theme.PrimaryTextColor3}
+// 							TextXAlignment="Left"
+// 							TextSize={20}
+// 						/>
+// 					</frame>
+// 				);
+// 			}}
+// 		/>
+// 	);
+// }
 
 interface OutputProps extends MappedProps {}
 interface OutputState {
@@ -142,26 +136,28 @@ class OutputComponent extends Roact.Component<OutputProps, OutputState> {
 	public render() {
 		return (
 			<ThemeContext.Consumer
-				render={(theme) => {
+				render={() => {
 					return (
 						<ScrollView
 							AutoScrollToEnd
 							Padding={{ PaddingHorizontal: 5, PaddingVertical: 5 }}
 							ItemPadding={new UDim(0, 5)}
 						>
-							{this.state.output.map((r) => {
-								if (r.type === ZirconMessageType.ZirconiumOutput) {
-									return <OutputMessage Message={r} />;
-								} else if (r.type === ZirconMessageType.ZirconiumError || r.type === "luau:error") {
-									// return <OutputError Message={r} />;
-									return <ZirconOutputMessage Message={r} />;
-								} else if (
-									r.type === ZirconMessageType.ZirconLogErrorMessage ||
-									r.type === ZirconMessageType.ZirconLogOutputMesage
+							{this.state.output.map((output) => {
+								// if (output.type === ZirconMessageType.ZirconiumOutput) {
+								// 	// return <OutputMessage Message={output} />;
+								// 	return <Roact.Fragment />;
+								// } else
+								if (
+									output.type === ZirconMessageType.ZirconiumError ||
+									output.type === "luau:error" ||
+									output.type === ZirconMessageType.ZirconLogErrorMessage ||
+									output.type === ZirconMessageType.ZirconLogOutputMesage ||
+									output.type === ZirconMessageType.ZirconiumOutput
 								) {
-									return <Roact.Fragment />;
+									return <ZirconOutputMessage Message={output} />;
 								} else {
-									return <OutputPlain Message={r} />;
+									return <OutputPlain Message={output} />;
 								}
 							})}
 						</ScrollView>

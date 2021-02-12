@@ -1,5 +1,7 @@
 import Roact from "@rbxts/roact";
+import Zircon from "@zircon";
 import ZirconClient from "./Client";
+import delayAsync from "./Client/BuiltInConsole/DelayAsync";
 import ZirconClientStore from "./Client/BuiltInConsole/Store";
 import { ConsoleActionName } from "./Client/BuiltInConsole/Store/_reducers/ConsoleReducer";
 import ZirconDockedConsole from "./Client/BuiltInConsole/UI/DockedConsole";
@@ -27,3 +29,7 @@ ZirconClient.bindConsole({
 	ConsoleComponent: CustomConsole,
 });
 ZirconClientStore.dispatch({ type: ConsoleActionName.SetConfiguration, hotkeyEnabled: true, executionEnabled: true });
+
+delayAsync(10).then(() => {
+	Zircon.LogInfo("Test", "testing lol");
+});

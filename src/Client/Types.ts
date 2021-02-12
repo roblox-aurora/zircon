@@ -1,4 +1,10 @@
-import { ZirconErrorOutput, ZirconLogErrorOutput, ZirconLogOutput, ZirconStandardOutput } from "../Shared/Remotes";
+import {
+	ZirconStandardOutput,
+	ZirconiumRuntimeErrorMessage,
+	ZirconiumParserErrorMessage,
+	ZirconLogOutput,
+	ZirconLogErrorOutput,
+} from "Shared/Remotes";
 
 export const enum ZirconContext {
 	Server,
@@ -52,7 +58,7 @@ export interface ZrErrorMessage {
 	readonly type: ZirconMessageType.ZirconiumError;
 	readonly context: ZirconContext;
 	readonly script?: string;
-	readonly error: ZirconErrorOutput;
+	readonly error: ZirconiumRuntimeErrorMessage | ZirconiumParserErrorMessage;
 }
 export interface ConsoleLuauError {
 	readonly type: "luau:error";
