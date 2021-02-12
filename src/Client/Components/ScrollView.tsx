@@ -197,6 +197,7 @@ export default class ScrollView<T extends ScrollViewProps> extends Roact.Compone
 			return (
 				<ThemeContext.Consumer
 					render={(theme) => {
+						const scale = this.state.barScale;
 						return (
 							<frame
 								BorderSizePixel={0}
@@ -205,20 +206,8 @@ export default class ScrollView<T extends ScrollViewProps> extends Roact.Compone
 								Size={new UDim2(1, 0, this.state.barScale, 0)}
 								Position={new UDim2(0, 0, this.state.barPos * (1 - this.state.barScale), 0)}
 							>
-								<ZirconIcon Icon="UpArrow" Position={UDim2.fromOffset(2, 2)} />
-								<ZirconIcon Icon="DownArrow" Position={new UDim2(0, 2, 1, -20)} />
-								{/* <imagelabel
-									Image="rbxassetid://2657038128"
-									Size={new UDim2(0, 20, 0, 20)}
-									BackgroundTransparency={1}
-								/>
-								<imagelabel
-									Image="rbxassetid://2657038128"
-									Rotation={180}
-									Position={new UDim2(0, 0, 1, -20)}
-									Size={new UDim2(0, 20, 0, 20)}
-									BackgroundTransparency={1}
-								/> */}
+								{scale >= 0.1 && <ZirconIcon Icon="UpArrow" Position={UDim2.fromOffset(2, 0)} />}
+								{scale >= 0.1 && <ZirconIcon Icon="DownArrow" Position={new UDim2(0, 2, 1, -16)} />}
 							</frame>
 						);
 					}}

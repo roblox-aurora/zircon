@@ -46,7 +46,7 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 
 		// Initialization
 		this.sizeYMotor = new SingleMotor(0);
-		this.outputTransparencyMotor = new SingleMotor(0);
+		this.outputTransparencyMotor = new SingleMotor(0.1);
 		let setSizeY: Roact.RoactBindingFunc<number>;
 		let setOutputTransparency: Roact.RoactBindingFunc<number>;
 
@@ -66,7 +66,7 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 
 	public didUpdate(prevProps: DockedConsoleProps) {
 		if (prevProps.isVisible !== this.props.isVisible) {
-			this.sizeYMotor.setGoal(new Spring(this.props.isVisible ? this.state.sizeY : 0));
+			this.sizeYMotor.setGoal(new Spring(this.props.isVisible ? this.state.sizeY + 40 : 0));
 			this.setState({ isVisible: this.props.isVisible });
 		}
 	}
@@ -75,7 +75,13 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 		return (
 			<ThemeContext.Consumer
 				render={(theme) => (
-					<screengui DisplayOrder={10000}>
+					<screengui DisplayOrder={10000} IgnoreGuiInset>
+						<frame
+							Size={new UDim2(1, 0, 0, 40)}
+							BackgroundColor3={theme.PrimaryBackgroundColor3}
+							BorderSizePixel={0}
+							Position={this.state.isVisible ? new UDim2(0, 0, 0, 0) : new UDim2(0, 0, 0, -40)}
+						/>
 						<frame
 							Key="ZirconViewport"
 							BorderSizePixel={0}
@@ -84,7 +90,7 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 							BackgroundColor3={theme.PrimaryBackgroundColor3}
 							ClipsDescendants
 							Size={new UDim2(1, 0, 0, this.state.sizeY)}
-							Position={this.sizeY.map((v) => new UDim2(0, 0, 1, -v))}
+							Position={this.sizeY.map((v) => new UDim2(0, 0, 0, -this.state.sizeY + v))}
 						>
 							<frame
 								Size={new UDim2(1, 0, 1, this.props.executionEnabled ? -30 : 0)}

@@ -16,6 +16,7 @@ import ZirconIcon from "./Icon";
 import { LocalizationService } from "@rbxts/services";
 import ZirconOutputMessage from "./OutputMessage";
 import { ZirconNetworkMessageType } from "../../Shared/Remotes";
+import { last } from "Shared/Collections";
 
 function OutputPlain(props: { Message: ConsolePlainMessage | ConsoleSyntaxMessage }) {
 	const message = props.Message;
@@ -118,7 +119,7 @@ interface MappedProps {
 }
 const mapStateToProps = (state: ConsoleReducer): MappedProps => {
 	return {
-		output: state.output,
+		output: last(state.output, 100),
 	};
 };
 

@@ -1,2 +1,2 @@
 # Zircon Alpha
-Zircon is a command interface for Roblox
+Work in progress console for roblox.

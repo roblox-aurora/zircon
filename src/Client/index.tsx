@@ -1,7 +1,7 @@
 import Roact from "@rbxts/roact";
 import { ComponentInstanceHandle } from "@rbxts/roact";
 import RoactRodux from "@rbxts/roact-rodux";
-import { ContextActionService, LogService, Players, RunService } from "@rbxts/services";
+import { ContextActionService, GuiService, LogService, Players, RunService, StarterGui } from "@rbxts/services";
 import ZirconClientStore from "./BuiltInConsole/Store";
 import { ConsoleActionName } from "./BuiltInConsole/Store/_reducers/ConsoleReducer";
 import ZirconDockedConsole, { DockedConsoleProps } from "./BuiltInConsole/UI/DockedConsole";
@@ -75,6 +75,7 @@ namespace ZirconClient {
 		}
 	}
 
+	const initialState = StarterGui.GetCoreGuiEnabled(Enum.CoreGuiType.All);
 	function activateBuiltInConsole(actionName: string, state: Enum.UserInputState) {
 		const { hotkeyEnabled } = ZirconClientStore.getState();
 		if (state === Enum.UserInputState.End && $dbg(hotkeyEnabled)) {

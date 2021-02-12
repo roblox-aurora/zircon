@@ -1,6 +1,6 @@
 {
   "name": "@rbxts/zircon",
-  "version": "0.1.0-alpha.0",
+  "version": "0.2.0-alpha.2",
   "description": "",
   "main": "out/init.lua",
   "scripts": {
@@ -15,7 +15,8 @@
   "author": "",
   "license": "ISC",
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "tag": "alpha"
   },
   "types": "out/index.d.ts",
   "devDependencies": {

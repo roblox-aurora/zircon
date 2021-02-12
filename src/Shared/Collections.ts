@@ -12,3 +12,12 @@ export function toArray<V, K extends keyof V>(collection: { [P in K]: V[P] }) {
 	}
 	return arr;
 }
+
+export function last<TValue>(collection: Array<TValue>, amount: number): Array<TValue> {
+	const amountCalculated = math.min(amount, collection.size());
+	const newArray = new Array<TValue>(amountCalculated);
+	for (let start = collection.size() - amountCalculated; start < collection.size(); start++) {
+		newArray.push(collection[start]);
+	}
+	return newArray;
+}
