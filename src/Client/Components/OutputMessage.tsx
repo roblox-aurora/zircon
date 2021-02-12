@@ -64,7 +64,7 @@ function OutputMessage(props: OutputMessageProps) {
 							messages.push(getRichTextColor3(theme, "Green", "debug"));
 							messages.push(getRichTextColor3(theme, "White", message.message));
 						} else if (message.level === ZirconLogLevel.Warning) {
-							messages.push(getRichTextColor3(theme, "Orange", "warn"));
+							messages.push(getRichTextColor3(theme, "Yellow", "warn"));
 							messages.push(getRichTextColor3(theme, "White", message.message));
 						}
 						break;
@@ -150,10 +150,10 @@ function OutputError(props: { Message: ZrErrorMessage | ZirconLogError }) {
 
 					if (error.level === ZirconLogLevel.Error) {
 						messages.push(getRichTextColor3(theme, "Red", "error"));
-						messages.push(getRichTextColor3(theme, "White", error.message));
+						messages.push(getRichTextColor3(theme, "Yellow", error.message));
 					} else if (error.level === ZirconLogLevel.Wtf) {
 						messages.push(getRichTextColor3(theme, "Red", "wtf"));
-						messages.push(getRichTextColor3(theme, "Orange", error.message));
+						messages.push(getRichTextColor3(theme, "Yellow", error.message));
 					}
 				}
 
@@ -265,7 +265,10 @@ export default class ZirconOutputMessage extends Roact.PureComponent<ZirconOutpu
 	public render() {
 		const { Message } = this.props;
 
-		if (Message.type === ZirconMessageType.ZirconiumError) {
+		if (
+			Message.type === ZirconMessageType.ZirconiumError ||
+			Message.type === ZirconMessageType.ZirconLogErrorMessage
+		) {
 			const { error } = Message;
 
 			if (

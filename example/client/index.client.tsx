@@ -32,4 +32,8 @@ ZirconClientStore.dispatch({ type: ConsoleActionName.SetConfiguration, hotkeyEna
 
 delayAsync(10).then(() => {
 	Zircon.LogInfo("Test", "testing lol");
+	Zircon.LogDebug("test", "testing debug");
+	Zircon.LogWarning("TestWarning", "test warning lol");
+	Zircon.LogError("TestError", "test error lol");
+	Zircon.LogWtf("TestWtf", "wtf lol");
 });
