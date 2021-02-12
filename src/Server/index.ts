@@ -1,4 +1,4 @@
-import { RunService } from "@rbxts/services";
+import { LogService, RunService } from "@rbxts/services";
 import Remotes, { ZirconDebugInformation, ZirconNetworkMessageType } from "../Shared/Remotes";
 import { RemoteId } from "../RemoteId";
 import { GetCommandService } from "../Services";
@@ -25,6 +25,21 @@ namespace Zircon {
 		assert(IsServer, "Zircon Service only accessible on server");
 		return GetCommandService("LogService");
 	});
+
+	let outputConnection: RBXScriptConnection | undefined;
+	/** @internal */
+	export function EXPERIMENTAL_EnableRobloxOutput() {
+		if (outputConnection) return;
+		outputConnection = LogService.MessageOut.Connect((message, messageType) => {
+			if (messageType === Enum.MessageType.MessageOutput) {
+				Log.Write(ZirconLogLevel.Info, "roblox", message);
+			} else if (messageType === Enum.MessageType.MessageWarning) {
+				Log.Write(ZirconLogLevel.Warning, "roblox", message);
+			} else if (messageType === Enum.MessageType.MessageError) {
+				Log.Write(ZirconLogLevel.Error, "roblox", message);
+			}
+		});
+	}
 
 	function isParserError(err: ZrRuntimeError | ZrParserError): err is ZrParserError {
 		return err.code >= 1000;

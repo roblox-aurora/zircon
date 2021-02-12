@@ -286,7 +286,6 @@ export default class ZirconOutputMessage extends Roact.PureComponent<ZirconOutpu
 			Message.type === ZirconMessageType.ZirconiumOutput ||
 			Message.type === ZirconMessageType.ZirconLogOutputMesage
 		) {
-			print("renderOutputMessage", Message.message.message, Message.type);
 			return <OutputMessage Message={Message} />;
 		}
 

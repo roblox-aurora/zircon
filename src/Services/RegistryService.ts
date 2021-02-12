@@ -161,9 +161,6 @@ export namespace ZirconRegistryService {
 	 * @internal
 	 */
 	export function InternalGetPlayersWithPermission<K extends keyof ZirconPermissions>(permission: K) {
-		$ifEnv("NODE_ENV", "development", () => {
-			print("GetPlayersWithPermission", permission);
-		});
 		if (permissionGroupCache.has(permission)) {
 			return permissionGroupCache.get(permission)!;
 		}
@@ -178,7 +175,7 @@ export namespace ZirconRegistryService {
 
 		const arr = toArray(playerSet);
 		permissionGroupCache.set(permission, arr);
-		return $dbg(arr);
+		return arr;
 	}
 
 	/** @internal */

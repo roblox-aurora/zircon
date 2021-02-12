@@ -1,7 +1,7 @@
 import Roact from "@rbxts/roact";
 import { ComponentInstanceHandle } from "@rbxts/roact";
 import RoactRodux from "@rbxts/roact-rodux";
-import { ContextActionService, Players, RunService } from "@rbxts/services";
+import { ContextActionService, LogService, Players, RunService } from "@rbxts/services";
 import ZirconClientStore from "./BuiltInConsole/Store";
 import { ConsoleActionName } from "./BuiltInConsole/Store/_reducers/ConsoleReducer";
 import ZirconDockedConsole, { DockedConsoleProps } from "./BuiltInConsole/UI/DockedConsole";
@@ -117,7 +117,20 @@ namespace ZirconClient {
 		ContextActionService.BindAction(Const.ActionId, activateBuiltInConsole, false, ...keys);
 	}
 
-	export function setLuauErrorLoggingEnabled(enabled: boolean) {}
+	let outputConnection: RBXScriptConnection | undefined;
+	/** @internal */
+	export function EXPERIMENTAL_EnableRobloxOutput() {
+		if (outputConnection) return;
+		outputConnection = LogService.MessageOut.Connect((message, messageType) => {
+			if (messageType === Enum.MessageType.MessageOutput) {
+				Log(ZirconLogLevel.Info, "roblox", message);
+			} else if (messageType === Enum.MessageType.MessageWarning) {
+				Log(ZirconLogLevel.Warning, "roblox", message);
+			} else if (messageType === Enum.MessageType.MessageError) {
+				Log(ZirconLogLevel.Error, "roblox", message);
+			}
+		});
+	}
 
 	if (IsClient) {
 		const StandardOutput = Remotes.Client.Get(RemoteId.StandardOutput);
