@@ -25,7 +25,7 @@ interface DockOptions {
 	Transparency?: number;
 }
 
-interface UIKTheme {
+export interface ZirconThemeDefinition {
 	readonly IconAssetUri: string;
 	readonly Font: Enum.Font | InferEnumNames<Enum.Font>;
 	readonly ConsoleFont: Enum.Font | InferEnumNames<Enum.Font>;
@@ -40,7 +40,7 @@ interface UIKTheme {
 	readonly SyntaxHighlighter?: ThemeSyntaxColors;
 }
 
-export const BaseTheme = identity<UIKTheme>({
+export const BaseTheme = identity<ZirconThemeDefinition>({
 	IconAssetUri: "rbxassetid://6330388012",
 	Font: "Ubuntu",
 	ConsoleFont: "RobotoMono",
@@ -71,7 +71,10 @@ type Color3ToHex<T> = {
 		? string | undefined
 		: T[P];
 };
-export function getThemeRichTextColor(theme: UIKTheme, color3: Color3Keys<UIKTheme["ConsoleColors"]>) {
+export function getThemeRichTextColor(
+	theme: ZirconThemeDefinition,
+	color3: Color3Keys<ZirconThemeDefinition["ConsoleColors"]>,
+) {
 	const color = theme.ConsoleColors[color3];
 	const numeric = ((color.r * 255) << 16) | ((color.g * 255) << 8) | ((color.b * 255) << 0);
 	return "#%.6X".format(numeric);
@@ -88,12 +91,16 @@ export function convertColorObjectToHex<T>(values: T): Color3ToHex<T> {
 	return newArr as Color3ToHex<T>;
 }
 
-export function getRichTextColor3(theme: UIKTheme, color3: Color3Keys<UIKTheme["ConsoleColors"]>, text: string) {
+export function getRichTextColor3(
+	theme: ZirconThemeDefinition,
+	color3: Color3Keys<ZirconThemeDefinition["ConsoleColors"]>,
+	text: string,
+) {
 	return `<font color="${getThemeRichTextColor(theme, color3)}">${text}</font>`;
 }
 
-export function makeTheme(theme: Partial<UIKTheme>) {
-	return identity<UIKTheme>({ ...BaseTheme, ...theme });
+export function makeTheme(theme: Partial<ZirconThemeDefinition>) {
+	return identity<ZirconThemeDefinition>({ ...BaseTheme, ...theme });
 }
 
 export const ZirconTheme = makeTheme({
@@ -103,6 +110,6 @@ export const ZirconTheme = makeTheme({
 	SecondaryBackgroundColor3: Color3.fromRGB(24, 26, 31),
 });
 
-const UIKTheme = Roact.createContext<UIKTheme>(BaseTheme);
+const ThemeContext = Roact.createContext<ZirconThemeDefinition>(BaseTheme);
 
-export default UIKTheme;
+export default ThemeContext;

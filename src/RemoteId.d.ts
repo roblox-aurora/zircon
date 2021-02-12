@@ -3,4 +3,5 @@ export const enum RemoteId {
 	StandardError = "ZrSO4StandardError",
 	DispatchToServer = "ZrSO4DispatchToServer",
 	GetPlayerOptions = "ZrSO4GetPlayerConfiguration",
+	GetServerLogMessages = "ZrSO4GetServerLogMessages",
 }

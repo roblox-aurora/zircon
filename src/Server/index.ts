@@ -1,12 +1,14 @@
 import { RunService } from "@rbxts/services";
-import Remotes, { ZirconDebugInformation } from "../Shared/Remotes";
+import Remotes, { ZirconDebugInformation, ZirconNetworkMessageType } from "../Shared/Remotes";
 import { RemoteId } from "../RemoteId";
 import { GetCommandService } from "../Services";
 import Lazy from "../Shared/Lazy";
 import { ZrRuntimeError } from "@rbxts/zirconium/out/Runtime/Runtime";
 import { ZrParserError } from "@rbxts/zirconium-ast/out/Parser";
 import { Token } from "@rbxts/zirconium-ast/out/Tokens/Tokens";
+import { Node } from "@rbxts/zirconium-ast/out/Nodes/NodeTypes";
 import { $dbg } from "rbxts-transform-debug";
+import { ZirconLogLevel } from "../Client/Types";
 const IsServer = RunService.IsServer();
 
 namespace Zircon {
@@ -19,16 +21,64 @@ namespace Zircon {
 		return GetCommandService("DispatchService");
 	});
 
-	/** @internal */
-	export const Definitions = Lazy(() => {
-		// return ZrSO4Definitions;
+	export const Log = Lazy(() => {
+		assert(IsServer, "Zircon Service only accessible on server");
+		return GetCommandService("LogService");
 	});
 
 	function isParserError(err: ZrRuntimeError | ZrParserError): err is ZrParserError {
 		return err.code >= 1000;
 	}
 
-	function getTokenInformation(source: string, token: Token) {
+	function getDebugInformationForNode(source: string, node: Node) {
+		const startPos = node.startPos ?? 0;
+		const endPos = node.endPos ?? startPos;
+
+		let col = 0;
+		let row = 1;
+		let lineStart = 0;
+		let lineEnd = source.size();
+		let reachedToken = false;
+		let reachedEndToken = false;
+		for (let i = 0; i < source.size(); i++) {
+			const char = source.sub(i + 1, i + 1);
+
+			if (i === startPos) {
+				reachedToken = true;
+			}
+
+			if (i === endPos) {
+				reachedEndToken = true;
+			}
+
+			if (char === "\n") {
+				lineEnd = i;
+				if (!reachedToken) {
+					lineStart = i + 1;
+				} else if (reachedEndToken) {
+					break;
+				}
+
+				row += 1;
+				col = 1;
+			} else {
+				col += 1;
+			}
+		}
+		if (reachedToken) {
+			return $dbg(
+				identity<ZirconDebugInformation>({
+					LineAndColumn: [row, col],
+					CodeLine: [lineStart, lineEnd],
+					TokenPosition: [startPos, endPos],
+					TokenLinePosition: [startPos - lineStart, endPos - lineStart],
+					Line: source.sub(lineStart + 1, lineEnd + 1),
+				}),
+			);
+		}
+	}
+
+	function getDebugInformation(source: string, token: Token) {
 		let col = 0;
 		let row = 1;
 		let lineStart = 0;
@@ -67,25 +117,6 @@ namespace Zircon {
 		}
 	}
 
-	function getLineAndColumn(source: string, token: Token): [line: number, column: number] | undefined {
-		let col = 0;
-		let row = 1;
-		for (let i = 0; i < source.size(); i++) {
-			const char = source.sub(i + 1, i + 1);
-
-			if (i === token.startPos) {
-				return [row, col];
-			}
-
-			if (char === "\n") {
-				row += 1;
-				col = 1;
-			} else {
-				col += 1;
-			}
-		}
-	}
-
 	if (RunService.IsServer()) {
 		const StandardOutput = Remotes.Server.Create(RemoteId.StandardOutput);
 		const StandardError = Remotes.Server.Create(RemoteId.StandardError);
@@ -101,7 +132,7 @@ namespace Zircon {
 				.then((output) => {
 					for (const message of output) {
 						StandardOutput.SendToPlayer(player, {
-							type: "ExecutionOutput",
+							type: ZirconNetworkMessageType.ZirconiumOutput,
 							time: DateTime.now().UnixTimestamp,
 							script: "zircon",
 							message,
@@ -113,11 +144,10 @@ namespace Zircon {
 
 					for (const error of err) {
 						if (isParserError(error)) {
-							const lineAndColumn = error.token ? getLineAndColumn(message, error.token) : undefined;
-							const debug = error.token ? getTokenInformation(message, error.token) : undefined;
+							const debug = error.token ? getDebugInformation(message, error.token) : undefined;
 
 							StandardError.SendToPlayer(player, {
-								type: "ParserError",
+								type: ZirconNetworkMessageType.ZirconiumParserError,
 								script: "zircon",
 								time: DateTime.now().UnixTimestamp,
 								source: debug ? debug.LineAndColumn : undefined,
@@ -126,13 +156,13 @@ namespace Zircon {
 								code: error.code,
 							});
 						} else {
+							const debug = error.node ? getDebugInformationForNode(message, error.node) : undefined;
+
 							StandardError.SendToPlayer(player, {
-								type: "RuntimeError",
+								type: ZirconNetworkMessageType.ZirconiumRuntimeError,
 								time: DateTime.now().UnixTimestamp,
-								script: "zircon", // come the fuck on
-								// source: error.node
-								// 	? ([error.node.startPos ?? 0, error.node.endPos ?? 0] as const)
-								// 	: undefined,
+								debug,
+								script: "zircon",
 								message: error.message,
 								code: error.code,
 							});

@@ -4,12 +4,14 @@ import TSRequire from "../Shared/tsImportShim";
 import { ZirconClientDispatchService } from "./ClientDispatchService";
 import { ZirconClientRegistryService } from "./ClientRegistryService";
 import { ZirconDispatchService } from "./DispatchService";
+import { ZirconLogService } from "./LogService";
 import { ZirconRegistryService } from "./RegistryService";
 const IS_SERVER = game.GetService("RunService").IsServer();
 
 interface ServiceMap {
 	RegistryService: ZirconRegistryService;
 	DispatchService: ZirconDispatchService;
+	LogService: ZirconLogService;
 	ClientDispatchService: ZirconClientDispatchService;
 	ClientRegistryService: ZirconClientRegistryService;
 }

@@ -4,24 +4,26 @@ import {
 	ConsoleLuauError,
 	ConsoleMessage,
 	ConsolePlainMessage,
-	ConsoleStderrMessage,
-	ConsoleStdoutMessage,
+	ZrErrorMessage,
+	ZrOutputMessage,
 	ConsoleSyntaxMessage,
-	ExecutionContext,
+	ZirconContext,
+	ZirconMessageType,
 } from "../../Client/Types";
-import UIKTheme, { getRichTextColor3, getThemeRichTextColor } from "../../Client/UIKit/ThemeContext";
+import ThemeContext, { getRichTextColor3, getThemeRichTextColor } from "../../Client/UIKit/ThemeContext";
 import { ConsoleReducer } from "../../Client/BuiltInConsole/Store/_reducers/ConsoleReducer";
 import ScrollView from "./ScrollView";
 import { ZrRichTextHighlighter } from "@rbxts/zirconium-ast";
 import ZirconIcon from "./Icon";
 import { LocalizationService } from "@rbxts/services";
 import ZirconOutputMessage from "./OutputMessage";
+import { ZirconNetworkMessageType } from "../../Shared/Remotes";
 
 function OutputPlain(props: { Message: ConsolePlainMessage | ConsoleSyntaxMessage }) {
 	const message = props.Message;
-	if (message.type === "zr:execute") {
+	if (message.type === ZirconMessageType.ZirconiumExecutionMessage) {
 		return (
-			<UIKTheme.Consumer
+			<ThemeContext.Consumer
 				render={(theme) => {
 					return (
 						<frame Size={new UDim2(1, 0, 0, 25)} BackgroundTransparency={1}>
@@ -44,7 +46,7 @@ function OutputPlain(props: { Message: ConsolePlainMessage | ConsoleSyntaxMessag
 		);
 	} else {
 		return (
-			<UIKTheme.Consumer
+			<ThemeContext.Consumer
 				render={(theme) => {
 					return (
 						<textlabel
@@ -64,82 +66,15 @@ function OutputPlain(props: { Message: ConsolePlainMessage | ConsoleSyntaxMessag
 	}
 }
 
-function OutputError(props: { Message: ConsoleStderrMessage | ConsoleLuauError }) {
-	const output = props.Message;
-
-	return (
-		<UIKTheme.Consumer
-			render={(theme) => {
-				const message = new Array<string>();
-
-				if (output.type === "zr:error") {
-					const { error } = output;
-					message.push(
-						getRichTextColor3(
-							theme,
-							"Grey",
-							`[${DateTime.fromUnixTimestamp(error.time).FormatLocalTime(
-								"LT",
-								LocalizationService.SystemLocaleId,
-							)}]`,
-						),
-					);
-
-					// message.push(getRichTextColor3(theme, "Cyan", `[Zr]`));
-					if (error.script !== undefined) {
-						let inner = getRichTextColor3(theme, "Cyan", error.script);
-						if (error.source) {
-							inner += `:${getRichTextColor3(
-								theme,
-								"Yellow",
-								tostring(error.source[0]),
-							)}:${getRichTextColor3(theme, "Yellow", tostring(error.source[1]))}`;
-						}
-						message.push(getRichTextColor3(theme, "White", inner + " -"));
-					}
-					message.push(getRichTextColor3(theme, "Red", "error"));
-					message.push(getRichTextColor3(theme, "Grey", `ZR${"%.4d".format(error.code)}:`));
-					message.push(getRichTextColor3(theme, "White", error.message));
-				} else {
-					message.push(getRichTextColor3(theme, "Red", "error"));
-					message.push(getRichTextColor3(theme, "Grey", `Luau`));
-					message.push(getRichTextColor3(theme, "Orange", output.error));
-				}
-
-				return (
-					<frame Size={new UDim2(1, 0, 0, 25)} BackgroundTransparency={1}>
-						<frame
-							Size={new UDim2(0, 5, 1, 0)}
-							BackgroundColor3={
-								props.Message.context === ExecutionContext.Server
-									? theme.ServerContextColor
-									: theme.ClientContextColor
-							}
-							BorderSizePixel={0}
-						/>
-						<textlabel
-							RichText
-							Position={new UDim2(0, 10, 0, 0)}
-							Size={new UDim2(1, -15, 0, 25)}
-							Text={message.join(" ")}
-							BackgroundTransparency={1}
-							Font={theme.ConsoleFont}
-							TextColor3={theme.PrimaryTextColor3}
-							TextXAlignment="Left"
-							TextSize={20}
-						/>
-					</frame>
-				);
-			}}
-		/>
-	);
-}
-
-function OutputMessage(props: { Message: ConsoleStdoutMessage }) {
+function OutputMessage(props: { Message: ZrOutputMessage }) {
 	const { message } = props.Message;
 
+	if (message.type === ZirconNetworkMessageType.ZirconStandardOutputMessage) {
+		return <Roact.Fragment />;
+	}
+
 	return (
-		<UIKTheme.Consumer
+		<ThemeContext.Consumer
 			render={(theme) => {
 				const str = new Array<string>();
 				str.push(
@@ -162,7 +97,7 @@ function OutputMessage(props: { Message: ConsoleStdoutMessage }) {
 						<frame
 							Size={new UDim2(0, 5, 1, 0)}
 							BackgroundColor3={
-								props.Message.context === ExecutionContext.Server
+								props.Message.context === ZirconContext.Server
 									? theme.ServerContextColor
 									: theme.ClientContextColor
 							}
@@ -206,7 +141,7 @@ class OutputComponent extends Roact.Component<OutputProps, OutputState> {
 
 	public render() {
 		return (
-			<UIKTheme.Consumer
+			<ThemeContext.Consumer
 				render={(theme) => {
 					return (
 						<ScrollView
@@ -215,11 +150,16 @@ class OutputComponent extends Roact.Component<OutputProps, OutputState> {
 							ItemPadding={new UDim(0, 5)}
 						>
 							{this.state.output.map((r) => {
-								if (r.type === "zr:output") {
+								if (r.type === ZirconMessageType.ZirconiumOutput) {
 									return <OutputMessage Message={r} />;
-								} else if (r.type === "zr:error" || r.type === "luau:error") {
+								} else if (r.type === ZirconMessageType.ZirconiumError || r.type === "luau:error") {
 									// return <OutputError Message={r} />;
 									return <ZirconOutputMessage Message={r} />;
+								} else if (
+									r.type === ZirconMessageType.ZirconLogErrorMessage ||
+									r.type === ZirconMessageType.ZirconLogOutputMesage
+								) {
+									return <Roact.Fragment />;
 								} else {
 									return <OutputPlain Message={r} />;
 								}

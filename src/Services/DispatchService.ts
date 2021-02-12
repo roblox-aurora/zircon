@@ -13,8 +13,6 @@ export interface ExecutionParams extends stdio {
 }
 
 export namespace ZirconDispatchService {
-	// let Registry!: ZirconRegistryService;
-	// export const dependencies = ["RegistryService"];
 	const globalContext = Zr.createContext("global");
 
 	/** @internal */

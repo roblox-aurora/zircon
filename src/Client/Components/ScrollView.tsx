@@ -1,6 +1,6 @@
 import Maid from "@rbxts/maid";
 import Roact from "@rbxts/roact";
-import UIKTheme from "../../Client/UIKit/ThemeContext";
+import ThemeContext from "../../Client/UIKit/ThemeContext";
 import delayAsync from "../BuiltInConsole/DelayAsync";
 import ZirconIcon from "./Icon";
 import { CalculatePadding, CalculatePaddingUDim2, WidgetAxisPadding, WidgetPadding } from "./Padding";
@@ -195,7 +195,7 @@ export default class ScrollView<T extends ScrollViewProps> extends Roact.Compone
 	public renderBar() {
 		if (this.state.barShown) {
 			return (
-				<UIKTheme.Consumer
+				<ThemeContext.Consumer
 					render={(theme) => {
 						return (
 							<frame
@@ -286,7 +286,7 @@ export default class ScrollView<T extends ScrollViewProps> extends Roact.Compone
 
 		const useButtons = Style === "Buttons";
 		return (
-			<UIKTheme.Consumer
+			<ThemeContext.Consumer
 				render={(theme) => (
 					<frame Size={this.props.Size || new UDim2(1, 0, 1, 0)} BackgroundTransparency={1}>
 						<scrollingframe

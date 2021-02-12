@@ -9,9 +9,9 @@ import { $ifEnv } from "rbxts-transform-env";
 import { $dbg } from "rbxts-transform-debug";
 import Lazy from "../Shared/Lazy";
 import { GetCommandService } from "../Services";
-import Remotes from "../Shared/Remotes";
+import Remotes, { ZirconNetworkMessageType } from "../Shared/Remotes";
 import { RemoteId } from "../RemoteId";
-import { ExecutionContext } from "./Types";
+import { ZirconContext, ZirconLogLevel, ZirconMessageType } from "./Types";
 
 const IsClient = RunService.IsClient();
 
@@ -40,6 +40,40 @@ namespace ZirconClient {
 		assert(IsClient, "Zircon Service only accessible on client");
 		return GetCommandService("ClientDispatchService");
 	});
+
+	export function Log(level: ZirconLogLevel, tag: string, message: string, data?: Record<string, defined>) {
+		if (level === ZirconLogLevel.Error || level === ZirconLogLevel.Wtf) {
+			ZirconClientStore.dispatch({
+				type: ConsoleActionName.AddOutput,
+				message: {
+					type: ZirconMessageType.ZirconLogErrorMessage,
+					error: {
+						type: ZirconNetworkMessageType.ZirconStandardErrorMessage,
+						time: DateTime.now().UnixTimestamp,
+						message,
+						level,
+						tag,
+					},
+					context: ZirconContext.Client,
+				},
+			});
+		} else {
+			ZirconClientStore.dispatch({
+				type: ConsoleActionName.AddOutput,
+				message: {
+					type: ZirconMessageType.ZirconLogOutputMesage,
+					message: {
+						type: ZirconNetworkMessageType.ZirconStandardOutputMessage,
+						time: DateTime.now().UnixTimestamp,
+						message,
+						level,
+						tag,
+					},
+					context: ZirconContext.Client,
+				},
+			});
+		}
+	}
 
 	function activateBuiltInConsole(actionName: string, state: Enum.UserInputState) {
 		const { hotkeyEnabled } = ZirconClientStore.getState();
@@ -83,39 +117,62 @@ namespace ZirconClient {
 		ContextActionService.BindAction(Const.ActionId, activateBuiltInConsole, false, ...keys);
 	}
 
-	// const LogService = game.GetService("LogService");
-	// LogService.MessageOut.Connect((message, messageType) => {
-	// 	if (messageType === Enum.MessageType.MessageError) {
-	// 		ZirconClientStore.dispatch({
-	// 			type: ConsoleActionName.AddOutput,
-	// 			message: { type: "luau:error", error: message, context: ExecutionContext.Client },
-	// 		});
-	// 	}
-	// });
-
 	export function setLuauErrorLoggingEnabled(enabled: boolean) {}
 
 	if (IsClient) {
 		const StandardOutput = Remotes.Client.Get(RemoteId.StandardOutput);
 		const StandardError = Remotes.Client.Get(RemoteId.StandardError);
 
-		StandardOutput.Connect((message) =>
-			ZirconClientStore.dispatch({
-				type: ConsoleActionName.AddOutput,
-				message: { type: "zr:output", context: ExecutionContext.Server, message },
-			}),
-		);
+		StandardOutput.Connect((message) => {
+			switch (message.type) {
+				case ZirconNetworkMessageType.ZirconiumOutput: {
+					ZirconClientStore.dispatch({
+						type: ConsoleActionName.AddOutput,
+						message: { type: ZirconMessageType.ZirconiumOutput, context: ZirconContext.Server, message },
+					});
+					break;
+				}
+				case ZirconNetworkMessageType.ZirconStandardOutputMessage: {
+					ZirconClientStore.dispatch({
+						type: ConsoleActionName.AddOutput,
+						message: {
+							type: ZirconMessageType.ZirconLogOutputMesage,
+							context: ZirconContext.Server,
+							message,
+						},
+					});
+					break;
+				}
+			}
+		});
 
-		StandardError.Connect((err) =>
-			ZirconClientStore.dispatch({
-				type: ConsoleActionName.AddOutput,
-				message: {
-					type: "zr:error",
-					context: ExecutionContext.Server,
-					error: err,
-				},
-			}),
-		);
+		StandardError.Connect((err) => {
+			switch (err.type) {
+				case ZirconNetworkMessageType.ZirconiumParserError:
+				case ZirconNetworkMessageType.ZirconiumRuntimeError: {
+					ZirconClientStore.dispatch({
+						type: ConsoleActionName.AddOutput,
+						message: {
+							type: ZirconMessageType.ZirconiumError,
+							context: ZirconContext.Server,
+							error: err,
+						},
+					});
+					break;
+				}
+				case ZirconNetworkMessageType.ZirconStandardErrorMessage: {
+					ZirconClientStore.dispatch({
+						type: ConsoleActionName.AddOutput,
+						message: {
+							type: ZirconMessageType.ZirconLogErrorMessage,
+							context: ZirconContext.Server,
+							error: err,
+						},
+					});
+					break;
+				}
+			}
+		});
 	}
 }
 export default ZirconClient;

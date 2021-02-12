@@ -10,14 +10,16 @@ import ClientEvent from "@rbxts/net/out/client/ClientEvent";
 import ZirconOutput from "../../../Client/Components/Output";
 import { DispatchParam } from "@rbxts/rodux";
 import ZirconClientStore from "../Store";
-import UIKTheme from "../../../Client/UIKit/ThemeContext";
-import { ZrRichTextHighlighter } from "@rbxts/zirconium-ast";
+import ThemeContext from "../../../Client/UIKit/ThemeContext";
+import { ZirconMessageType } from "../../../Client/Types";
 
 export interface DockedConsoleProps extends MappedProps, MappedDispatch {}
 interface DockedConsoleState {
 	isVisible: boolean;
 	isFullView: boolean;
 	sizeY: number;
+	source: string;
+	historyIndex: number;
 }
 
 const MAX_SIZE = 28 * 10; // 18
@@ -37,6 +39,8 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 		this.state = {
 			isVisible: props.isVisible,
 			isFullView: false,
+			historyIndex: 0,
+			source: "",
 			sizeY: MAX_SIZE,
 		};
 
@@ -69,7 +73,7 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 
 	public render() {
 		return (
-			<UIKTheme.Consumer
+			<ThemeContext.Consumer
 				render={(theme) => (
 					<screengui DisplayOrder={10000}>
 						<frame
@@ -105,10 +109,26 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 										Position={new UDim2(0, 16, 0, 0)}
 										Focused={this.state.isVisible}
 										AutoFocus
-										Source=""
+										Source={this.state.source}
 										OnEnterSubmit={(input) => {
 											this.props.addMessage(input);
 											this.dispatch.SendToServer(input);
+											this.setState({ historyIndex: 0, source: "" });
+										}}
+										OnHistoryTraversal={(direction) => {
+											let index = this.state.historyIndex;
+											if (direction === "back") {
+												index = this.state.historyIndex--;
+											} else if (direction === "forward") {
+												index = this.state.historyIndex++;
+											}
+
+											this.setState({
+												historyIndex: index,
+												source: this.props.history[
+													index < 0 ? this.props.history.size() - index : index
+												],
+											});
 										}}
 									/>
 								</frame>
@@ -127,20 +147,26 @@ interface MappedDispatch {
 interface MappedProps {
 	isVisible: boolean;
 	executionEnabled: boolean;
+	history: string[];
 }
 const mapStateToProps = (state: ConsoleReducer): MappedProps => {
 	return {
 		isVisible: state.visible,
 		executionEnabled: state.executionEnabled,
+		history: state.history,
 	};
 };
 const mapPropsToDispatch = (dispatch: DispatchParam<ZirconClientStore>): MappedDispatch => {
 	return {
 		addMessage: (source) => {
 			dispatch({
+				type: ConsoleActionName.AddHistory,
+				message: source,
+			});
+			dispatch({
 				type: ConsoleActionName.AddOutput,
 				message: {
-					type: "zr:execute",
+					type: ZirconMessageType.ZirconiumExecutionMessage,
 					source,
 				},
 			});

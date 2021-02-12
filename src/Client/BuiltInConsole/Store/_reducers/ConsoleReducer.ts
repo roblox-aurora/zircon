@@ -5,6 +5,7 @@ export const enum ConsoleActionName {
 	SetConsoleVisible = "SetConsoleVisible",
 	SetConfiguration = "SetConsoleConfiguration",
 	AddOutput = "AddOutput",
+	AddHistory = "AddHistory",
 }
 
 export interface ActionSetConsoleVisible extends Action<ConsoleActionName.SetConsoleVisible> {
@@ -19,13 +20,22 @@ export interface ActionAddOutput extends Action<ConsoleActionName.AddOutput> {
 	message: ConsoleMessage;
 }
 
-export type ConsoleActions = ActionSetConsoleVisible | ActionSetConsoleConfiguration | ActionAddOutput;
+export interface ActionAddHistory extends Action<ConsoleActionName.AddHistory> {
+	message: string;
+}
+
+export type ConsoleActions =
+	| ActionSetConsoleVisible
+	| ActionSetConsoleConfiguration
+	| ActionAddOutput
+	| ActionAddHistory;
 
 export interface ConsoleReducer {
 	visible: boolean;
 	executionEnabled: boolean;
 	hotkeyEnabled: boolean;
 	output: ConsoleMessage[];
+	history: string[];
 }
 
 const INITIAL_STATE: ConsoleReducer = {
@@ -33,6 +43,7 @@ const INITIAL_STATE: ConsoleReducer = {
 	executionEnabled: false,
 	hotkeyEnabled: false,
 	output: [],
+	history: [],
 };
 
 const actions: Rodux.ActionHandlers<ConsoleReducer, ConsoleActions> = {
@@ -48,6 +59,10 @@ const actions: Rodux.ActionHandlers<ConsoleReducer, ConsoleActions> = {
 			output: [...state.output, message],
 		};
 	},
+	[ConsoleActionName.AddHistory]: (state, { message }) => ({
+		...state,
+		history: [...state.history, message],
+	}),
 };
 
 const consoleReducer = createReducer(INITIAL_STATE, actions);

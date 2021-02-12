@@ -1,5 +1,5 @@
 import Roact from "@rbxts/roact";
-import UIKTheme from "../../Client/UIKit/ThemeContext";
+import ThemeContext from "../../Client/UIKit/ThemeContext";
 
 interface IconDefinition {
 	Offset: Vector2;
@@ -44,7 +44,7 @@ export default class ZirconIcon extends Roact.PureComponent<IconProps> {
 	public render() {
 		const icon = IconsV2[this.props.Icon];
 		return (
-			<UIKTheme.Consumer
+			<ThemeContext.Consumer
 				render={(theme) => {
 					return (
 						<imagelabel

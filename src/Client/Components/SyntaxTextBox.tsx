@@ -1,10 +1,15 @@
 import Roact from "@rbxts/roact";
 import ZirconIcon from "./Icon";
 import { ZrRichTextHighlighter } from "@rbxts/zirconium-ast";
-import UIKTheme, { convertColorObjectToHex, ThemeSyntaxColors } from "../../Client/UIKit/ThemeContext";
+import ThemeContext, { convertColorObjectToHex, ThemeSyntaxColors } from "../../Client/UIKit/ThemeContext";
+import Maid from "@rbxts/maid";
+import { UserInputService } from "@rbxts/services";
 
 interface SyntaxTextBoxState {
 	source: string;
+	cursorPosition: number;
+	virtualCursorPosition: number;
+	focused?: boolean;
 }
 interface SyntaxTextBoxProps {
 	/**
@@ -31,6 +36,8 @@ interface SyntaxTextBoxProps {
 	 * When this text box is submitted (if not `MultiLine`)
 	 */
 	OnEnterSubmit?: (input: string) => void;
+
+	OnHistoryTraversal?: (direction: "back" | "forward") => void;
 }
 
 /**
@@ -38,11 +45,35 @@ interface SyntaxTextBoxProps {
  */
 export default class ZirconSyntaxTextBox extends Roact.Component<SyntaxTextBoxProps, SyntaxTextBoxState> {
 	private ref = Roact.createRef<TextBox>();
+	private maid = new Maid();
 	public constructor(props: SyntaxTextBoxProps) {
 		super(props);
 		this.state = {
 			source: props.Source,
+			cursorPosition: 0,
+			virtualCursorPosition: 0,
 		};
+	}
+
+	public didMount() {
+		const textBox = this.ref.getValue();
+		if (textBox) {
+			this.maid.GiveTask(
+				UserInputService.InputEnded.Connect((io, gameProcessed) => {
+					if (this.state.focused) {
+						if (io.KeyCode === Enum.KeyCode.Up) {
+							this.props.OnHistoryTraversal?.("back");
+						} else if (io.KeyCode === Enum.KeyCode.Down) {
+							this.props.OnHistoryTraversal?.("forward");
+						}
+					}
+				}),
+			);
+		}
+	}
+
+	public willUnmount() {
+		this.maid.DoCleaning();
 	}
 
 	public didUpdate(prevProps: SyntaxTextBoxProps) {
@@ -58,7 +89,7 @@ export default class ZirconSyntaxTextBox extends Roact.Component<SyntaxTextBoxPr
 
 	public render() {
 		return (
-			<UIKTheme.Consumer
+			<ThemeContext.Consumer
 				render={(theme) => {
 					const highlighter = new ZrRichTextHighlighter(
 						this.state.source,
@@ -71,7 +102,8 @@ export default class ZirconSyntaxTextBox extends Roact.Component<SyntaxTextBoxPr
 							Size={this.props.Size ?? new UDim2(1, 0, 1, 0)}
 							Position={this.props.Position}
 							BackgroundColor3={theme.SecondaryBackgroundColor3}
-							BorderSizePixel={0}
+							BorderSizePixel={1}
+							BorderColor3={this.state.focused ? theme.PrimaryTextColor3 : theme.PrimaryBackgroundColor3}
 						>
 							<uipadding
 								PaddingLeft={new UDim(0, 5)}
@@ -86,17 +118,36 @@ export default class ZirconSyntaxTextBox extends Roact.Component<SyntaxTextBoxPr
 								TextSize={18}
 								TextXAlignment="Left"
 								TextYAlignment="Top"
+								CursorPosition={this.state.cursorPosition}
 								MultiLine={this.props.MultiLine}
 								// ClearTextOnFocus={false}
 								Size={new UDim2(1, 0, 1, 0)}
 								Text={this.state.source}
-								Change={{ Text: (rbx) => this.setState({ source: rbx.Text }) }}
+								Change={{
+									Text: (rbx) => this.setState({ source: rbx.Text.gsub("\t", " ")[0] }),
+									CursorPosition: (rbx) =>
+										this.setState({ virtualCursorPosition: rbx.CursorPosition }),
+								}}
 								TextTransparency={0.75}
 								Event={{
+									// InputEnded: (textBox, io) => {
+									// 	if (io.KeyCode === Enum.KeyCode.Tab) {
+									// 		print("Insert tab!");
+									// 	}
+									// },
+									// InputChanged: (textBox, io) => {
+									// 	if (io.KeyCode === Enum.KeyCode.Up) {
+									// 		print("up");
+									// 	}
+									// },
+									Focused: (textBox) => {
+										this.setState({ focused: true });
+									},
 									FocusLost: (textBox, enterPressed, inputThatCausedFocusLoss) => {
 										if (enterPressed && !this.props.MultiLine) {
 											this.props.OnEnterSubmit?.(textBox.Text);
 										}
+										this.setState({ focused: false });
 									},
 								}}
 								TextColor3={theme.PrimaryTextColor3}

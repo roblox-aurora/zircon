@@ -1,7 +1,7 @@
 import Maid from "@rbxts/maid";
 import Roact from "@rbxts/roact";
 import Snapdragon, { SnapProps } from "@rbxts/snapdragon";
-import UIKTheme from "../UIKit/ThemeContext";
+import ThemeContext from "../UIKit/ThemeContext";
 import ZirconIcon, { IconEnum } from "./Icon";
 
 export interface ButtonProps {
@@ -133,7 +133,7 @@ export default class ZirconTitlebar extends Roact.Component<TitlebarProps> {
 		}
 
 		return (
-			<UIKTheme.Consumer
+			<ThemeContext.Consumer
 				render={(value) => (
 					<frame
 						// BackgroundTransparency={1}

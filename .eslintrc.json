@@ -19,6 +19,7 @@
 		"plugin:prettier/recommended"
 	],
 	"rules": {
+		"roblox-ts/no-any": "off", // broken
 		"prettier/prettier": [
 			"warn",
 			{

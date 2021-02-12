@@ -1,19 +1,23 @@
 import Roact from "@rbxts/roact";
 import { LocalizationService } from "@rbxts/services";
-import { ZirconDebugInformation } from "../../Shared/Remotes";
-import { ConsoleLuauError, ConsoleMessage, ConsoleStderrMessage, ExecutionContext } from "../../Client/Types";
-import UIKTheme, { getRichTextColor3 } from "../../Client/UIKit/ThemeContext";
+import { ZirconDebugInformation, ZirconNetworkMessageType } from "../../Shared/Remotes";
+import { ConsoleLuauError, ConsoleMessage, ZrErrorMessage, ZirconContext, ZirconMessageType } from "../../Client/Types";
+import ThemeContext, {
+	getRichTextColor3,
+	getThemeRichTextColor,
+	ZirconThemeDefinition,
+} from "../../Client/UIKit/ThemeContext";
 import { ZrRichTextHighlighter } from "@rbxts/zirconium-ast";
 
-function OutputError(props: { Message: ConsoleStderrMessage | ConsoleLuauError }) {
+function OutputError(props: { Message: ZrErrorMessage | ConsoleLuauError }) {
 	const output = props.Message;
 
 	return (
-		<UIKTheme.Consumer
+		<ThemeContext.Consumer
 			render={(theme) => {
 				const message = new Array<string>();
 
-				if (output.type === "zr:error") {
+				if (output.type === ZirconMessageType.ZirconiumError) {
 					const { error } = output;
 					message.push(
 						getRichTextColor3(
@@ -26,21 +30,24 @@ function OutputError(props: { Message: ConsoleStderrMessage | ConsoleLuauError }
 						),
 					);
 
-					// message.push(getRichTextColor3(theme, "Cyan", `[Zr]`));
-					if (error.script !== undefined) {
-						let inner = getRichTextColor3(theme, "Cyan", error.script);
-						if (error.source) {
-							inner += `:${getRichTextColor3(
-								theme,
-								"Yellow",
-								tostring(error.source[0]),
-							)}:${getRichTextColor3(theme, "Yellow", tostring(error.source[1]))}`;
+					if (error.type === ZirconNetworkMessageType.ZirconStandardErrorMessage) {
+					} else {
+						// message.push(getRichTextColor3(theme, "Cyan", `[Zr]`));
+						if (error.script !== undefined) {
+							let inner = getRichTextColor3(theme, "Cyan", error.script);
+							if (error.source) {
+								inner += `:${getRichTextColor3(
+									theme,
+									"Yellow",
+									tostring(error.source[0]),
+								)}:${getRichTextColor3(theme, "Yellow", tostring(error.source[1]))}`;
+							}
+							message.push(getRichTextColor3(theme, "White", inner + " -"));
 						}
-						message.push(getRichTextColor3(theme, "White", inner + " -"));
+						message.push(getRichTextColor3(theme, "Red", "error"));
+						message.push(getRichTextColor3(theme, "Grey", `ZR${"%.4d".format(error.code)}:`));
+						message.push(getRichTextColor3(theme, "White", error.message));
 					}
-					message.push(getRichTextColor3(theme, "Red", "error"));
-					message.push(getRichTextColor3(theme, "Grey", `ZR${"%.4d".format(error.code)}:`));
-					message.push(getRichTextColor3(theme, "White", error.message));
 				} else {
 					message.push(getRichTextColor3(theme, "Red", "error"));
 					message.push(getRichTextColor3(theme, "Grey", `Luau`));
@@ -52,7 +59,7 @@ function OutputError(props: { Message: ConsoleStderrMessage | ConsoleLuauError }
 						<frame
 							Size={new UDim2(0, 5, 1, 0)}
 							BackgroundColor3={
-								props.Message.context === ExecutionContext.Server
+								props.Message.context === ZirconContext.Server
 									? theme.ServerContextColor
 									: theme.ClientContextColor
 							}
@@ -76,9 +83,9 @@ function OutputError(props: { Message: ConsoleStderrMessage | ConsoleLuauError }
 	);
 }
 
-function ErrorLine({ TokenInfo }: { TokenInfo: ZirconDebugInformation }) {
+function ErrorLine({ TokenInfo, Highlight = true }: { TokenInfo: ZirconDebugInformation; Highlight?: boolean }) {
 	return (
-		<UIKTheme.Consumer
+		<ThemeContext.Consumer
 			render={(theme) => {
 				return (
 					<frame BackgroundTransparency={1} Size={new UDim2(1, 0, 0, 30)} Position={new UDim2(0.1, 0, 0, 0)}>
@@ -97,7 +104,7 @@ function ErrorLine({ TokenInfo }: { TokenInfo: ZirconDebugInformation }) {
 							BackgroundTransparency={1}
 							Size={new UDim2(1, 0, 0, 30)}
 							Position={new UDim2(0, 20 + 25, 0, 0)}
-							Text={new ZrRichTextHighlighter(TokenInfo.Line).parse()}
+							Text={Highlight ? new ZrRichTextHighlighter(TokenInfo.Line).parse() : TokenInfo.Line}
 							Font={theme.ConsoleFont}
 							TextSize={20}
 							TextXAlignment="Left"
@@ -110,7 +117,7 @@ function ErrorLine({ TokenInfo }: { TokenInfo: ZirconDebugInformation }) {
 							Font={theme.ConsoleFont}
 							TextSize={20}
 							TextColor3={theme.PrimaryTextColor3}
-							Text={getErrorLine(TokenInfo).ErrorLine}
+							Text={getErrorLine(theme, TokenInfo).ErrorLine}
 							Size={new UDim2(1, 0, 0, 30)}
 							Position={new UDim2(0, 20 + 25, 0, 0)}
 						/>
@@ -121,14 +128,18 @@ function ErrorLine({ TokenInfo }: { TokenInfo: ZirconDebugInformation }) {
 	);
 }
 
-function getErrorLine({ Line, TokenLinePosition }: ZirconDebugInformation) {
+function getErrorLine(theme: ZirconThemeDefinition, { Line, TokenLinePosition }: ZirconDebugInformation) {
+	const red = getThemeRichTextColor(theme, "Red");
 	let resultingString = "";
 	let errorArrows = "";
 	for (let i = 1; i <= Line.size(); i++) {
 		const char = " "; // Line.sub(i, i);
-		if (i === TokenLinePosition[0]) {
-			resultingString += '<font color="#ff0000"><u>' + char;
-			errorArrows += '<font color="#ff0000"><u>^';
+		if (i === TokenLinePosition[0] && i === TokenLinePosition[1]) {
+			resultingString += '<font color="' + red + '"><u>' + char + "</u></font>";
+			errorArrows += '<font color="' + red + '"><u>^</u></font>';
+		} else if (i === TokenLinePosition[0]) {
+			resultingString += '<font color="' + red + '"><u>' + char;
+			errorArrows += '<font color="' + red + '"><u>^';
 		} else if (i > TokenLinePosition[0] && i < TokenLinePosition[1]) {
 			resultingString += " ";
 			errorArrows += "^";
@@ -151,19 +162,23 @@ export default class ZirconOutputMessage extends Roact.PureComponent<ZirconOutpu
 	public render() {
 		const { Message } = this.props;
 
-		if (Message.type === "zr:error") {
-			if (Message.error.type === "ParserError") {
-				const { error } = Message;
+		if (Message.type === ZirconMessageType.ZirconiumError) {
+			const { error } = Message;
 
+			if (
+				error.type === ZirconNetworkMessageType.ZirconiumParserError ||
+				error.type === ZirconNetworkMessageType.ZirconiumRuntimeError
+			) {
 				if (error.debug) {
 					return (
 						<Roact.Fragment>
 							<OutputError Message={Message} />
-							<ErrorLine TokenInfo={error.debug} />
+							<ErrorLine Highlight TokenInfo={error.debug} />
 						</Roact.Fragment>
 					);
 				}
 			}
+
 			return <OutputError Message={Message} />;
 		}
 
