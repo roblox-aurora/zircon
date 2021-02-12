@@ -5,11 +5,13 @@ import ZrLuauFunction from "@rbxts/zirconium/out/Data/LuauFunction";
 import ZrScriptContext from "@rbxts/zirconium/out/Runtime/ScriptContext";
 import { toArray } from "../Shared/Collections";
 import ZirconUserGroup, { ZirconPermissions } from "../Server/Class/ZirconGroup";
+import { $ifEnv } from "rbxts-transform-env";
+import { $dbg } from "rbxts-transform-debug";
 
 export namespace ZirconRegistryService {
-	const contexts = new WeakMap<Player, Array<ZrScriptContext>>();
+	const contexts = new Map<Player, Array<ZrScriptContext>>();
 	const groups = new Map<string, ZirconUserGroup>();
-	const playerGroupMap = new WeakMap<Player, Array<ZirconUserGroup>>();
+	const playerGroupMap = new Map<Player, Array<ZirconUserGroup>>();
 
 	function* playerFunctionIterator(player: Player) {
 		const groups = playerGroupMap.get(player);
@@ -53,6 +55,7 @@ export namespace ZirconRegistryService {
 	) {
 		const funct = new ZrLuauFunction(fn);
 		for (const group of groups) {
+			$ifEnv("NODE_ENV", "development", () => print(`Add global '${name}' to group ${group.GetName()}`));
 			group._registerFunction(name, fn);
 		}
 		return funct;
@@ -121,6 +124,14 @@ export namespace ZirconRegistryService {
 		for (const groupOrId of targetGroups) {
 			const group = typeIs(groupOrId, "string") ? groups.get(groupOrId) : groupOrId;
 			if (group) {
+				$ifEnv("NODE_ENV", "development", () =>
+					print(
+						`Add player '${player}' to groups [ ${targetGroups
+							.map((s) => (typeIs(s, "string") ? s : s.GetName()))
+							.join(", ")} ]`,
+					),
+				);
+
 				group.AddMember(player);
 				playerGroups.push(group);
 			} else {
@@ -150,6 +161,9 @@ export namespace ZirconRegistryService {
 	 * @internal
 	 */
 	export function InternalGetPlayersWithPermission<K extends keyof ZirconPermissions>(permission: K) {
+		$ifEnv("NODE_ENV", "development", () => {
+			print("GetPlayersWithPermission", permission);
+		});
 		if (permissionGroupCache.has(permission)) {
 			return permissionGroupCache.get(permission)!;
 		}
@@ -164,7 +178,7 @@ export namespace ZirconRegistryService {
 
 		const arr = toArray(playerSet);
 		permissionGroupCache.set(permission, arr);
-		return arr;
+		return $dbg(arr);
 	}
 
 	/** @internal */
@@ -226,6 +240,8 @@ export namespace ZirconRegistryService {
 
 	Players.PlayerRemoving.Connect((player) => {
 		permissionGroupCache.clear();
+		contexts.delete(player);
+		playerGroupMap.delete(player);
 	});
 
 	for (const player of Players.GetPlayers()) {

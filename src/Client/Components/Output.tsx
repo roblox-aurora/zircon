@@ -64,57 +64,6 @@ function OutputPlain(props: { Message: ConsolePlainMessage | ConsoleSyntaxMessag
 	}
 }
 
-// function OutputMessage(props: { Message: ZrOutputMessage }) {
-// 	const { message } = props.Message;
-
-// 	return (
-// 		<ThemeContext.Consumer
-// 			render={(theme) => {
-// 				const str = new Array<string>();
-// 				str.push(
-// 					getRichTextColor3(
-// 						theme,
-// 						"Grey",
-// 						`[${DateTime.fromUnixTimestamp(message.time).FormatLocalTime(
-// 							"LT",
-// 							LocalizationService.SystemLocaleId,
-// 						)}]`,
-// 					),
-// 				);
-// 				if (message.type === ZirconNetworkMessageType.ZirconiumOutput && message.script !== undefined) {
-// 					const inner = getRichTextColor3(theme, "Cyan", message.script);
-// 					str.push(getRichTextColor3(theme, "White", inner + " -"));
-// 				}
-// 				str.push(message.message);
-// 				return (
-// 					<frame Size={new UDim2(1, 0, 0, 25)} BackgroundTransparency={1}>
-// 						<frame
-// 							Size={new UDim2(0, 5, 1, 0)}
-// 							BackgroundColor3={
-// 								props.Message.context === ZirconContext.Server
-// 									? theme.ServerContextColor
-// 									: theme.ClientContextColor
-// 							}
-// 							BorderSizePixel={0}
-// 						/>
-// 						<textlabel
-// 							RichText
-// 							Position={new UDim2(0, 10, 0, 0)}
-// 							Size={new UDim2(1, 0, 0, 25)}
-// 							Text={str.join(" ")}
-// 							BackgroundTransparency={1}
-// 							Font={theme.ConsoleFont}
-// 							TextColor3={theme.PrimaryTextColor3}
-// 							TextXAlignment="Left"
-// 							TextSize={20}
-// 						/>
-// 					</frame>
-// 				);
-// 			}}
-// 		/>
-// 	);
-// }
-
 interface OutputProps extends MappedProps {}
 interface OutputState {
 	output: ConsoleMessage[];
@@ -144,10 +93,6 @@ class OutputComponent extends Roact.Component<OutputProps, OutputState> {
 							ItemPadding={new UDim(0, 5)}
 						>
 							{this.state.output.map((output) => {
-								// if (output.type === ZirconMessageType.ZirconiumOutput) {
-								// 	// return <OutputMessage Message={output} />;
-								// 	return <Roact.Fragment />;
-								// } else
 								if (
 									output.type === ZirconMessageType.ZirconiumError ||
 									output.type === "luau:error" ||

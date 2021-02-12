@@ -1,4 +1,5 @@
 import Rodux, { Action, createReducer } from "@rbxts/rodux";
+import { $dbg } from "rbxts-transform-debug";
 import { ConsoleMessage } from "../../../../Client/Types";
 
 export const enum ConsoleActionName {
@@ -54,10 +55,10 @@ const actions: Rodux.ActionHandlers<ConsoleReducer, ConsoleActions> = {
 		hotkeyEnabled,
 	}),
 	[ConsoleActionName.AddOutput]: (state, { message }) => {
-		return {
+		return $dbg({
 			...state,
 			output: [...state.output, message],
-		};
+		});
 	},
 	[ConsoleActionName.AddHistory]: (state, { message }) => ({
 		...state,

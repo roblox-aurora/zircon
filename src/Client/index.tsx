@@ -42,7 +42,6 @@ namespace ZirconClient {
 	});
 
 	export function Log(level: ZirconLogLevel, tag: string, message: string, data?: Record<string, defined>) {
-		print(level, tag, message);
 		if (level === ZirconLogLevel.Error || level === ZirconLogLevel.Wtf) {
 			ZirconClientStore.dispatch({
 				type: ConsoleActionName.AddOutput,
