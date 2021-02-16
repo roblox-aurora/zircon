@@ -77,15 +77,8 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 				render={(theme) => (
 					<screengui DisplayOrder={10000} IgnoreGuiInset>
 						<frame
-							Size={new UDim2(1, 0, 0, 40)}
-							BackgroundColor3={theme.PrimaryBackgroundColor3}
-							BorderSizePixel={0}
-							Position={this.state.isVisible ? new UDim2(0, 0, 0, 0) : new UDim2(0, 0, 0, -40)}
-						/>
-						<frame
 							Key="ZirconViewport"
 							BorderSizePixel={0}
-							//BackgroundTransparency={this.outputTransparency}
 							BackgroundTransparency={theme.Dock.Transparency ?? this.outputTransparency}
 							BackgroundColor3={theme.PrimaryBackgroundColor3}
 							ClipsDescendants

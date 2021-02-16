@@ -1,12 +1,15 @@
 import Rodux, { Action, createReducer } from "@rbxts/rodux";
 import { $dbg } from "rbxts-transform-debug";
-import { ConsoleMessage } from "../../../../Client/Types";
+import { ConsoleMessage, ZirconContext, ZirconLogLevel } from "../../../../Client/Types";
 
 export const enum ConsoleActionName {
 	SetConsoleVisible = "SetConsoleVisible",
 	SetConfiguration = "SetConsoleConfiguration",
 	AddOutput = "AddOutput",
 	AddHistory = "AddHistory",
+	SetFilter = "SetFilter",
+	UpdateFilter = "UpdateFilter",
+	RemoveFilter = "RemoveFilter",
 }
 
 export interface ActionSetConsoleVisible extends Action<ConsoleActionName.SetConsoleVisible> {
@@ -25,11 +28,31 @@ export interface ActionAddHistory extends Action<ConsoleActionName.AddHistory> {
 	message: string;
 }
 
+export interface ActionSetFilter extends Action<ConsoleActionName.SetFilter> {
+	filter: ConsoleFilter;
+}
+
+export interface ActionRemoveFilter extends Action<ConsoleActionName.RemoveFilter> {
+	filter: keyof ConsoleFilter;
+}
+
+export interface ActionUpdateFilter extends Action<ConsoleActionName.UpdateFilter>, ConsoleFilter {}
+
 export type ConsoleActions =
 	| ActionSetConsoleVisible
 	| ActionSetConsoleConfiguration
 	| ActionAddOutput
-	| ActionAddHistory;
+	| ActionAddHistory
+	| ActionSetFilter
+	| ActionUpdateFilter
+	| ActionRemoveFilter;
+
+export interface ConsoleFilter {
+	Context?: ZirconContext;
+	Level?: ZirconLogLevel;
+	SearchQuery?: string;
+	Tail?: boolean;
+}
 
 export interface ConsoleReducer {
 	visible: boolean;
@@ -37,6 +60,7 @@ export interface ConsoleReducer {
 	hotkeyEnabled: boolean;
 	output: ConsoleMessage[];
 	history: string[];
+	filter?: ConsoleFilter;
 }
 
 const INITIAL_STATE: ConsoleReducer = {
@@ -63,6 +87,18 @@ const actions: Rodux.ActionHandlers<ConsoleReducer, ConsoleActions> = {
 	[ConsoleActionName.AddHistory]: (state, { message }) => ({
 		...state,
 		history: [...state.history, message],
+	}),
+	[ConsoleActionName.SetFilter]: (state, { filter }) => ({
+		...state,
+		filter,
+	}),
+	[ConsoleActionName.UpdateFilter]: (state, options) => ({
+		...state,
+		filter: { ...state.filter, ...options },
+	}),
+	[ConsoleActionName.RemoveFilter]: (state, { filter }) => ({
+		...state,
+		filter: { ...state.filter, [filter]: undefined },
 	}),
 };
 

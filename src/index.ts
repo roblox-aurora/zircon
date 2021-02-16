@@ -2,8 +2,8 @@
  * Zircon Server Namespace
  */
 
-import ZrSO4Client from "./Client";
-import ZrSO4Server from "./Server";
+import ZrSiO4Client from "./Client";
+import ZrSiO4Server from "./Server";
 import { ZirconContext, ZirconLoggable, ZirconLogLevel, ZirconTag } from "./Client/Types";
 import { RunService } from "@rbxts/services";
 
@@ -14,11 +14,11 @@ namespace Zircon {
 	/**
 	 * The client side functionalities for Zircon
 	 */
-	export const Client = ZrSO4Client;
+	export const Client = ZrSiO4Client;
 	/**
 	 * The server side functionalities for Zircon
 	 */
-	export const Server = ZrSO4Server;
+	export const Server = ZrSiO4Server;
 
 	function log(
 		level: ZirconLogLevel,

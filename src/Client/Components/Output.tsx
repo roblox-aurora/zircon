@@ -7,6 +7,10 @@ import {
 	ConsoleSyntaxMessage,
 	ZirconContext,
 	ZirconMessageType,
+	isContextMessage,
+	getMessageText,
+	isLogMessage,
+	isLogLevel,
 } from "../../Client/Types";
 import ThemeContext, { getRichTextColor3 } from "../../Client/UIKit/ThemeContext";
 import { ConsoleReducer } from "../../Client/BuiltInConsole/Store/_reducers/ConsoleReducer";
@@ -17,6 +21,7 @@ import { LocalizationService } from "@rbxts/services";
 import ZirconOutputMessage from "./OutputMessage";
 import { ZirconNetworkMessageType } from "../../Shared/Remotes";
 import { last } from "Shared/Collections";
+import StringUtils from "@rbxts/string-utils";
 
 function OutputPlain(props: { Message: ConsolePlainMessage | ConsoleSyntaxMessage }) {
 	const message = props.Message;
@@ -118,8 +123,26 @@ interface MappedProps {
 	readonly output: ConsoleMessage[];
 }
 const mapStateToProps = (state: ConsoleReducer): MappedProps => {
+	const { filter } = state;
+
+	let output = state.output;
+
+	if (filter) {
+		if (filter.Context !== undefined) {
+			output = output.filter((message) => isContextMessage(message) && message.context === filter.Context);
+		}
+		if (typeIs(filter.SearchQuery, "string")) {
+			const { SearchQuery } = filter;
+			output = output.filter((message) => StringUtils.startsWith(getMessageText(message), SearchQuery));
+		}
+		if (filter.Level !== undefined) {
+			const { Level } = filter;
+			output = output.filter((message) => isLogLevel(Level, message));
+		}
+	}
+
 	return {
-		output: last(state.output, 100),
+		output: filter?.Tail ? last(output, 25) : last(output, 100),
 	};
 };
 

@@ -57,3 +57,29 @@ export function CalculatePadding(padding: WidgetPadding): Partial<PaddingResult>
 		PaddingTop: new UDim(0, 0),
 	};
 }
+
+import Roact from "@rbxts/roact";
+
+interface Padding {
+	Left?: number;
+	Top?: number;
+	Right?: number;
+	Bottom?: number;
+	Vertical?: number;
+	Horizontal?: number;
+}
+export interface PaddingProps {
+	Padding: Padding;
+}
+export default function Padding({
+	Padding: { Left = 0, Right = 0, Top = 0, Bottom = 0, Vertical = 0, Horizontal = 0 },
+}: PaddingProps) {
+	return (
+		<uipadding
+			PaddingBottom={new UDim(0, Bottom + Vertical)}
+			PaddingTop={new UDim(0, Top + Vertical)}
+			PaddingRight={new UDim(0, Right + Horizontal)}
+			PaddingLeft={new UDim(0, Left + Horizontal)}
+		/>
+	);
+}

@@ -12,6 +12,7 @@ import { GetCommandService } from "../Services";
 import Remotes, { ZirconNetworkMessageType } from "../Shared/Remotes";
 import { RemoteId } from "../RemoteId";
 import { ZirconContext, ZirconLogLevel, ZirconMessageType } from "./Types";
+import ZirconTopBar from "./BuiltInConsole/UI/TopbarMenu";
 
 const IsClient = RunService.IsClient();
 
@@ -75,11 +76,26 @@ namespace ZirconClient {
 		}
 	}
 
-	const initialState = StarterGui.GetCoreGuiEnabled(Enum.CoreGuiType.All);
+	let topbarEnabledState = false;
+
 	function activateBuiltInConsole(actionName: string, state: Enum.UserInputState) {
+		const isTopbarEnabled = StarterGui.GetCore("TopbarEnabled");
+
 		const { hotkeyEnabled } = ZirconClientStore.getState();
 		if (state === Enum.UserInputState.End && $dbg(hotkeyEnabled)) {
 			isVisible = !isVisible;
+
+			if (isVisible) {
+				if (isTopbarEnabled) {
+					topbarEnabledState = true;
+					StarterGui.SetCore("TopbarEnabled", false);
+				}
+			} else {
+				if (topbarEnabledState) {
+					StarterGui.SetCore("TopbarEnabled", true);
+				}
+			}
+
 			ZirconClientStore.dispatch({ type: ConsoleActionName.SetConsoleVisible, visible: $dbg(isVisible) });
 		}
 		return Enum.ContextActionResult.Sink;
@@ -107,7 +123,10 @@ namespace ZirconClient {
 		bindActivationKeys(Keys);
 		handle = Roact.mount(
 			<RoactRodux.StoreProvider store={ZirconClientStore}>
-				<ConsoleComponent />
+				<Roact.Fragment>
+					<ZirconTopBar />
+					<ConsoleComponent />
+				</Roact.Fragment>
 			</RoactRodux.StoreProvider>,
 			Players.LocalPlayer.FindFirstChildOfClass("PlayerGui"),
 		);

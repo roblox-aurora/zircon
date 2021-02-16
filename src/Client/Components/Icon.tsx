@@ -14,6 +14,7 @@ const IconsV2 = {
 	MaximizeDown: identity<IconDefinition>({ Offset: new Vector2(16 * 5, 0) }),
 	MaximizeUp: identity<IconDefinition>({ Offset: new Vector2(16 * 6, 0) }),
 	Minimize: identity<IconDefinition>({ Offset: new Vector2(16 * 7, 0) }),
+	Zirconium: identity<IconDefinition>({ Offset: new Vector2(16 * 8, 0) }),
 	TypeClass: identity<IconDefinition>({ Offset: new Vector2(0, 16) }),
 	TypeMember: identity<IconDefinition>({ Offset: new Vector2(16, 16) }),
 	TypeFunction: identity<IconDefinition>({ Offset: new Vector2(16 * 2, 16) }),
