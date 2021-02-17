@@ -19,7 +19,7 @@ interface DropdownProps<T = string> {
 	readonly Items: Array<ItemData<T>>;
 	readonly Label: string;
 	// readonly SelectedItemIndexes?: Set<number>;
-	readonly SelectedItemIds?: Set<T>;
+	readonly SelectedItemIds?: ReadonlySet<T>;
 	Size?: UDim2;
 	Disabled?: boolean;
 	ItemsSelected?: (item: Set<T>) => void;
@@ -27,6 +27,7 @@ interface DropdownProps<T = string> {
 interface DropdownState<T = string> {
 	active: boolean;
 	selectedItems: ReadonlySet<ItemData<T>>;
+	selectedItemIds: ReadonlySet<T>;
 }
 
 export default class MultiSelectDropdown<T = string> extends Roact.Component<DropdownProps<T>, DropdownState<T>> {
@@ -39,32 +40,11 @@ export default class MultiSelectDropdown<T = string> extends Roact.Component<Dro
 	private portalSizeX: Roact.RoactBinding<number>;
 	private setPortalSizeX: Roact.RoactBindingFunc<number>;
 
-	private getItemSet() {
-		const {
-			props: { SelectedItemIds, Items },
-		} = this;
-		if (SelectedItemIds !== undefined) {
-			const selectedItemSet = Items.reduce((accumulator, current) => {
-				if (SelectedItemIds.has(current.Id)) {
-					accumulator.add(current);
-				}
-				return accumulator;
-			}, new Set<ItemData<T>>());
-			print(toArray(selectedItemSet));
-			return selectedItemSet;
-		} else {
-			return new Set<ItemData<T>>();
-		}
-	}
-
-	private updateSelectedIndexes() {
-		this.setState({ selectedItems: this.getItemSet() });
-	}
-
 	public constructor(props: DropdownProps<T>) {
 		super(props);
 		this.state = {
 			selectedItems: new Set(),
+			selectedItemIds: props.SelectedItemIds ?? new Set(),
 			active: false,
 		};
 
@@ -72,6 +52,26 @@ export default class MultiSelectDropdown<T = string> extends Roact.Component<Dro
 
 		[this.portalPosition, this.setPortalPosition] = Roact.createBinding(new UDim2());
 		[this.portalSizeX, this.setPortalSizeX] = Roact.createBinding(0);
+	}
+
+	private getItemSet() {
+		const {
+			props: { Items },
+		} = this;
+		const { selectedItemIds } = this.state;
+
+		const selectedItemSet = Items.reduce((accumulator, current) => {
+			if (selectedItemIds.has(current.Id)) {
+				accumulator.add(current);
+			}
+			return accumulator;
+		}, new Set<ItemData<T>>());
+		print(toArray(selectedItemSet));
+		return selectedItemSet;
+	}
+
+	private updateSelectedIndexes() {
+		this.setState({ selectedItems: this.getItemSet() });
 	}
 
 	public setPortalPositionRelativeTo(frame: Frame) {
@@ -82,7 +82,10 @@ export default class MultiSelectDropdown<T = string> extends Roact.Component<Dro
 
 	public didUpdate(prevProps: DropdownProps<T>) {
 		if (!setsEqual(prevProps.SelectedItemIds, this.props.SelectedItemIds)) {
-			this.setState({ selectedItems: this.getItemSet() });
+			this.setState({
+				selectedItems: this.getItemSet(),
+				selectedItemIds: this.props.SelectedItemIds ?? new Set(),
+			});
 		}
 	}
 
@@ -113,7 +116,7 @@ export default class MultiSelectDropdown<T = string> extends Roact.Component<Dro
 	}
 
 	public renderDropdownItems() {
-		const { selectedItems } = this.state;
+		const { selectedItems, selectedItemIds } = this.state;
 		print("renderDropdownItems", toArray(selectedItems));
 		return this.props.Items.map((item, idx) => {
 			return (
@@ -122,7 +125,7 @@ export default class MultiSelectDropdown<T = string> extends Roact.Component<Dro
 						<frame
 							Size={new UDim2(1, 0, 0, 30)}
 							BackgroundColor3={
-								selectedItems.has(item)
+								selectedItemIds.has(item.Id)
 									? theme.PrimaryBackgroundColor3
 									: theme.SecondaryBackgroundColor3
 							}
@@ -130,7 +133,7 @@ export default class MultiSelectDropdown<T = string> extends Roact.Component<Dro
 						>
 							<frame Size={new UDim2(1, 0, 1, 0)} BackgroundTransparency={1}>
 								<Padding Padding={{ Right: 20, Horizontal: 5 }} />
-								{selectedItems.has(item) && (
+								{selectedItemIds.has(item.Id) && (
 									<ZirconIcon Icon="Checkmark" Position={new UDim2(0, 0, 0.5, -8)} />
 								)}
 								<textbutton
@@ -166,7 +169,7 @@ export default class MultiSelectDropdown<T = string> extends Roact.Component<Dro
 												selectedSet.add(item);
 											}
 
-											this.setState({ selectedItems: selectedSet });
+											this.setState({ selectedItems: selectedSet, selectedItemIds: newSet });
 											if (this.props.ItemsSelected !== undefined) {
 												this.props.ItemsSelected(newSet);
 											}
