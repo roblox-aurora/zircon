@@ -37,7 +37,7 @@
   "dependencies": {
     "@rbxts/flipper": "^1.2.0",
     "@rbxts/maid": "^1.0.0-ts.1",
-    "@rbxts/net": "^2.0.0-rc.1",
+    "@rbxts/net": "^2.0.0-rc.3",
     "@rbxts/roact": "^1.3.0-ts.7",
     "@rbxts/roact-rodux": "^0.1.2",
     "@rbxts/rodux": "^1.1.0",

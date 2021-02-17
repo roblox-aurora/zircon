@@ -12,6 +12,9 @@ export interface ZirconGroupConfiguration {
 	readonly BoundToGroup?: ZirconRobloxGroupBinding;
 }
 
+export type ZirconPermissionSet = Set<keyof ZirconPermissions>;
+export type ReadonlyZirconPermissionSet = ReadonlySet<keyof ZirconPermissions>;
+
 export interface ZirconPermissions {
 	/**
 	 * Whether or not this group can recieve `Zircon.Log*` messages from the server
@@ -36,11 +39,17 @@ export enum ZirconGroupType {
 
 export default class ZirconUserGroup {
 	private functions = new Map<string, ZrLuauFunction>();
-	private permissions: ZirconPermissions;
+	private permissions: ZirconPermissionSet;
 	private members = new WeakSet<Player>();
 
 	public constructor(private id: number, private name: string, private configuration: ZirconGroupConfiguration) {
-		this.permissions = configuration.Permissions;
+		const permissionSet = new Set<keyof ZirconPermissions>();
+		for (const [name, enabled] of pairs(configuration.Permissions)) {
+			if (typeIs(enabled, "boolean") && enabled) {
+				permissionSet.add(name);
+			}
+		}
+		this.permissions = permissionSet;
 	}
 
 	public AddMember(player: Player) {
@@ -67,12 +76,12 @@ export default class ZirconUserGroup {
 		return this.id;
 	}
 
-	public GetPermissions() {
+	public GetPermissions(): ReadonlyZirconPermissionSet {
 		return this.permissions;
 	}
 
 	public GetPermission<K extends keyof ZirconPermissions>(name: K): ZirconPermissions[K] {
-		return this.permissions[name];
+		return this.configuration.Permissions[name];
 	}
 
 	/** @internal */

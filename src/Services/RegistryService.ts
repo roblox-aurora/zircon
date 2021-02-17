@@ -113,6 +113,13 @@ export namespace ZirconRegistryService {
 	}
 
 	/**
+	 * Gets the highest player group for this player
+	 */
+	export function GetHighestPlayerGroup(player: Player) {
+		return playerGroupMap.get(player)?.reduce((acc, curr) => (curr.GetRank() > acc.GetRank() ? curr : acc));
+	}
+
+	/**
 	 * Adds the specified player to the targeted groups.
 	 *
 	 * All players are added to `user`, and group owners/game owners are added to `creator` by default.

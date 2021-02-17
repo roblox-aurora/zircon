@@ -106,6 +106,8 @@ namespace ZirconClient {
 		ConsoleComponent?: typeof Roact.Component | ((props: defined) => Roact.Element);
 	}
 
+	let consoleBound = false;
+
 	/**
 	 * Binds the built-in Zircon console
 	 * Default Keybind: F10
@@ -114,13 +116,16 @@ namespace ZirconClient {
 	 *
 	 * *This is not required, you can use your own console solution!*
 	 */
-	export function bindConsole(options: ConsoleOptions = {}) {
+	export function BindConsole(options: ConsoleOptions = {}) {
+		if (consoleBound) return;
+		consoleBound = true;
+
 		const { Keys = [Enum.KeyCode.F10], ConsoleComponent = ZirconDockedConsole } = options;
 
 		$ifEnv("NODE_ENV", "development", () => {
 			print("[zircon-debug] bindConsole called with", ...Keys);
 		});
-		bindActivationKeys(Keys);
+		BindActivationKeys(Keys);
 		handle = Roact.mount(
 			<RoactRodux.StoreProvider store={ZirconClientStore}>
 				<Roact.Fragment>
@@ -130,9 +135,18 @@ namespace ZirconClient {
 			</RoactRodux.StoreProvider>,
 			Players.LocalPlayer.FindFirstChildOfClass("PlayerGui"),
 		);
+
+		const GetPlayerOptions = Remotes.Client.Get(RemoteId.GetPlayerPermissions);
+		GetPlayerOptions.CallServerAsync().then((permissions) => {
+			ZirconClientStore.dispatch({
+				type: ConsoleActionName.SetConfiguration,
+				hotkeyEnabled: true,
+				executionEnabled: permissions.has("CanExecuteZirconiumScripts"),
+			});
+		});
 	}
 
-	export function bindActivationKeys(keys: Enum.KeyCode[]) {
+	export function BindActivationKeys(keys: Enum.KeyCode[]) {
 		ContextActionService.UnbindAction(Const.ActionId);
 		ContextActionService.BindAction(Const.ActionId, activateBuiltInConsole, false, ...keys);
 	}

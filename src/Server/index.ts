@@ -9,6 +9,7 @@ import { Token } from "@rbxts/zirconium-ast/out/Tokens/Tokens";
 import { Node } from "@rbxts/zirconium-ast/out/Nodes/NodeTypes";
 import { $dbg } from "rbxts-transform-debug";
 import { ZirconLogLevel } from "../Client/Types";
+import { ReadonlyZirconPermissionSet, ZirconGroupConfiguration } from "./Class/ZirconGroup";
 const IsServer = RunService.IsServer();
 
 namespace Zircon {
@@ -186,9 +187,19 @@ namespace Zircon {
 				});
 		});
 
-		const GetPlayerOptions = Remotes.Server.Create(RemoteId.GetPlayerOptions);
-		GetPlayerOptions.SetCallback(() => {
-			return {};
+		const GetPlayerOptions = Remotes.Server.Create(RemoteId.GetPlayerPermissions);
+		GetPlayerOptions.SetCallback((player) => {
+			const group = Registry.GetHighestPlayerGroup(player);
+			if (group) {
+				return group.GetPermissions();
+			} else {
+				Log.Write(
+					ZirconLogLevel.Wtf,
+					"GetPlayerPermissions",
+					`Could not fetch permissions for player ${player}`,
+				);
+				return new ReadonlySet() as ReadonlyZirconPermissionSet;
+			}
 		});
 	}
 }

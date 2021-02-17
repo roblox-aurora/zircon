@@ -25,10 +25,9 @@ function CustomConsole() {
 	);
 }
 
-ZirconClient.bindConsole({
+ZirconClient.BindConsole({
 	ConsoleComponent: CustomConsole,
 });
-ZirconClientStore.dispatch({ type: ConsoleActionName.SetConfiguration, hotkeyEnabled: true, executionEnabled: true });
 
 delayAsync(10).then(() => {
 	Zircon.LogInfo("Test", "testing lol");

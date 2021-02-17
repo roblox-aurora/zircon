@@ -4,6 +4,7 @@ import { RemoteId } from "../RemoteId";
 import { ZrParserErrorCode } from "@rbxts/zirconium-ast/out/Parser";
 import { ZirconLogLevel } from "../Client/Types";
 import createPermissionMiddleware from "./NetPermissionMiddleware";
+import type { ReadonlyZirconPermissionSet } from "Server/Class/ZirconGroup";
 
 export interface ZirconiumRuntimeErrorMessage {
 	type: ZirconNetworkMessageType.ZirconiumRuntimeError;
@@ -71,10 +72,13 @@ const Remotes = Net.Definitions.Create({
 	[RemoteId.StandardOutput]: Net.Definitions.Event<[], [output: ZirconStandardOutput]>(),
 	[RemoteId.StandardError]: Net.Definitions.Event<[], [output: ZirconErrorOutput]>(),
 	[RemoteId.DispatchToServer]: Net.Definitions.Event<[message: string]>([
+		createPermissionMiddleware("CanExecuteZirconiumScripts"),
 		Net.Middleware.RateLimit({ MaxRequestsPerMinute: 25 }),
 		Net.Middleware.TypeChecking((value: unknown): value is string => typeIs(value, "string")),
 	]),
-	[RemoteId.GetPlayerOptions]: Net.Definitions.AsyncFunction<() => defined>(),
+	[RemoteId.GetPlayerPermissions]: Net.Definitions.AsyncFunction<() => ReadonlyZirconPermissionSet>([
+		Net.Middleware.RateLimit({ MaxRequestsPerMinute: 1 }),
+	]),
 	[RemoteId.GetServerLogMessages]: Net.Definitions.AsyncFunction<
 		() => Array<ZirconStandardOutput | ZirconErrorOutput>
 	>([createPermissionMiddleware("CanRecieveServerLogMessages")]),
