@@ -3,23 +3,18 @@ import { connect } from "@rbxts/roact-rodux";
 import {
 	ConsoleMessage,
 	ConsolePlainMessage,
-	ZrOutputMessage,
 	ConsoleSyntaxMessage,
-	ZirconContext,
 	ZirconMessageType,
 	isContextMessage,
 	getMessageText,
-	isLogMessage,
-	isLogLevel,
+	getLogLevel,
 } from "../../Client/Types";
-import ThemeContext, { getRichTextColor3 } from "../../Client/UIKit/ThemeContext";
+import ThemeContext from "../../Client/UIKit/ThemeContext";
 import { ConsoleReducer } from "../../Client/BuiltInConsole/Store/_reducers/ConsoleReducer";
 import ScrollView from "./ScrollView";
 import { ZrRichTextHighlighter } from "@rbxts/zirconium-ast";
 import ZirconIcon from "./Icon";
-import { LocalizationService } from "@rbxts/services";
 import ZirconOutputMessage from "./OutputMessage";
-import { ZirconNetworkMessageType } from "../../Shared/Remotes";
 import { last } from "Shared/Collections";
 import StringUtils from "@rbxts/string-utils";
 
@@ -135,10 +130,8 @@ const mapStateToProps = (state: ConsoleReducer): MappedProps => {
 			const { SearchQuery } = filter;
 			output = output.filter((message) => StringUtils.startsWith(getMessageText(message), SearchQuery));
 		}
-		if (filter.Level !== undefined) {
-			const { Level } = filter;
-			output = output.filter((message) => isLogLevel(Level, message));
-		}
+
+		output = output.filter((message) => filter.Levels.has(getLogLevel(message)));
 	}
 
 	return {

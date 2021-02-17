@@ -36,7 +36,7 @@ export interface ActionRemoveFilter extends Action<ConsoleActionName.RemoveFilte
 	filter: keyof ConsoleFilter;
 }
 
-export interface ActionUpdateFilter extends Action<ConsoleActionName.UpdateFilter>, ConsoleFilter {}
+export interface ActionUpdateFilter extends Action<ConsoleActionName.UpdateFilter>, Partial<ConsoleFilter> {}
 
 export type ConsoleActions =
 	| ActionSetConsoleVisible
@@ -50,6 +50,7 @@ export type ConsoleActions =
 export interface ConsoleFilter {
 	Context?: ZirconContext;
 	Level?: ZirconLogLevel;
+	Levels: Set<ZirconLogLevel>;
 	SearchQuery?: string;
 	Tail?: boolean;
 }
@@ -60,8 +61,15 @@ export interface ConsoleReducer {
 	hotkeyEnabled: boolean;
 	output: ConsoleMessage[];
 	history: string[];
-	filter?: ConsoleFilter;
+	filter: ConsoleFilter;
 }
+
+export const DEFAULT_FILTER = new Set([
+	ZirconLogLevel.Info,
+	ZirconLogLevel.Warning,
+	ZirconLogLevel.Error,
+	ZirconLogLevel.Wtf,
+]);
 
 const INITIAL_STATE: ConsoleReducer = {
 	visible: false,
@@ -69,6 +77,15 @@ const INITIAL_STATE: ConsoleReducer = {
 	hotkeyEnabled: false,
 	output: [],
 	history: [],
+	filter: {
+		Levels: new Set([
+			ZirconLogLevel.Debug,
+			ZirconLogLevel.Info,
+			ZirconLogLevel.Warning,
+			ZirconLogLevel.Error,
+			ZirconLogLevel.Wtf,
+		]),
+	},
 };
 
 const actions: Rodux.ActionHandlers<ConsoleReducer, ConsoleActions> = {

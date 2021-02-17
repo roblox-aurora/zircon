@@ -3,14 +3,16 @@ import { connect } from "@rbxts/roact-rodux";
 import { DispatchParam } from "@rbxts/rodux";
 import Dropdown from "Client/Components/Dropdown";
 import ZirconIcon from "Client/Components/Icon";
+import MultiSelectDropdown from "Client/Components/MultiSelectDropdown";
 import { ZirconContext, ZirconLogLevel } from "Client/Types";
 import ThemeContext from "Client/UIKit/ThemeContext";
 import ZirconClientStore from "../Store";
-import { ConsoleActionName, ConsoleReducer } from "../Store/_reducers/ConsoleReducer";
+import { ConsoleActionName, ConsoleReducer, DEFAULT_FILTER } from "../Store/_reducers/ConsoleReducer";
 
 export interface TopbarProps extends MappedProps, MappedDispatch {}
 interface TopbarState {
 	isVisible: boolean;
+	levelFilter: Set<ZirconLogLevel>;
 	// isFullView: boolean;
 	// sizeY: number;
 	// source: string;
@@ -22,12 +24,15 @@ class ZirconTopbarMenuComponent extends Roact.Component<TopbarProps, TopbarState
 		super(props);
 		this.state = {
 			isVisible: props.isVisible,
+			levelFilter: props.levelFilter,
 		};
 	}
 	public didUpdate(prevProps: TopbarProps) {
 		if (prevProps.isVisible !== this.props.isVisible) {
 			// this.sizeYMotor.setGoal(new Spring(this.props.isVisible ? this.state.sizeY : 0));
 			this.setState({ isVisible: this.props.isVisible });
+		} else if (prevProps.levelFilter !== this.props.levelFilter) {
+			this.setState({ levelFilter: this.props.levelFilter });
 		}
 	}
 
@@ -77,35 +82,32 @@ class ZirconTopbarMenuComponent extends Roact.Component<TopbarProps, TopbarState
 									this.props.updateContextFilter(item.Id);
 								}}
 							/>
-							<Dropdown<ZirconLogLevel | undefined>
+							<MultiSelectDropdown<ZirconLogLevel>
+								Label="Level Filter"
+								SelectedItemIds={this.state.levelFilter}
 								Items={[
 									{
-										SelectedText: "(Level)",
-										Text: "All Levels",
-										Id: undefined,
-										TextColor3: Color3.fromRGB(150, 150, 150),
-									},
-									{
-										Text: ">= Debug",
 										Id: ZirconLogLevel.Debug,
+										Text: "Debugging",
 									},
 									{
-										Text: ">= Info",
 										Id: ZirconLogLevel.Info,
+										Text: "Information",
 									},
 									{
-										Text: ">= Warning",
 										Id: ZirconLogLevel.Warning,
+										Text: "Warnings",
 									},
 									{
-										Text: ">= Error",
 										Id: ZirconLogLevel.Error,
+										Text: "Errors",
+									},
+									{
+										Id: ZirconLogLevel.Wtf,
+										Text: "Fatal Errors",
 									},
 								]}
-								SelectedItemId={undefined}
-								ItemSelected={(item) => {
-									this.props.updateLogLevel(item.Id);
-								}}
+								ItemsSelected={(items) => this.props.updateLevelFilter(items)}
 							/>
 						</frame>
 					</screengui>
@@ -117,14 +119,16 @@ class ZirconTopbarMenuComponent extends Roact.Component<TopbarProps, TopbarState
 
 interface MappedDispatch {
 	updateContextFilter: (context: ZirconContext | undefined) => void;
-	updateLogLevel: (level: ZirconLogLevel | undefined) => void;
+	updateLevelFilter: (levels: Set<ZirconLogLevel>) => void;
 }
 interface MappedProps {
 	isVisible: boolean;
+	levelFilter: Set<ZirconLogLevel>;
 }
 const mapStateToProps = (state: ConsoleReducer): MappedProps => {
 	return {
 		isVisible: state.visible,
+		levelFilter: state.filter.Levels ?? DEFAULT_FILTER,
 	};
 };
 const mapPropsToDispatch = (dispatch: DispatchParam<ZirconClientStore>): MappedDispatch => {
@@ -136,11 +140,11 @@ const mapPropsToDispatch = (dispatch: DispatchParam<ZirconClientStore>): MappedD
 				dispatch({ type: ConsoleActionName.RemoveFilter, filter: "Context" });
 			}
 		},
-		updateLogLevel: (Level) => {
-			if (Level !== undefined) {
-				dispatch({ type: ConsoleActionName.UpdateFilter, Level });
+		updateLevelFilter: (Levels) => {
+			if (Levels !== undefined) {
+				dispatch({ type: ConsoleActionName.UpdateFilter, Levels });
 			} else {
-				dispatch({ type: ConsoleActionName.RemoveFilter, filter: "Level" });
+				dispatch({ type: ConsoleActionName.RemoveFilter, filter: "Levels" });
 			}
 		},
 	};

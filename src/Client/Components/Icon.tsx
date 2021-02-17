@@ -29,6 +29,7 @@ const IconsV2 = {
 	ActionAdd: identity<IconDefinition>({ Offset: new Vector2(16 * 3, 16 * 2) }),
 	ActionElipsisMenu: identity<IconDefinition>({ Offset: new Vector2(16, 16 * 2) }),
 	SplitPanels: identity<IconDefinition>({ Offset: new Vector2(16 * 4, 16 * 2) }),
+	Checkmark: identity<IconDefinition>({ Offset: new Vector2(16 * 5, 16 * 2) }),
 };
 
 export type IconEnum = keyof typeof IconsV2;

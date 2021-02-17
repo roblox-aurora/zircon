@@ -75,17 +75,17 @@ export function isLogMessage(message: ConsoleMessage): message is ZirconLogMessa
 	);
 }
 
-export function isLogLevel(logLevel: ZirconLogLevel, message: ConsoleMessage) {
+export function getLogLevel(message: ConsoleMessage) {
 	if (message.type === ZirconMessageType.ZirconLogOutputMesage) {
-		return message.message.level >= logLevel;
+		return message.message.level;
 	} else if (message.type === ZirconMessageType.ZirconLogErrorMessage) {
-		return message.error.level >= logLevel;
+		return message.error.level;
 	} else if (message.type === ZirconMessageType.ZirconiumError) {
-		return logLevel >= ZirconLogLevel.Error;
+		return ZirconLogLevel.Error;
 	} else if (message.type === ZirconMessageType.ZirconiumOutput) {
-		return logLevel === ZirconLogLevel.Info;
+		return ZirconLogLevel.Info;
 	} else {
-		return false;
+		return ZirconLogLevel.Info;
 	}
 }
 
