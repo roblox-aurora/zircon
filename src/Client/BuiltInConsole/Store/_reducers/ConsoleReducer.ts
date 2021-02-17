@@ -78,13 +78,7 @@ const INITIAL_STATE: ConsoleReducer = {
 	output: [],
 	history: [],
 	filter: {
-		Levels: new Set([
-			ZirconLogLevel.Debug,
-			ZirconLogLevel.Info,
-			ZirconLogLevel.Warning,
-			ZirconLogLevel.Error,
-			ZirconLogLevel.Wtf,
-		]),
+		Levels: new Set([ZirconLogLevel.Info, ZirconLogLevel.Warning, ZirconLogLevel.Error, ZirconLogLevel.Wtf]),
 	},
 };
 
