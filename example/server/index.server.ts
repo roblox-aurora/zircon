@@ -1,5 +1,4 @@
 import { ZrValue } from "@rbxts/zirconium/out/Data/Locals";
-import ZrLuauFunction from "@rbxts/zirconium/out/Data/LuauFunction";
 import Zircon from "@zircon";
 import delayAsync from "Client/BuiltInConsole/DelayAsync";
 

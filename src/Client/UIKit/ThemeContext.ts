@@ -31,6 +31,7 @@ export interface ZirconThemeDefinition {
 	readonly ConsoleFont: Enum.Font | InferEnumNames<Enum.Font>;
 	readonly PrimaryBackgroundColor3: Color3;
 	readonly SecondaryBackgroundColor3: Color3;
+	readonly PrimarySelectColor3: Color3;
 	readonly PrimaryTextColor3: Color3;
 	readonly ErrorTextColor3: Color3;
 	readonly ServerContextColor: Color3;
@@ -41,12 +42,13 @@ export interface ZirconThemeDefinition {
 }
 
 export const BaseTheme = identity<ZirconThemeDefinition>({
-	IconAssetUri: "rbxassetid://6330388012",
+	IconAssetUri: "rbxassetid://6413958171",
 	Font: "Ubuntu",
 	ConsoleFont: "RobotoMono",
 	PrimaryBackgroundColor3: Color3.fromRGB(33, 37, 43),
-	PrimaryTextColor3: Color3.fromRGB(220, 220, 220),
+	PrimaryTextColor3: Color3.fromRGB(255, 255, 255),
 	SecondaryBackgroundColor3: Color3.fromRGB(24, 26, 31),
+	PrimarySelectColor3: Color3.fromRGB(53, 57, 64),
 	ErrorTextColor3: Color3.fromRGB(224, 108, 117),
 	ServerContextColor: Color3.fromRGB(0, 255, 144),
 	ClientContextColor: Color3.fromRGB(0, 148, 255),

@@ -102,9 +102,7 @@ export default class Dropdown<T = string> extends Roact.Component<DropdownProps<
 						<frame
 							Size={new UDim2(1, 0, 0, 30)}
 							BackgroundColor3={
-								selectedItemIndex === idx
-									? theme.PrimaryBackgroundColor3
-									: theme.SecondaryBackgroundColor3
+								selectedItemIndex === idx ? theme.PrimarySelectColor3 : theme.SecondaryBackgroundColor3
 							}
 							BorderSizePixel={0}
 						>

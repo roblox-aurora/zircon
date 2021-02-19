@@ -1,6 +1,6 @@
 {
   "name": "@rbxts/zircon",
-  "version": "0.2.0-alpha.4",
+  "version": "0.2.0-alpha.5",
   "description": "",
   "main": "out/init.lua",
   "scripts": {
@@ -8,6 +8,7 @@
     "build": "rbxtsc",
     "dev": "concurrently npm:watch:example npm:serve:example",
     "build:example": "rbxtsc --type=game -p ./example -i ./include",
+    "build:luau": "rbxtsc --verbose --type=model --rojo=\"luau/build.project.json\"",
     "watch:example": "cross-env NODE_ENV=development rbxtsc -w --type=game -p ./example -i ./include",
     "serve:example": "rojo serve ./example/default.project.json --port 34000"
   },
@@ -42,6 +43,7 @@
     "@rbxts/roact-rodux": "^0.1.2",
     "@rbxts/rodux": "^1.1.0",
     "@rbxts/services": "^1.1.1",
+    "@rbxts/signal": "^1.0.3",
     "@rbxts/snapdragon": "^2.0.0-beta.0",
     "@rbxts/string-utils": "^1.0.1",
     "@rbxts/t": "^1.3.5",

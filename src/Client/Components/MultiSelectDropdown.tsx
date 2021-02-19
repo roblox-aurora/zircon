@@ -66,7 +66,7 @@ export default class MultiSelectDropdown<T = string> extends Roact.Component<Dro
 			}
 			return accumulator;
 		}, new Set<ItemData<T>>());
-		print(toArray(selectedItemSet));
+
 		return selectedItemSet;
 	}
 
@@ -117,7 +117,7 @@ export default class MultiSelectDropdown<T = string> extends Roact.Component<Dro
 
 	public renderDropdownItems() {
 		const { selectedItems, selectedItemIds } = this.state;
-		print("renderDropdownItems", toArray(selectedItems));
+
 		return this.props.Items.map((item, idx) => {
 			return (
 				<ThemeContext.Consumer
@@ -126,15 +126,16 @@ export default class MultiSelectDropdown<T = string> extends Roact.Component<Dro
 							Size={new UDim2(1, 0, 0, 30)}
 							BackgroundColor3={
 								selectedItemIds.has(item.Id)
-									? theme.PrimaryBackgroundColor3
+									? theme.PrimarySelectColor3
 									: theme.SecondaryBackgroundColor3
 							}
-							BorderSizePixel={0}
+							BorderSizePixel={1}
+							BorderColor3={theme.PrimaryBackgroundColor3}
 						>
 							<frame Size={new UDim2(1, 0, 1, 0)} BackgroundTransparency={1}>
 								<Padding Padding={{ Right: 20, Horizontal: 5 }} />
 								{selectedItemIds.has(item.Id) && (
-									<ZirconIcon Icon="Checkmark" Position={new UDim2(0, 0, 0.5, -8)} />
+									<ZirconIcon Icon="CheckmarkHeavy" Position={new UDim2(0, 0, 0.5, -8)} />
 								)}
 								<textbutton
 									Font={theme.Font}

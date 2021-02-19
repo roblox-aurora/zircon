@@ -17,6 +17,34 @@ export interface ZirconLoggable {
 	toString(): string;
 }
 
+/**
+ * Extra logging data relating to the specified log message
+ */
+export interface ZirconLogData {
+	/**
+	 * The player this message relates to
+	 */
+	Player?: Player;
+	/**
+	 * Key value pairs of metadata set by the developer. This will show in the detailed log view.
+	 *
+	 * Will layout like:
+	 * ```
+	 * KEY1		VALUE1
+	 * KEY2		VALUE2
+	 * KEY3		VALUE3
+	 * ```
+	 */
+	Attributes?: Record<string, defined>;
+
+	/**
+	 * The stack trace of this message.
+	 *
+	 * This is populated by default via Zircon
+	 */
+	StackTrace?: string[];
+}
+
 export enum ZirconLogLevel {
 	Debug,
 	Info,

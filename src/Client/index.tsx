@@ -11,7 +11,7 @@ import Lazy from "../Shared/Lazy";
 import { GetCommandService } from "../Services";
 import Remotes, { ZirconNetworkMessageType } from "../Shared/Remotes";
 import { RemoteId } from "../RemoteId";
-import { ZirconContext, ZirconLogLevel, ZirconMessageType } from "./Types";
+import { ZirconContext, ZirconLogData, ZirconLogLevel, ZirconMessageType } from "./Types";
 import ZirconTopBar from "./BuiltInConsole/UI/TopbarMenu";
 
 const IsClient = RunService.IsClient();
@@ -42,13 +42,14 @@ namespace ZirconClient {
 		return GetCommandService("ClientDispatchService");
 	});
 
-	export function Log(level: ZirconLogLevel, tag: string, message: string, data?: Record<string, defined>) {
+	export function Log(level: ZirconLogLevel, tag: string, message: string, data?: ZirconLogData) {
 		if (level === ZirconLogLevel.Error || level === ZirconLogLevel.Wtf) {
 			ZirconClientStore.dispatch({
 				type: ConsoleActionName.AddOutput,
 				message: {
 					type: ZirconMessageType.ZirconLogErrorMessage,
 					error: {
+						data: data ?? {},
 						type: ZirconNetworkMessageType.ZirconStandardErrorMessage,
 						time: DateTime.now().UnixTimestamp,
 						message,
@@ -64,6 +65,7 @@ namespace ZirconClient {
 				message: {
 					type: ZirconMessageType.ZirconLogOutputMesage,
 					message: {
+						data: data ?? {},
 						type: ZirconNetworkMessageType.ZirconStandardOutputMessage,
 						time: DateTime.now().UnixTimestamp,
 						message,

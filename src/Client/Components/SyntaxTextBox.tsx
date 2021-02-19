@@ -103,7 +103,7 @@ export default class ZirconSyntaxTextBox extends Roact.Component<SyntaxTextBoxPr
 							Position={this.props.Position}
 							BackgroundColor3={theme.SecondaryBackgroundColor3}
 							BorderSizePixel={1}
-							BorderColor3={this.state.focused ? theme.PrimaryTextColor3 : theme.PrimaryBackgroundColor3}
+							BorderColor3={theme.PrimaryBackgroundColor3}
 						>
 							<uipadding
 								PaddingLeft={new UDim(0, 5)}

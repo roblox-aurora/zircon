@@ -1,6 +1,6 @@
 import { GetCommandService } from "../Services";
 import Lazy from "../Shared/Lazy";
-import { ZirconLogLevel } from "../Client/Types";
+import { ZirconLogData, ZirconLogLevel } from "../Client/Types";
 import { RemoteId } from "../RemoteId";
 import Remotes, { ZirconStandardOutput, ZirconErrorOutput, ZirconNetworkMessageType } from "../Shared/Remotes";
 
@@ -17,11 +17,13 @@ export namespace ZirconLogService {
 		level: ZirconLogLevel.Debug | ZirconLogLevel.Info | ZirconLogLevel.Warning,
 		tag: string,
 		message: string,
+		data?: ZirconLogData,
 	) {
 		const outputMessage = identity<ZirconStandardOutput>({
 			type: ZirconNetworkMessageType.ZirconStandardOutputMessage,
 			tag,
 			message,
+			data: data ?? {},
 			level,
 			time: DateTime.now().UnixTimestamp,
 		});
@@ -37,12 +39,13 @@ export namespace ZirconLogService {
 		level: ZirconLogLevel.Error | ZirconLogLevel.Wtf,
 		tag: string,
 		message: string,
-		data?: Record<string, defined>,
+		data?: ZirconLogData,
 	) {
 		const outputError = identity<ZirconErrorOutput>({
 			type: ZirconNetworkMessageType.ZirconStandardErrorMessage,
 			tag,
 			message,
+			data: data ?? {},
 			level,
 			time: DateTime.now().UnixTimestamp,
 		});
@@ -59,7 +62,7 @@ export namespace ZirconLogService {
 	/**
 	 * Writes a message to either the output stream or input stream of Zircon
 	 */
-	export function Write(level: ZirconLogLevel, tag: string, message: string, data?: Record<string, defined>) {
+	export function Write(level: ZirconLogLevel, tag: string, message: string, data?: ZirconLogData) {
 		switch (level) {
 			case ZirconLogLevel.Debug:
 			case ZirconLogLevel.Info:

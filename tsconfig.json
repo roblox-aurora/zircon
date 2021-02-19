@@ -17,9 +17,7 @@
 		"rootDir": "src",
 		"outDir": "out",
 		"baseUrl": "src",
-		"incremental": true,
 		"stripInternal": true,
-		"tsBuildInfoFile": "out/tsconfig.tsbuildinfo",
 		"declaration": true,
 		"plugins": [
 			{

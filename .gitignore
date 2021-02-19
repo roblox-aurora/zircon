@@ -4,3 +4,6 @@
 *.tsbuildinfo
 /example/build
 *.tgz
+/luau/out
+#for now I'll ignore the luau dir
+/luau

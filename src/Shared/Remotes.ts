@@ -2,7 +2,7 @@ import Net from "@rbxts/net";
 import { ZrRuntimeErrorCode } from "@rbxts/zirconium/out/Runtime/Runtime";
 import { RemoteId } from "../RemoteId";
 import { ZrParserErrorCode } from "@rbxts/zirconium-ast/out/Parser";
-import { ZirconLogLevel } from "../Client/Types";
+import { ZirconLogData, ZirconLogLevel } from "../Client/Types";
 import createPermissionMiddleware from "./NetPermissionMiddleware";
 import type { ReadonlyZirconPermissionSet } from "Server/Class/ZirconGroup";
 
@@ -52,6 +52,7 @@ export interface ZirconExecutionOutput {
 export interface ZirconLogOutput {
 	type: ZirconNetworkMessageType.ZirconStandardOutputMessage;
 	time: number;
+	data: ZirconLogData;
 	tag: string;
 	level: ZirconLogLevel.Debug | ZirconLogLevel.Info | ZirconLogLevel.Warning;
 	message: string;
@@ -61,6 +62,7 @@ export interface ZirconLogErrorOutput {
 	type: ZirconNetworkMessageType.ZirconStandardErrorMessage;
 	time: number;
 	tag: string;
+	data: ZirconLogData;
 	level: ZirconLogLevel.Error | ZirconLogLevel.Wtf;
 	message: string;
 }
