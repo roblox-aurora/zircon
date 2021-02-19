@@ -92,6 +92,7 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 					<screengui DisplayOrder={10000} IgnoreGuiInset>
 						<frame
 							Key="ZirconViewport"
+							Active={this.state.isFullView}
 							BorderSizePixel={0}
 							BackgroundTransparency={theme.Dock.Transparency ?? this.outputTransparency}
 							BackgroundColor3={theme.PrimaryBackgroundColor3}
