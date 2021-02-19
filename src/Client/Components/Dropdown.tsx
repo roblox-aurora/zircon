@@ -19,6 +19,7 @@ interface DropdownProps<T = string> {
 	readonly SelectedItemIndex?: number;
 	readonly SelectedItemId?: T;
 	Size?: UDim2;
+	Position?: UDim2;
 	Disabled?: boolean;
 	ItemSelected?: (item: ItemData<T>) => void;
 }
@@ -173,7 +174,7 @@ export default class Dropdown<T = string> extends Roact.Component<DropdownProps<
 	}
 
 	public render() {
-		const { Items, Disabled, Size = new UDim2(0, 150, 0, 30) } = this.props;
+		const { Items, Disabled, Size = new UDim2(0, 150, 0, 30), Position } = this.props;
 		const { selectedItemIndex } = this.state;
 
 		const item = Items[selectedItemIndex];
@@ -186,6 +187,7 @@ export default class Dropdown<T = string> extends Roact.Component<DropdownProps<
 						BackgroundColor3={theme.SecondaryBackgroundColor3}
 						BorderColor3={theme.PrimaryBackgroundColor3}
 						Size={Size}
+						Position={Position}
 						Ref={this.dropdownRef}
 					>
 						<frame Key="Content" Size={new UDim2(1, -25, 1, 0)} BackgroundTransparency={1}>

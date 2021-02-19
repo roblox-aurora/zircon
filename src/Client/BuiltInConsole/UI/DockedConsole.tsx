@@ -11,7 +11,9 @@ import ZirconOutput from "../../../Client/Components/Output";
 import { DispatchParam } from "@rbxts/rodux";
 import ZirconClientStore from "../Store";
 import ThemeContext from "../../../Client/UIKit/ThemeContext";
-import { ZirconMessageType } from "../../../Client/Types";
+import { ZirconContext, ZirconMessageType } from "../../../Client/Types";
+import Dropdown from "Client/Components/Dropdown";
+import { Workspace } from "@rbxts/services";
 
 export interface DockedConsoleProps extends MappedProps, MappedDispatch {}
 interface DockedConsoleState {
@@ -28,8 +30,12 @@ const MAX_SIZE = 28 * 10; // 18
  * The console
  */
 class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedConsoleState> {
-	private sizeY: Roact.RoactBinding<number>;
+	private positionY: Roact.RoactBinding<number>;
 	private outputTransparency: Roact.RoactBinding<number>;
+
+	private sizeY: Roact.RoactBinding<number>;
+
+	private positionYMotor: SingleMotor;
 	private sizeYMotor: SingleMotor;
 	private outputTransparencyMotor: SingleMotor;
 	private dispatch: ClientEvent<[], [input: string]>;
@@ -45,16 +51,20 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 		};
 
 		// Initialization
-		this.sizeYMotor = new SingleMotor(0);
+		this.positionYMotor = new SingleMotor(0);
+		this.sizeYMotor = new SingleMotor(MAX_SIZE);
 		this.outputTransparencyMotor = new SingleMotor(0.1);
+		let setPositionY: Roact.RoactBindingFunc<number>;
 		let setSizeY: Roact.RoactBindingFunc<number>;
 		let setOutputTransparency: Roact.RoactBindingFunc<number>;
 
 		// Bindings
+		[this.positionY, setPositionY] = Roact.createBinding(this.positionYMotor.getValue());
 		[this.sizeY, setSizeY] = Roact.createBinding(this.sizeYMotor.getValue());
 		[this.outputTransparency, setOutputTransparency] = Roact.createBinding(this.outputTransparencyMotor.getValue());
 
 		//  Binding updates
+		this.positionYMotor.onStep((value) => setPositionY(value));
 		this.sizeYMotor.onStep((value) => setSizeY(value));
 		this.outputTransparencyMotor.onStep((value) => setOutputTransparency(value));
 
@@ -64,14 +74,18 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 
 	public didMount() {}
 
-	public didUpdate(prevProps: DockedConsoleProps) {
-		if (prevProps.isVisible !== this.props.isVisible) {
-			this.sizeYMotor.setGoal(new Spring(this.props.isVisible ? this.state.sizeY + 40 : 0));
+	public didUpdate(prevProps: DockedConsoleProps, prevState: DockedConsoleState) {
+		if (prevProps.isVisible !== this.props.isVisible || prevState.isFullView !== this.state.isFullView) {
+			const fullScreenViewSize = Workspace.CurrentCamera!.ViewportSize;
+			const size = this.state.isFullView ? fullScreenViewSize.Y - 40 : MAX_SIZE;
+			this.positionYMotor.setGoal(new Spring(this.props.isVisible ? size + 40 : 0));
+			this.sizeYMotor.setGoal(new Spring(size));
 			this.setState({ isVisible: this.props.isVisible });
 		}
 	}
 
 	public render() {
+		const sizePositionBinding = Roact.joinBindings({ Size: this.sizeY, Position: this.positionY });
 		return (
 			<ThemeContext.Consumer
 				render={(theme) => (
@@ -82,8 +96,8 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 							BackgroundTransparency={theme.Dock.Transparency ?? this.outputTransparency}
 							BackgroundColor3={theme.PrimaryBackgroundColor3}
 							ClipsDescendants
-							Size={new UDim2(1, 0, 0, this.state.sizeY)}
-							Position={this.sizeY.map((v) => new UDim2(0, 0, 0, -this.state.sizeY + v))}
+							Size={sizePositionBinding.map((v) => new UDim2(1, 0, 0, v.Size))}
+							Position={sizePositionBinding.map((v) => new UDim2(0, 0, 0, -v.Size + v.Position))}
 						>
 							<frame
 								Size={new UDim2(1, 0, 1, this.props.executionEnabled ? -30 : 0)}
@@ -98,13 +112,31 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 									Size={new UDim2(1, 0, 0, 28)}
 									Position={new UDim2(0, 0, 1, -28)}
 								>
+									<uilistlayout FillDirection="Horizontal" />
+									<Dropdown<ZirconContext>
+										Disabled
+										Items={[
+											{
+												Id: ZirconContext.Server,
+												Text: "Server",
+												Icon: "ContextServer",
+											},
+											{
+												Id: ZirconContext.Client,
+												Text: "Client",
+												Icon: "ContextClient",
+											},
+										]}
+										Position={new UDim2(1, -150, 0, 0)}
+										Size={new UDim2(0, 100, 1, 0)}
+									/>
 									<ZirconIconButton
 										Size={new UDim2(0, 16, 0, 28)}
 										Icon="RightArrow"
 										OnClick={() => {}}
 									/>
 									<ZirconSyntaxTextBox
-										Size={new UDim2(1, -16, 1, 0)}
+										Size={new UDim2(1, -16 - 32 - 100, 1, 0)}
 										Position={new UDim2(0, 16, 0, 0)}
 										Focused={this.state.isVisible}
 										AutoFocus
@@ -128,6 +160,13 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 													index < 0 ? this.props.history.size() - index : index
 												],
 											});
+										}}
+									/>
+									<ZirconIconButton
+										Icon={this.state.isFullView ? "UpDoubleArrow" : "DownDoubleArrow"}
+										Size={new UDim2(0, 32, 0, 28)}
+										OnClick={() => {
+											this.setState({ isFullView: !this.state.isFullView });
 										}}
 									/>
 								</frame>

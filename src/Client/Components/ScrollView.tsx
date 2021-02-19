@@ -291,6 +291,7 @@ export default class ScrollView<T extends ScrollViewProps> extends Roact.Compone
 							ScrollingDirection="Y"
 							TopImage=""
 							Change={{
+								AbsoluteSize: this.absoluteContentSizeChanged,
 								CanvasPosition: this.canvasPositionUpdated,
 							}}
 							ScrollBarThickness={20}
