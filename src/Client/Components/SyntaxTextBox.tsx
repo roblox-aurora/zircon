@@ -85,6 +85,10 @@ export default class ZirconSyntaxTextBox extends Roact.Component<SyntaxTextBoxPr
 				textBox.ReleaseFocus();
 			}
 		}
+
+		if (this.props.Source !== prevProps.Source) {
+			this.setState({ source: this.props.Source });
+		}
 	}
 
 	public render() {
@@ -119,7 +123,6 @@ export default class ZirconSyntaxTextBox extends Roact.Component<SyntaxTextBoxPr
 								TextYAlignment="Top"
 								CursorPosition={this.state.cursorPosition}
 								MultiLine={this.props.MultiLine}
-								// ClearTextOnFocus={false}
 								Size={new UDim2(1, 0, 1, 0)}
 								Text={this.state.source}
 								Change={{
@@ -129,16 +132,6 @@ export default class ZirconSyntaxTextBox extends Roact.Component<SyntaxTextBoxPr
 								}}
 								TextTransparency={0.75}
 								Event={{
-									// InputEnded: (textBox, io) => {
-									// 	if (io.KeyCode === Enum.KeyCode.Tab) {
-									// 		print("Insert tab!");
-									// 	}
-									// },
-									// InputChanged: (textBox, io) => {
-									// 	if (io.KeyCode === Enum.KeyCode.Up) {
-									// 		print("up");
-									// 	}
-									// },
 									Focused: (textBox) => {
 										this.setState({ focused: true });
 									},

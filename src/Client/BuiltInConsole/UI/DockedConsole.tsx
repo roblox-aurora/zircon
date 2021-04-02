@@ -150,10 +150,12 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 										OnHistoryTraversal={(direction) => {
 											let index = this.state.historyIndex;
 											if (direction === "back") {
-												index = this.state.historyIndex--;
+												index = this.state.historyIndex - 1;
 											} else if (direction === "forward") {
-												index = this.state.historyIndex++;
+												index = this.state.historyIndex + 1;
 											}
+
+											print("[historyTraversal]", direction);
 
 											this.setState({
 												historyIndex: index,

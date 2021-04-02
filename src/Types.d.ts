@@ -122,7 +122,6 @@ type InferType<T> = T extends { type: CommandType.String | "string" }
 	? GetResultingType<A, T>
 	: unknown;
 
-// TODO: Think of implementation
 type InferTypeWithUnion<T> = T extends { type: readonly CommandArgumentTypeId[] }
 	? InferTypeName<T["type"][number]> | undefined
 	: InferType<T>;

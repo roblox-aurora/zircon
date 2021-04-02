@@ -74,7 +74,7 @@ export default class ScrollView<T extends ScrollViewProps> extends Roact.Compone
 	/** weird hack for AutoScrollToEnd with frames that start not scrollable */
 	private initScrollToBottom = false;
 
-	public constructor(props: RbxJsxProps & ScrollViewInfer<T>) {
+	public constructor(props: ScrollViewInfer<T>) {
 		super(props);
 		this.state = {
 			size: new Vector2(),
@@ -89,9 +89,8 @@ export default class ScrollView<T extends ScrollViewProps> extends Roact.Compone
 
 	public invokeUpdate = () => {
 		const size = this.scrollListLayout.AbsoluteContentSize;
-		if (this.props.ContentSizeChanged) {
+		if (this.props.ContentSizeChanged !== undefined) {
 			const canvasSize = this.scrollFrame.AbsoluteSize;
-			// TODO: Change if ROBLOX fixes AbsoluteContentSize
 			const contentSize = new Vector2(canvasSize.X - 20, size.Y); // since AbsoluteContentSize doesn't calculate X?
 			this.props.ContentSizeChanged(contentSize, this);
 		}
@@ -113,7 +112,7 @@ export default class ScrollView<T extends ScrollViewProps> extends Roact.Compone
 		});
 		this.initScrollToBottom = false;
 
-		this.props.CanvasPositionChanged && this.props.CanvasPositionChanged(canvasPosition, this);
+		this.props.CanvasPositionChanged !== undefined && this.props.CanvasPositionChanged(canvasPosition, this);
 	};
 
 	// ? AbsoluteContentSize changed handler
@@ -144,8 +143,7 @@ export default class ScrollView<T extends ScrollViewProps> extends Roact.Compone
 			barPos: canvasPosition.Y / (size.Y - canvasSize.Y),
 		});
 
-		if (this.props.ContentSizeChanged) {
-			// TODO: Change if ROBLOX fixes AbsoluteContentSize
+		if (this.props.ContentSizeChanged !== undefined) {
 			const contentSize = new Vector2(canvasSize.X - 20, size.Y); // since AbsoluteContentSize doesn't calculate X?
 			this.props.ContentSizeChanged(contentSize, this);
 		}

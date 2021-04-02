@@ -1,4 +1,4 @@
-import Roact from "@rbxts/roact";
+import Roact, { InferEnumNames } from "@rbxts/roact";
 
 interface ConsoleColors {
 	readonly Yellow: Color3;
@@ -78,15 +78,15 @@ export function getThemeRichTextColor(
 	color3: Color3Keys<ZirconThemeDefinition["ConsoleColors"]>,
 ) {
 	const color = theme.ConsoleColors[color3];
-	const numeric = ((color.r * 255) << 16) | ((color.g * 255) << 8) | ((color.b * 255) << 0);
+	const numeric = ((color.R * 255) << 16) | ((color.G * 255) << 8) | ((color.B * 255) << 0);
 	return "#%.6X".format(numeric);
 }
 
 export function convertColorObjectToHex<T>(values: T): Color3ToHex<T> {
 	const newArr: Partial<Record<keyof T, unknown>> = {};
-	for (const [key, value] of pairs(values)) {
+	for (const [key, value] of pairs<typeof newArr>(values)) {
 		if (typeIs(value, "Color3")) {
-			const numeric = ((value.r * 255) << 16) | ((value.g * 255) << 8) | ((value.b * 255) << 0);
+			const numeric = ((value.R * 255) << 16) | ((value.G * 255) << 8) | ((value.B * 255) << 0);
 			newArr[key] = "#%.6X".format(numeric);
 		}
 	}

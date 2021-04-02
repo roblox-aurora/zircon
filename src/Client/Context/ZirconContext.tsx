@@ -33,7 +33,7 @@ class ZirconConsumer extends Roact.Component<ZirconConsumerProps> {
 	private __getContext!: <TKey extends keyof Contexts>(this: ZirconConsumer, key: TKey) => Contexts[TKey];
 	private dispatcher: ZirconClientDispatchService;
 	private registry: ZirconClientRegistryService;
-	public constructor(props: Roact.NoChildren<ZirconConsumerProps>) {
+	public constructor(props: ZirconConsumerProps) {
 		super(props);
 		this.dispatcher = this.__getContext("_zrso4dispatcher");
 		this.registry = this.__getContext("_zrso4registry");

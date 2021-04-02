@@ -105,51 +105,51 @@ function OutputError(props: { Message: ZrErrorMessage | ZirconLogError }) {
 				const messages = new Array<string>();
 
 				if (output.type === ZirconMessageType.ZirconiumError) {
-					const { error } = output;
+					const { error: zrError } = output;
 					messages.push(
 						getRichTextColor3(
 							theme,
 							"Grey",
-							`[${DateTime.fromUnixTimestamp(error.time).FormatLocalTime(
+							`[${DateTime.fromUnixTimestamp(zrError.time).FormatLocalTime(
 								"LT",
 								LocalizationService.SystemLocaleId,
 							)}]`,
 						),
 					);
 
-					if (error.script !== undefined) {
-						let inner = getRichTextColor3(theme, "Cyan", error.script);
-						if (error.source !== undefined) {
+					if (zrError.script !== undefined) {
+						let inner = getRichTextColor3(theme, "Cyan", zrError.script);
+						if (zrError.source !== undefined) {
 							inner += `:${getRichTextColor3(
 								theme,
 								"Yellow",
-								tostring(error.source[0]),
-							)}:${getRichTextColor3(theme, "Yellow", tostring(error.source[1]))}`;
+								tostring(zrError.source[0]),
+							)}:${getRichTextColor3(theme, "Yellow", tostring(zrError.source[1]))}`;
 						}
 						messages.push(getRichTextColor3(theme, "White", inner + " -"));
 					}
 					messages.push(getRichTextColor3(theme, "Red", "error"));
-					messages.push(getRichTextColor3(theme, "Grey", `ZR${"%.4d".format(error.code)}:`));
-					messages.push(getRichTextColor3(theme, "White", error.message));
+					messages.push(getRichTextColor3(theme, "Grey", `ZR${"%.4d".format(zrError.code)}:`));
+					messages.push(getRichTextColor3(theme, "White", zrError.message));
 				} else if (output.type === ZirconMessageType.ZirconLogErrorMessage) {
-					const { error } = output;
+					const { error: zrError } = output;
 					messages.push(
 						getRichTextColor3(
 							theme,
 							"Grey",
-							`[${DateTime.fromUnixTimestamp(error.time).FormatLocalTime(
+							`[${DateTime.fromUnixTimestamp(zrError.time).FormatLocalTime(
 								"LT",
 								LocalizationService.SystemLocaleId,
 							)}]`,
 						),
 					);
 
-					if (error.level === ZirconLogLevel.Error) {
+					if (zrError.level === ZirconLogLevel.Error) {
 						messages.push(getRichTextColor3(theme, "Red", "error"));
-						messages.push(getRichTextColor3(theme, "Yellow", error.message));
-					} else if (error.level === ZirconLogLevel.Wtf) {
+						messages.push(getRichTextColor3(theme, "Yellow", zrError.message));
+					} else if (zrError.level === ZirconLogLevel.Wtf) {
 						messages.push(getRichTextColor3(theme, "Red", "wtf"));
-						messages.push(getRichTextColor3(theme, "Yellow", error.message));
+						messages.push(getRichTextColor3(theme, "Yellow", zrError.message));
 					}
 				}
 
@@ -265,17 +265,17 @@ export default class ZirconOutputMessage extends Roact.PureComponent<ZirconOutpu
 			Message.type === ZirconMessageType.ZirconiumError ||
 			Message.type === ZirconMessageType.ZirconLogErrorMessage
 		) {
-			const { error } = Message;
+			const { error: zrError } = Message;
 
 			if (
-				error.type === ZirconNetworkMessageType.ZirconiumParserError ||
-				error.type === ZirconNetworkMessageType.ZirconiumRuntimeError
+				zrError.type === ZirconNetworkMessageType.ZirconiumParserError ||
+				zrError.type === ZirconNetworkMessageType.ZirconiumRuntimeError
 			) {
-				if (error.debug !== undefined) {
+				if (zrError.debug !== undefined) {
 					return (
 						<Roact.Fragment>
 							<OutputError Message={Message} />
-							<ErrorLine Highlight TokenInfo={error.debug} />
+							<ErrorLine Highlight TokenInfo={zrError.debug} />
 						</Roact.Fragment>
 					);
 				}

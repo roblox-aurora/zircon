@@ -5,7 +5,7 @@ import { ZirconPermissions } from "../Server/Class/ZirconGroup";
 import { GetCommandService } from "../Services";
 
 export default function createPermissionMiddleware(permission: keyof ZirconPermissions) {
-	const permissionMiddleware: Net.Middleware = (next, event) => {
+	const permissionMiddleware: Net.Middleware = (nxt, event) => {
 		const registry = GetCommandService("RegistryService");
 		const log = GetCommandService("LogService");
 		return (sender, ...args) => {
@@ -13,7 +13,7 @@ export default function createPermissionMiddleware(permission: keyof ZirconPermi
 			const matchingGroup = groups.find((f) => f.HasMember(sender));
 
 			if (matchingGroup !== undefined) {
-				return next(sender, ...args);
+				return nxt(sender, ...args);
 			} else {
 				log.Write(
 					ZirconLogLevel.Error,

@@ -7,6 +7,7 @@ import ZrSiO4Server from "./Server";
 import { ZirconLogData, ZirconLoggable, ZirconLogLevel, ZirconTag } from "./Client/Types";
 import { RunService } from "@rbxts/services";
 import Signal from "@rbxts/signal";
+import { ZrValue } from "@rbxts/zirconium/out/Data/Locals";
 
 const logMessageSignal = new Signal<
 	(level: ZirconLogLevel, tag: ZirconTag, message: string, data: ZirconLogData) => void
@@ -80,6 +81,15 @@ namespace Zircon {
 		data.StackTrace ??= debug.traceback(undefined, 2).split("\n");
 		log(ZirconLogLevel.Wtf, tag, message, data);
 	}
+
+	/**
+	 * A function argument for Zircon functions
+	 */
+	export type Argument = ZrValue;
+	/**
+	 * A value type for Zircon functions
+	 */
+	export type Value = ZrValue;
 }
 
 export = Zircon;

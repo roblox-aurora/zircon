@@ -13,10 +13,6 @@ export interface TopbarProps extends MappedProps, MappedDispatch {}
 interface TopbarState {
 	isVisible: boolean;
 	levelFilter: Set<ZirconLogLevel>;
-	// isFullView: boolean;
-	// sizeY: number;
-	// source: string;
-	// historyIndex: number;
 }
 
 class ZirconTopbarMenuComponent extends Roact.Component<TopbarProps, TopbarState> {
@@ -29,7 +25,6 @@ class ZirconTopbarMenuComponent extends Roact.Component<TopbarProps, TopbarState
 	}
 	public didUpdate(prevProps: TopbarProps) {
 		if (prevProps.isVisible !== this.props.isVisible) {
-			// this.sizeYMotor.setGoal(new Spring(this.props.isVisible ? this.state.sizeY : 0));
 			this.setState({ isVisible: this.props.isVisible });
 		} else if (prevProps.levelFilter !== this.props.levelFilter) {
 			this.setState({ levelFilter: this.props.levelFilter });

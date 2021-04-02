@@ -158,9 +158,9 @@ namespace Zircon {
 				.catch((err: (ZrRuntimeError | ZrParserError)[]) => {
 					print("err", err);
 
-					for (const error of err) {
-						if (isParserError(error)) {
-							const debug = error.token ? getDebugInformation(message, error.token) : undefined;
+					for (const zrError of err) {
+						if (isParserError(zrError)) {
+							const debug = zrError.token ? getDebugInformation(message, zrError.token) : undefined;
 
 							StandardError.SendToPlayer(player, {
 								type: ZirconNetworkMessageType.ZirconiumParserError,
@@ -168,19 +168,19 @@ namespace Zircon {
 								time: DateTime.now().UnixTimestamp,
 								source: debug ? debug.LineAndColumn : undefined,
 								debug,
-								message: error.message,
-								code: error.code,
+								message: zrError.message,
+								code: zrError.code,
 							});
 						} else {
-							const debug = error.node ? getDebugInformationForNode(message, error.node) : undefined;
+							const debug = zrError.node ? getDebugInformationForNode(message, zrError.node) : undefined;
 
 							StandardError.SendToPlayer(player, {
 								type: ZirconNetworkMessageType.ZirconiumRuntimeError,
 								time: DateTime.now().UnixTimestamp,
 								debug,
 								script: "zircon",
-								message: error.message,
-								code: error.code,
+								message: zrError.message,
+								code: zrError.code,
 							});
 						}
 					}

@@ -7,6 +7,9 @@ import { toArray } from "../Shared/Collections";
 import ZirconUserGroup, { ZirconPermissions } from "../Server/Class/ZirconGroup";
 import { $ifEnv } from "rbxts-transform-env";
 import { $dbg } from "rbxts-transform-debug";
+import Zircon from "index";
+import ZirconFunction from "Server/Class/ZirconFunction";
+import { ZirconFunctionDeclaration } from "Shared/Types";
 
 export namespace ZirconRegistryService {
 	const contexts = new Map<Player, Array<ZrScriptContext>>();
@@ -47,10 +50,11 @@ export namespace ZirconRegistryService {
 
 	/**
 	 * Register a raw ZrLuauFunction. Use `RegisterFunction` instead for a more secure version.
+	 * @internal
 	 */
 	export function RegisterZrLuauFunction(
 		name: string,
-		fn: (ctx: ZrContext, ...args: readonly ZrValue[]) => ZrValue | undefined | void,
+		fn: (ctx: ZrContext, ...args: readonly Zircon.Argument[]) => Zircon.Value | undefined | void,
 		groups: ZirconUserGroup[],
 	) {
 		const funct = new ZrLuauFunction(fn);
@@ -59,6 +63,10 @@ export namespace ZirconRegistryService {
 			group._registerFunction(name, fn);
 		}
 		return funct;
+	}
+
+	export function RegisterFunction(func: ZirconFunctionDeclaration, groups: ZirconUserGroup[]) {
+		return RegisterZrLuauFunction(func.Name, func.Function, groups);
 	}
 
 	/**

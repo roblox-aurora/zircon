@@ -1,17 +1,9 @@
 import { ZrValue } from "@rbxts/zirconium/out/Data/Locals";
 import Zircon from "@zircon";
+import ZirconPrint from "BuiltIn/Print";
 import delayAsync from "Client/BuiltInConsole/DelayAsync";
 
-Zircon.Server.Registry.RegisterZrLuauFunction(
-	"print",
-	(context, ...args: ZrValue[]) => {
-		const printArgs = args.map((arg) => tostring(arg)).join(" ");
-		Zircon.LogDebug("print", `Called print [${printArgs}]`);
-		context.pushOutput(printArgs);
-		print(printArgs);
-	},
-	[Zircon.Server.Registry.User],
-);
+Zircon.Server.Registry.RegisterFunction(ZirconPrint, [Zircon.Server.Registry.User]);
 
 Zircon.Server.Registry.RegisterZrLuauFunction(
 	"spam",
