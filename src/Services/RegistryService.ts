@@ -1,4 +1,4 @@
-import { Players } from "@rbxts/services";
+import { Players, RunService } from "@rbxts/services";
 import ZrContext from "@rbxts/zirconium/out/Data/Context";
 import { ZrValue } from "@rbxts/zirconium/out/Data/Locals";
 import ZrLuauFunction from "@rbxts/zirconium/out/Data/LuauFunction";
@@ -239,9 +239,17 @@ export namespace ZirconRegistryService {
 			if (player.GetRankInGroup(game.CreatorId) >= 255) {
 				groups.push(Creator);
 			}
-		} else if (game.CreatorType === Enum.CreatorType.User && game.CreatorId === player.UserId) {
+		} else if (
+			(game.CreatorType === Enum.CreatorType.User && game.CreatorId === player.UserId) ||
+			game.GameId === 0
+		) {
 			groups.push(Creator);
 		}
+
+		if (RunService.IsStudio()) {
+			groups.push(Administrator);
+		}
+
 		return groups;
 	}
 
