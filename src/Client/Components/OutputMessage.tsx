@@ -197,7 +197,7 @@ function ErrorLine({ TokenInfo, Highlight = true }: { TokenInfo: ZirconDebugInfo
 		<ThemeContext.Consumer
 			render={(theme) => {
 				return (
-					<frame Size={new UDim2(1, 0, 0, 30)} Position={new UDim2(0.1, 0, 0, 0)}>
+					<frame Size={new UDim2(1, 0, 0, 30)} Position={new UDim2(0.1, 0, 0, 0)} BackgroundTransparency={1}>
 						<textlabel
 							Text={tostring(TokenInfo.LineAndColumn[0])}
 							TextColor3={theme.PrimaryBackgroundColor3}
