@@ -27,6 +27,7 @@ function CustomConsole() {
 
 ZirconClient.BindConsole({
 	ConsoleComponent: CustomConsole,
+	EnableTags: true,
 });
 
 delayAsync(10).then(() => {

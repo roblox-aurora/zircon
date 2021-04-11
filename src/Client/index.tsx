@@ -105,6 +105,7 @@ namespace ZirconClient {
 
 	interface ConsoleOptions {
 		Keys?: Array<Enum.KeyCode>;
+		EnableTags?: boolean;
 		ConsoleComponent?: typeof Roact.Component | ((props: defined) => Roact.Element);
 	}
 
@@ -144,6 +145,7 @@ namespace ZirconClient {
 				type: ConsoleActionName.SetConfiguration,
 				hotkeyEnabled: true,
 				executionEnabled: permissions.has("CanExecuteZirconiumScripts"),
+				showTagsInOutput: options.EnableTags ?? false,
 			});
 		});
 	}
@@ -171,6 +173,22 @@ namespace ZirconClient {
 	if (IsClient) {
 		const StandardOutput = Remotes.Client.Get(RemoteId.StandardOutput);
 		const StandardError = Remotes.Client.Get(RemoteId.StandardError);
+
+		ZirconClientStore.dispatch({
+			type: ConsoleActionName.AddOutput,
+			message: {
+				type: ZirconMessageType.ZirconLogOutputMesage,
+				context: ZirconContext.Client,
+				message: {
+					type: ZirconNetworkMessageType.ZirconStandardOutputMessage,
+					message: `Loaded Zircon v${PKG_VERSION}`,
+					level: ZirconLogLevel.Debug,
+					time: DateTime.now().UnixTimestamp,
+					tag: "INIT",
+					data: {},
+				},
+			},
+		});
 
 		StandardOutput.Connect((message) => {
 			switch (message.type) {

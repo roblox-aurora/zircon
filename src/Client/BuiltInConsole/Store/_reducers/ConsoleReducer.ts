@@ -18,6 +18,7 @@ export interface ActionSetConsoleVisible extends Action<ConsoleActionName.SetCon
 export interface ActionSetConsoleConfiguration extends Action<ConsoleActionName.SetConfiguration> {
 	executionEnabled: boolean;
 	hotkeyEnabled: boolean;
+	showTagsInOutput: boolean;
 }
 
 export interface ActionAddOutput extends Action<ConsoleActionName.AddOutput> {
@@ -59,6 +60,7 @@ export interface ConsoleReducer {
 	visible: boolean;
 	executionEnabled: boolean;
 	hotkeyEnabled: boolean;
+	showTagsInOutput: boolean;
 	output: ConsoleMessage[];
 	history: string[];
 	filter: ConsoleFilter;
@@ -75,6 +77,7 @@ const INITIAL_STATE: ConsoleReducer = {
 	visible: false,
 	executionEnabled: false,
 	hotkeyEnabled: false,
+	showTagsInOutput: false,
 	output: [],
 	history: [],
 	filter: {
@@ -84,10 +87,11 @@ const INITIAL_STATE: ConsoleReducer = {
 
 const actions: Rodux.ActionHandlers<ConsoleReducer, ConsoleActions> = {
 	[ConsoleActionName.SetConsoleVisible]: (state, { visible }) => ({ ...state, visible }),
-	[ConsoleActionName.SetConfiguration]: (state, { executionEnabled, hotkeyEnabled }) => ({
+	[ConsoleActionName.SetConfiguration]: (state, { executionEnabled, hotkeyEnabled, showTagsInOutput }) => ({
 		...state,
 		executionEnabled,
 		hotkeyEnabled,
+		showTagsInOutput,
 	}),
 	[ConsoleActionName.AddOutput]: (state, { message }) => {
 		return $dbg({

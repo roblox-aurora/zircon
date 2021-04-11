@@ -101,7 +101,7 @@ class OutputComponent extends Roact.Component<OutputProps, OutputState> {
 									output.type === ZirconMessageType.ZirconLogOutputMesage ||
 									output.type === ZirconMessageType.ZirconiumOutput
 								) {
-									return <ZirconOutputMessage Message={output} />;
+									return <ZirconOutputMessage ShowTags={this.props.showTags} Message={output} />;
 								} else {
 									return <OutputPlain Message={output} />;
 								}
@@ -116,6 +116,7 @@ class OutputComponent extends Roact.Component<OutputProps, OutputState> {
 
 interface MappedProps {
 	readonly output: ConsoleMessage[];
+	readonly showTags: boolean;
 }
 const mapStateToProps = (state: ConsoleReducer): MappedProps => {
 	const { filter } = state;
@@ -134,8 +135,10 @@ const mapStateToProps = (state: ConsoleReducer): MappedProps => {
 		output = output.filter((message) => filter.Levels.has(getLogLevel(message)));
 	}
 
+	print("tags", state.showTagsInOutput);
 	return {
 		output: filter?.Tail ? last(output, 25) : last(output, 100),
+		showTags: state.showTagsInOutput,
 	};
 };
 

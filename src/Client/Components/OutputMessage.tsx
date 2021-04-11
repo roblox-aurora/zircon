@@ -14,12 +14,16 @@ import ThemeContext, {
 	getRichTextColor3,
 	ZirconThemeDefinition,
 	getThemeRichTextColor,
+	italicize,
 } from "../../Client/UIKit/ThemeContext";
 import { ZirconDebugInformation, ZirconNetworkMessageType } from "../../Shared/Remotes";
 import { ZrRichTextHighlighter } from "@rbxts/zirconium-ast";
+import StringUtils from "@rbxts/string-utils";
+import { padEnd } from "Shared/Strings";
 
 interface OutputMessageProps {
 	Message: ZrOutputMessage | ZirconLogMessage | ZrOutputMessage;
+	ShowTags?: boolean;
 }
 function OutputMessage(props: OutputMessageProps) {
 	const output = props.Message;
@@ -65,6 +69,11 @@ function OutputMessage(props: OutputMessageProps) {
 						messages.push(getRichTextColor3(theme, "Yellow", "WARN "));
 						messages.push(getRichTextColor3(theme, "White", message.message));
 					}
+
+					if (props.ShowTags && message.tag) {
+						const toAppend = padEnd(message.tag ?? "", 20, " ");
+						messages.push("- " + italicize(getRichTextColor3(theme, "Grey", toAppend)));
+					}
 				}
 
 				return (
@@ -101,7 +110,7 @@ function OutputMessage(props: OutputMessageProps) {
 	);
 }
 
-function OutputError(props: { Message: ZrErrorMessage | ZirconLogError }) {
+function OutputError(props: { Message: ZrErrorMessage | ZirconLogError; ShowTags: boolean }) {
 	const output = props.Message;
 
 	return (
@@ -155,6 +164,11 @@ function OutputError(props: { Message: ZrErrorMessage | ZirconLogError }) {
 					} else if (zrError.level === ZirconLogLevel.Wtf) {
 						messages.push(getRichTextColor3(theme, "Red", "WTF  "));
 						messages.push(getRichTextColor3(theme, "Yellow", zrError.message));
+					}
+
+					if (props.ShowTags && zrError.tag) {
+						const toAppend = padEnd(zrError.tag ?? "", 20, " ");
+						messages.push("- " + italicize(getRichTextColor3(theme, "Grey", toAppend)));
 					}
 				}
 
@@ -266,6 +280,7 @@ function getErrorLine(theme: ZirconThemeDefinition, { Line, TokenLinePosition }:
 
 interface ZirconOutputMessageProps {
 	Message: ConsoleMessage;
+	ShowTags: boolean;
 }
 export default class ZirconOutputMessage extends Roact.PureComponent<ZirconOutputMessageProps> {
 	public render() {
@@ -284,19 +299,19 @@ export default class ZirconOutputMessage extends Roact.PureComponent<ZirconOutpu
 				if (zrError.debug !== undefined) {
 					return (
 						<Roact.Fragment>
-							<OutputError Message={Message} />
+							<OutputError ShowTags={this.props.ShowTags} Message={Message} />
 							<ErrorLine Highlight TokenInfo={zrError.debug} />
 						</Roact.Fragment>
 					);
 				}
 			}
 
-			return <OutputError Message={Message} />;
+			return <OutputError ShowTags={this.props.ShowTags} Message={Message} />;
 		} else if (
 			Message.type === ZirconMessageType.ZirconiumOutput ||
 			Message.type === ZirconMessageType.ZirconLogOutputMesage
 		) {
-			return <OutputMessage Message={Message} />;
+			return <OutputMessage ShowTags={this.props.ShowTags} Message={Message} />;
 		}
 
 		return undefined;

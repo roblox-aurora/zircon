@@ -103,6 +103,10 @@ export function getRichTextColor3(
 	return `<font color="${getThemeRichTextColor(theme, color3)}">${text}</font>`;
 }
 
+export function italicize(text: string) {
+	return `<i>${text}</i>`;
+}
+
 export function makeTheme(theme: Partial<ZirconThemeDefinition>) {
 	return identity<ZirconThemeDefinition>({ ...BaseTheme, ...theme });
 }
