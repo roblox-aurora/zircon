@@ -33,6 +33,7 @@ export interface ZirconThemeDefinition {
 	readonly SecondaryBackgroundColor3: Color3;
 	readonly PrimarySelectColor3: Color3;
 	readonly PrimaryTextColor3: Color3;
+	readonly SecondaryTextColor3: Color3;
 	readonly ErrorTextColor3: Color3;
 	readonly ServerContextColor: Color3;
 	readonly ClientContextColor: Color3;
@@ -47,6 +48,7 @@ export const BaseTheme = identity<ZirconThemeDefinition>({
 	ConsoleFont: "RobotoMono",
 	PrimaryBackgroundColor3: Color3.fromRGB(33, 37, 43),
 	PrimaryTextColor3: Color3.fromRGB(255, 255, 255),
+	SecondaryTextColor3: Color3.fromRGB(170, 170, 170),
 	SecondaryBackgroundColor3: Color3.fromRGB(24, 26, 31),
 	PrimarySelectColor3: Color3.fromRGB(53, 57, 64),
 	ErrorTextColor3: Color3.fromRGB(224, 108, 117),

@@ -102,19 +102,28 @@ export default class ZirconIcon extends Roact.PureComponent<IconProps> {
 interface IconButtonProps extends IconProps {
 	OnClick: () => void;
 	Position?: UDim2;
+	Floating?: boolean;
 	Size?: UDim2;
 }
-export function ZirconIconButton({ Icon, OnClick, Position, Size }: IconButtonProps) {
+export function ZirconIconButton({ Icon, OnClick, Position, Size, Floating }: IconButtonProps) {
 	return (
-		<imagebutton
-			Image=""
-			Position={Position}
-			Event={{ MouseButton1Down: OnClick }}
-			BackgroundTransparency={1}
-			Size={Size ?? new UDim2(0, 20, 0, 20)}
-		>
-			<uilistlayout VerticalAlignment="Center" HorizontalAlignment="Center" />
-			<ZirconIcon Icon={Icon} />
-		</imagebutton>
+		<ThemeContext.Consumer
+			render={(theme) => {
+				return (
+					<imagebutton
+						Image=""
+						Position={Position}
+						Event={{ MouseButton1Down: OnClick }}
+						BackgroundTransparency={Floating ? 0 : 1}
+						BackgroundColor3={theme.PrimaryBackgroundColor3}
+						BorderColor3={theme.SecondaryBackgroundColor3}
+						Size={Size ?? new UDim2(0, 20, 0, 20)}
+					>
+						<uilistlayout VerticalAlignment="Center" HorizontalAlignment="Center" />
+						<ZirconIcon Icon={Icon} />
+					</imagebutton>
+				);
+			}}
+		/>
 	);
 }

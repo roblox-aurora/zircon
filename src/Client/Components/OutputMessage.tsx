@@ -56,19 +56,24 @@ function OutputMessage(props: OutputMessageProps) {
 					);
 
 					if (message.level === ZirconLogLevel.Info) {
-						messages.push(getRichTextColor3(theme, "Cyan", "info"));
+						messages.push(getRichTextColor3(theme, "Cyan", "INFO "));
 						messages.push(getRichTextColor3(theme, "White", message.message));
 					} else if (message.level === ZirconLogLevel.Debug) {
-						messages.push(getRichTextColor3(theme, "Green", "debug"));
+						messages.push(getRichTextColor3(theme, "Green", "DEBUG"));
 						messages.push(getRichTextColor3(theme, "White", message.message));
 					} else if (message.level === ZirconLogLevel.Warning) {
-						messages.push(getRichTextColor3(theme, "Yellow", "warn"));
+						messages.push(getRichTextColor3(theme, "Yellow", "WARN "));
 						messages.push(getRichTextColor3(theme, "White", message.message));
 					}
 				}
 
 				return (
-					<frame Size={new UDim2(1, 0, 0, 25)} BackgroundTransparency={1}>
+					<frame
+						Size={new UDim2(1, 0, 0, 25)}
+						BackgroundTransparency={0.5}
+						BackgroundColor3={theme.PrimaryBackgroundColor3}
+						BorderSizePixel={0}
+					>
 						<frame
 							Size={new UDim2(0, 5, 1, 0)}
 							BackgroundColor3={
@@ -145,16 +150,21 @@ function OutputError(props: { Message: ZrErrorMessage | ZirconLogError }) {
 					);
 
 					if (zrError.level === ZirconLogLevel.Error) {
-						messages.push(getRichTextColor3(theme, "Red", "error"));
+						messages.push(getRichTextColor3(theme, "Red", "ERROR"));
 						messages.push(getRichTextColor3(theme, "Yellow", zrError.message));
 					} else if (zrError.level === ZirconLogLevel.Wtf) {
-						messages.push(getRichTextColor3(theme, "Red", "wtf"));
+						messages.push(getRichTextColor3(theme, "Red", "WTF  "));
 						messages.push(getRichTextColor3(theme, "Yellow", zrError.message));
 					}
 				}
 
 				return (
-					<frame Size={new UDim2(1, 0, 0, 25)} BackgroundTransparency={1}>
+					<frame
+						Size={new UDim2(1, 0, 0, 25)}
+						BackgroundTransparency={0.5}
+						BackgroundColor3={theme.PrimaryBackgroundColor3}
+						BorderSizePixel={0}
+					>
 						<frame
 							Size={new UDim2(0, 5, 1, 0)}
 							BackgroundColor3={
@@ -187,7 +197,7 @@ function ErrorLine({ TokenInfo, Highlight = true }: { TokenInfo: ZirconDebugInfo
 		<ThemeContext.Consumer
 			render={(theme) => {
 				return (
-					<frame BackgroundTransparency={1} Size={new UDim2(1, 0, 0, 30)} Position={new UDim2(0.1, 0, 0, 0)}>
+					<frame Size={new UDim2(1, 0, 0, 30)} Position={new UDim2(0.1, 0, 0, 0)}>
 						<textlabel
 							Text={tostring(TokenInfo.LineAndColumn[0])}
 							TextColor3={theme.PrimaryBackgroundColor3}

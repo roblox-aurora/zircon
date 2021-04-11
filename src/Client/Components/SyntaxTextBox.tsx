@@ -33,6 +33,11 @@ interface SyntaxTextBoxProps {
 	MultiLine?: boolean;
 
 	/**
+	 * The placeholder text
+	 */
+	PlaceholderText?: string;
+
+	/**
 	 * When this text box is submitted (if not `MultiLine`)
 	 */
 	OnEnterSubmit?: (input: string) => void;
@@ -121,6 +126,8 @@ export default class ZirconSyntaxTextBox extends Roact.Component<SyntaxTextBoxPr
 								TextSize={18}
 								TextXAlignment="Left"
 								TextYAlignment="Top"
+								PlaceholderColor3={theme.SecondaryTextColor3}
+								PlaceholderText={this.props.PlaceholderText}
 								CursorPosition={this.state.cursorPosition}
 								MultiLine={this.props.MultiLine}
 								Size={new UDim2(1, 0, 1, 0)}

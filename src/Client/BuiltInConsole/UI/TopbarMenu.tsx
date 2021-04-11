@@ -4,6 +4,8 @@ import { DispatchParam } from "@rbxts/rodux";
 import Dropdown from "Client/Components/Dropdown";
 import ZirconIcon from "Client/Components/Icon";
 import MultiSelectDropdown from "Client/Components/MultiSelectDropdown";
+import Padding from "Client/Components/Padding";
+import SearchTextBox from "Client/Components/SearchTextBox";
 import { ZirconContext, ZirconLogLevel } from "Client/Types";
 import ThemeContext from "Client/UIKit/ThemeContext";
 import ZirconClientStore from "../Store";
@@ -53,57 +55,6 @@ class ZirconTopbarMenuComponent extends Roact.Component<TopbarProps, TopbarState
 								<uilistlayout VerticalAlignment="Center" HorizontalAlignment="Center" />
 								<ZirconIcon Icon="Zirconium" />
 							</frame>
-							<Dropdown<ZirconContext | undefined>
-								Items={[
-									{
-										SelectedText: "(Context)",
-										Text: "All Contexts",
-										Id: undefined,
-										TextColor3: Color3.fromRGB(150, 150, 150),
-									},
-									{
-										Text: "Server",
-										Id: ZirconContext.Server,
-										Icon: "ContextServer",
-									},
-									{
-										Text: "Client",
-										Icon: "ContextClient",
-										Id: ZirconContext.Client,
-									},
-								]}
-								SelectedItemId={undefined}
-								ItemSelected={(item) => {
-									this.props.updateContextFilter(item.Id);
-								}}
-							/>
-							<MultiSelectDropdown<ZirconLogLevel>
-								Label="Level Filter"
-								SelectedItemIds={this.state.levelFilter}
-								Items={[
-									{
-										Id: ZirconLogLevel.Debug,
-										Text: "Debugging",
-									},
-									{
-										Id: ZirconLogLevel.Info,
-										Text: "Information",
-									},
-									{
-										Id: ZirconLogLevel.Warning,
-										Text: "Warnings",
-									},
-									{
-										Id: ZirconLogLevel.Error,
-										Text: "Errors",
-									},
-									{
-										Id: ZirconLogLevel.Wtf,
-										Text: "Fatal Errors",
-									},
-								]}
-								ItemsSelected={(items) => this.props.updateLevelFilter(items)}
-							/>
 						</frame>
 					</screengui>
 				)}
