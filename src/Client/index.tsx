@@ -171,7 +171,7 @@ namespace ZirconClient {
 					time: DateTime.now().UnixTimestamp,
 					tag: "INIT",
 					data: {
-						FormatArguments: [],
+						Variables: [],
 					},
 				},
 			},
