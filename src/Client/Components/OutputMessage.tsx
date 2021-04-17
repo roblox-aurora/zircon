@@ -61,8 +61,8 @@ function OutputMessage(props: OutputMessageProps) {
 					);
 
 					const text =
-						(message.data.FormatArguments?.size() ?? 0) > 0
-							? formatTokens(formatParse(message.message), message.data.FormatArguments)
+						(message.data.Variables?.size() ?? 0) > 0
+							? formatTokens(formatParse(message.message), message.data.Variables)
 							: message.message;
 
 					if (message.level === ZirconLogLevel.Info) {

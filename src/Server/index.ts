@@ -179,7 +179,7 @@ namespace Zircon {
 				return group.GetPermissions();
 			} else {
 				Log.Write(ZirconLogLevel.Wtf, "GetPlayerPermissions", `Could not fetch permissions for player {}`, {
-					FormatArguments: [player],
+					Variables: [player],
 				});
 				return new ReadonlySet() as ReadonlyZirconPermissionSet;
 			}

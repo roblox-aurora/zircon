@@ -49,7 +49,7 @@ export namespace Logger {
 	export function Debug(tag: ZirconTag, formatString: string, ...formatArguments: unknown[]) {
 		if (RunService.IsStudio()) {
 			const data = identity<ZirconLogData>({
-				FormatArguments: formatArguments,
+				Variables: formatArguments,
 			});
 			data.StackTrace ??= debug.traceback(undefined, 2).split("\n");
 
@@ -72,7 +72,7 @@ export namespace Logger {
 	 */
 	export function Info(tag: ZirconTag, message: string, ...formatArguments: unknown[]) {
 		const data = identity<ZirconLogData>({
-			FormatArguments: formatArguments,
+			Variables: formatArguments,
 		});
 		data.StackTrace ??= debug.traceback(undefined, 2).split("\n");
 
@@ -94,7 +94,7 @@ export namespace Logger {
 	 */
 	export function Warning(tag: ZirconTag, message: string, ...formatArguments: unknown[]) {
 		const data = identity<ZirconLogData>({
-			FormatArguments: formatArguments,
+			Variables: formatArguments,
 		});
 		data.StackTrace ??= debug.traceback(undefined, 2).split("\n");
 
@@ -116,7 +116,7 @@ export namespace Logger {
 	 */
 	export function Error(tag: ZirconTag, message: string, ...formatArguments: unknown[]) {
 		const data = identity<ZirconLogData>({
-			FormatArguments: formatArguments,
+			Variables: formatArguments,
 		});
 		data.StackTrace ??= debug.traceback(undefined, 2).split("\n");
 
@@ -138,7 +138,7 @@ export namespace Logger {
 	 */
 	export function Failure(tag: ZirconTag, message: string, ...formatArguments: unknown[]) {
 		const data = identity<ZirconLogData>({
-			FormatArguments: formatArguments,
+			Variables: formatArguments,
 		});
 		data.StackTrace ??= debug.traceback(undefined, 2).split("\n");
 

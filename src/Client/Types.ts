@@ -43,7 +43,7 @@ export interface ZirconLogData {
 	 */
 	Attributes?: Record<string, defined>;
 
-	FormatArguments: Array<unknown>;
+	Variables: Array<unknown>;
 
 	/**
 	 * The stack trace of this message.

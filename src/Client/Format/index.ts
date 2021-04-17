@@ -107,8 +107,12 @@ export function formatTokens(tokens: ReadonlyArray<FormatToken>, vars: unknown[]
 			resultingStr += token.Value;
 		} else if (token.Type === "Variable") {
 			if (token.Value === "") {
-				resultingStr += formatRichText(vars[idxOffset]);
-				idxOffset += 1;
+				if (idxOffset > vars.size()) {
+					resultingStr += getRichTextColor3(ZirconTheme, "Red", `{${token.Value}}`);
+				} else {
+					resultingStr += formatRichText(vars[idxOffset]);
+					idxOffset += 1;
+				}
 			}
 		}
 	}

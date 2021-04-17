@@ -36,7 +36,7 @@ delayAsync(10).then(() => {
 	Zircon.Log.Info("Test", "Should be good {}", 1);
 	Zircon.Log.Info(
 		"TestFormat",
-		`String {}, Number {}, Boolean {}, Array: {}, Map: {}, Instance: {}, Undefined: {}`,
+		`String {}, Number {}, Boolean {}, Array: {}, Map: {}, Instance: {}, Undefined: {}, None: {}`,
 		"Hello, World!",
 		1337,
 		true,
