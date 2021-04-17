@@ -27,6 +27,7 @@ interface DockedConsoleState {
 	levelFilter: Set<ZirconLogLevel>;
 	filterVisible?: boolean;
 	historyIndex: number;
+	searchQuery: string;
 }
 
 const MAX_SIZE = 28 * 10; // 18
@@ -55,6 +56,7 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 			filterVisible: false,
 			levelFilter: props.levelFilter,
 			historyIndex: 0,
+			searchQuery: props.searchQuery,
 			source: "",
 			sizeY: MAX_SIZE,
 		};
@@ -104,6 +106,10 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 
 		if (prevProps.levelFilter !== this.props.levelFilter) {
 			this.setState({ levelFilter: this.props.levelFilter });
+		}
+
+		if (prevProps.searchQuery !== this.props.searchQuery) {
+			this.setState({ searchQuery: this.props.searchQuery });
 		}
 	}
 
@@ -220,7 +226,12 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 										Padding={new UDim(0, 10)}
 									/>
 									<Padding Padding={{ Horizontal: 25, Vertical: 5 }} />
-									<SearchTextBox />
+									<SearchTextBox
+										Value={this.state.searchQuery}
+										TextChanged={(value) => {
+											this.props.updateSearchFilter(value);
+										}}
+									/>
 									{!this.state.isFullView && (
 										<ZirconIconButton
 											Icon="UpDoubleArrow"
@@ -327,6 +338,7 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 
 interface MappedDispatch {
 	addMessage: (message: string) => void;
+	updateSearchFilter: (search: string) => void;
 	updateContextFilter: (context: ZirconContext | undefined) => void;
 	updateLevelFilter: (levels: Set<ZirconLogLevel>) => void;
 }
@@ -334,6 +346,7 @@ interface MappedProps {
 	isVisible: boolean;
 	executionEnabled: boolean;
 	history: string[];
+	searchQuery: string;
 	levelFilter: Set<ZirconLogLevel>;
 }
 const mapStateToProps = (state: ConsoleReducer): MappedProps => {
@@ -341,6 +354,7 @@ const mapStateToProps = (state: ConsoleReducer): MappedProps => {
 		isVisible: state.visible,
 		levelFilter: state.filter.Levels ?? DEFAULT_FILTER,
 		executionEnabled: state.executionEnabled,
+		searchQuery: state.filter.SearchQuery ?? "",
 		history: state.history,
 	};
 };
@@ -358,6 +372,9 @@ const mapPropsToDispatch = (dispatch: DispatchParam<ZirconClientStore>): MappedD
 					source,
 				},
 			});
+		},
+		updateSearchFilter: (query) => {
+			dispatch({ type: ConsoleActionName.UpdateFilter, SearchQuery: query });
 		},
 		updateContextFilter: (Context) => {
 			if (Context !== undefined) {

@@ -6,6 +6,7 @@ import {
 	ZirconLogErrorOutput,
 	ZirconErrorOutput,
 } from "Shared/Remotes";
+import { formatParse, formatTokens, formatTokensPlain } from "./Format";
 
 export const enum ZirconContext {
 	Server,
@@ -95,9 +96,22 @@ export function isContextMessage(
 
 export function getMessageText(message: ConsoleMessage) {
 	if (message.type === ZirconMessageType.ZirconLogOutputMesage) {
-		return message.message.message;
+		const { message: outputMessage, data } = message.message;
+
+		const formatted =
+			(data.Variables?.size() ?? 0) > 0
+				? formatTokensPlain(formatParse(outputMessage), data.Variables)
+				: outputMessage;
+
+		return formatted;
 	} else if (message.type === ZirconMessageType.ZirconLogErrorMessage) {
-		return message.error.message;
+		const { message: outputMessage, data } = message.error;
+		const formatted =
+			(data.Variables?.size() ?? 0) > 0
+				? formatTokensPlain(formatParse(outputMessage), data.Variables)
+				: outputMessage;
+
+		return formatted;
 	} else if (message.type === ZirconMessageType.ZirconiumOutput) {
 		return message.message.message;
 	} else if (message.type === ZirconMessageType.ZirconiumError) {

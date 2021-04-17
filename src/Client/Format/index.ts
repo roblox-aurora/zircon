@@ -99,6 +99,54 @@ function formatRichText(value: unknown, level = 1): string {
 	}
 }
 
+function formatPlainText(value: unknown, level = 1): string {
+	if (typeIs(value, "string") || typeIs(value, "number") || typeIs(value, "boolean")) {
+		return tostring(value);
+	} else if (isArray(value)) {
+		if (level > 1) {
+			return `[...]`;
+		} else {
+			return `[${value.map((v) => formatPlainText(v, level + 1)).join(", ")}]`;
+		}
+	} else if (isMap(value)) {
+		if (level > 1) {
+			return `{...}`;
+		} else {
+			const arr = new Array<string>();
+			for (const [k, v] of value) {
+				arr.push(`${k}: ${formatPlainText(v, level + 1)}`);
+			}
+			return `{${arr.join(", ")}}`;
+		}
+	} else if (typeIs(value, "Instance")) {
+		return value.GetFullName();
+	} else if (value === undefined) {
+		return "undefined";
+	} else {
+		return tostring(value);
+	}
+}
+
+export function formatTokensPlain(tokens: ReadonlyArray<FormatToken>, vars: unknown[]) {
+	let resultingStr = "";
+	let idxOffset = 0;
+	for (const token of tokens) {
+		if (token.Type === "Text") {
+			resultingStr += token.Value;
+		} else if (token.Type === "Variable") {
+			if (token.Value === "") {
+				if (idxOffset > vars.size()) {
+					resultingStr += `{${token.Value}}`;
+				} else {
+					resultingStr += formatPlainText(vars[idxOffset]);
+					idxOffset += 1;
+				}
+			}
+		}
+	}
+	return resultingStr;
+}
+
 export function formatTokens(tokens: ReadonlyArray<FormatToken>, vars: unknown[]) {
 	let resultingStr = "";
 	let idxOffset = 0;

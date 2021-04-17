@@ -6,6 +6,7 @@ import Padding from "./Padding";
 interface SearchTextBoxProps {
 	Value?: string;
 	Size?: UDim2;
+	TextChanged?: (text: string) => void;
 }
 interface SearchTextBoxState {
 	Value?: string;
@@ -50,8 +51,14 @@ export default class SearchTextBox extends Roact.Component<SearchTextBoxProps, S
 									TextSize={18}
 									PlaceholderText="Find"
 									PlaceholderColor3={theme.SecondaryTextColor3}
-									Text=""
+									Text={this.state.Value ?? ""}
 									TextXAlignment="Left"
+									Change={{
+										Text: ({ Text }) => {
+											this.setState({ Value: Text });
+											this.props.TextChanged?.(Text);
+										},
+									}}
 									Font={theme.ConsoleFont}
 								/>
 							</frame>

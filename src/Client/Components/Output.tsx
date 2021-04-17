@@ -129,7 +129,10 @@ const mapStateToProps = (state: ConsoleReducer): MappedProps => {
 		}
 		if (typeIs(filter.SearchQuery, "string")) {
 			const { SearchQuery } = filter;
-			output = output.filter((message) => StringUtils.startsWith(getMessageText(message), SearchQuery));
+			output = output.filter((message) => {
+				// StringUtils.startsWith(getMessageText(message), SearchQuery)
+				return StringUtils.includes(getMessageText(message), SearchQuery);
+			});
 		}
 
 		output = output.filter((message) => filter.Levels.has(getLogLevel(message)));
