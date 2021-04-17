@@ -20,11 +20,11 @@ Zircon.Server.Registry.RegisterZrLuauFunction(
 );
 
 delayAsync(10).then(() => {
-	Zircon.LogInfo("Test", "testing lol");
-	Zircon.LogDebug("test", "testing debug");
-	Zircon.LogWarning("TestWarning", "test warning lol");
-	Zircon.LogError("TestError", "test error lol");
-	Zircon.LogWtf("TestWtf", "wtf lol");
+	Zircon.Log.Info("Test", "testing lol");
+	Zircon.Log.Debug("test", "testing debug");
+	Zircon.Log.Warning("TestWarning", "test warning lol");
+	Zircon.Log.Error("TestError", "test error lol");
+	Zircon.Log.Failure("TestWtf", "wtf lol");
 });
 
 game.GetService("Players").PlayerAdded.Connect((player) => {

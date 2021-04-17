@@ -6,7 +6,7 @@ return function(level, ...)
             combinedStr ..= "s"
         elseif key == "lineNumber" then
             combinedStr ..= "l"
-        elseif key == "arguments" then
+        elseif key == "functionArity" then
             combinedStr ..= "a"
         elseif key == "name" then
             combinedStr ..= "n"

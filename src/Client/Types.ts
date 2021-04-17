@@ -17,6 +17,12 @@ export interface ZirconLoggable {
 	toString(): string;
 }
 
+export interface ZirconDebugInfo {
+	Source: string;
+	LineNumber: number;
+	Name: string;
+}
+
 /**
  * Extra logging data relating to the specified log message
  */
@@ -37,12 +43,21 @@ export interface ZirconLogData {
 	 */
 	Attributes?: Record<string, defined>;
 
+	FormatArguments: Array<unknown>;
+
 	/**
 	 * The stack trace of this message.
 	 *
 	 * This is populated by default via Zircon
 	 */
 	StackTrace?: string[];
+
+	/**
+	 * Function stack details
+	 */
+	FunctionStack?: ZirconDebugInfo[];
+
+	CallDebugInfo?: ZirconDebugInfo;
 }
 
 export enum ZirconLogLevel {

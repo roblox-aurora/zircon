@@ -27,21 +27,6 @@ namespace Zircon {
 		return GetCommandService("LogService");
 	});
 
-	let outputConnection: RBXScriptConnection | undefined;
-	/** @internal */
-	export function EXPERIMENTAL_EnableRobloxOutput() {
-		if (outputConnection) return;
-		outputConnection = LogService.MessageOut.Connect((message, messageType) => {
-			if (messageType === Enum.MessageType.MessageOutput) {
-				Log.Write(ZirconLogLevel.Info, "roblox", message);
-			} else if (messageType === Enum.MessageType.MessageWarning) {
-				Log.Write(ZirconLogLevel.Warning, "roblox", message);
-			} else if (messageType === Enum.MessageType.MessageError) {
-				Log.Write(ZirconLogLevel.Error, "roblox", message);
-			}
-		});
-	}
-
 	function isParserError(err: ZrRuntimeError | ZrParserError): err is ZrParserError {
 		return err.code >= 1000;
 	}
@@ -193,11 +178,9 @@ namespace Zircon {
 			if (group) {
 				return group.GetPermissions();
 			} else {
-				Log.Write(
-					ZirconLogLevel.Wtf,
-					"GetPlayerPermissions",
-					`Could not fetch permissions for player ${player}`,
-				);
+				Log.Write(ZirconLogLevel.Wtf, "GetPlayerPermissions", `Could not fetch permissions for player {}`, {
+					FormatArguments: [player],
+				});
 				return new ReadonlySet() as ReadonlyZirconPermissionSet;
 			}
 		});

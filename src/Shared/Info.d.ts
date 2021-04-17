@@ -1,4 +1,4 @@
-type Declarations = "source" | "lineNumber" | "arguments" | "name";
+type Declarations = "source" | "lineNumber" | "functionArity" | "name";
 
 type MapTo<V extends readonly Declarations[]> = {
 	[P in keyof V]: V[P] extends "source"

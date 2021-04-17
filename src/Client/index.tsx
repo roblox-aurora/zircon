@@ -42,14 +42,14 @@ namespace ZirconClient {
 		return GetCommandService("ClientDispatchService");
 	});
 
-	export function Log(level: ZirconLogLevel, tag: string, message: string, data?: ZirconLogData) {
+	export function Log(level: ZirconLogLevel, tag: string, message: string, data: ZirconLogData) {
 		if (level === ZirconLogLevel.Error || level === ZirconLogLevel.Wtf) {
 			ZirconClientStore.dispatch({
 				type: ConsoleActionName.AddOutput,
 				message: {
 					type: ZirconMessageType.ZirconLogErrorMessage,
 					error: {
-						data: data ?? {},
+						data: data,
 						type: ZirconNetworkMessageType.ZirconStandardErrorMessage,
 						time: DateTime.now().UnixTimestamp,
 						message,
@@ -155,21 +155,6 @@ namespace ZirconClient {
 		ContextActionService.BindAction(Const.ActionId, activateBuiltInConsole, false, ...keys);
 	}
 
-	let outputConnection: RBXScriptConnection | undefined;
-	/** @internal */
-	export function EXPERIMENTAL_EnableRobloxOutput() {
-		if (outputConnection) return;
-		outputConnection = LogService.MessageOut.Connect((message, messageType) => {
-			if (messageType === Enum.MessageType.MessageOutput) {
-				Log(ZirconLogLevel.Info, "roblox", message);
-			} else if (messageType === Enum.MessageType.MessageWarning) {
-				Log(ZirconLogLevel.Warning, "roblox", message);
-			} else if (messageType === Enum.MessageType.MessageError) {
-				Log(ZirconLogLevel.Error, "roblox", message);
-			}
-		});
-	}
-
 	if (IsClient) {
 		const StandardOutput = Remotes.Client.Get(RemoteId.StandardOutput);
 		const StandardError = Remotes.Client.Get(RemoteId.StandardError);
@@ -185,7 +170,9 @@ namespace ZirconClient {
 					level: ZirconLogLevel.Debug,
 					time: DateTime.now().UnixTimestamp,
 					tag: "INIT",
-					data: {},
+					data: {
+						FormatArguments: [],
+					},
 				},
 			},
 		});

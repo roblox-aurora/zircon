@@ -6,7 +6,7 @@ import ZirconSyntaxTextBox from "../../Components/SyntaxTextBox";
 import { ZirconIconButton } from "../../Components/Icon";
 import Remotes from "../../../Shared/Remotes";
 import { RemoteId } from "../../../RemoteId";
-import ClientEvent from "@rbxts/net/out/client/ClientEvent";
+import ClientEvent, { ClientSenderEvent } from "@rbxts/net/out/client/ClientEvent";
 import ZirconOutput from "../../../Client/Components/Output";
 import { DispatchParam } from "@rbxts/rodux";
 import ZirconClientStore from "../Store";
@@ -45,7 +45,7 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 	private positionYMotor: SingleMotor;
 	private sizeYMotor: SingleMotor;
 	private outputTransparencyMotor: SingleMotor;
-	private dispatch: ClientEvent<[], [input: string]>;
+	private dispatch: ClientSenderEvent<[input: string]>;
 
 	public constructor(props: DockedConsoleProps) {
 		super(props);

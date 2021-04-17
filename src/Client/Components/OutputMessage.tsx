@@ -20,6 +20,7 @@ import { ZirconDebugInformation, ZirconNetworkMessageType } from "../../Shared/R
 import { ZrRichTextHighlighter } from "@rbxts/zirconium-ast";
 import StringUtils from "@rbxts/string-utils";
 import { padEnd } from "Shared/Strings";
+import { formatParse, formatTokens } from "Client/Format";
 
 interface OutputMessageProps {
 	Message: ZrOutputMessage | ZirconLogMessage | ZrOutputMessage;
@@ -59,20 +60,25 @@ function OutputMessage(props: OutputMessageProps) {
 						),
 					);
 
+					const text =
+						(message.data.FormatArguments?.size() ?? 0) > 0
+							? formatTokens(formatParse(message.message), message.data.FormatArguments)
+							: message.message;
+
 					if (message.level === ZirconLogLevel.Info) {
 						messages.push(getRichTextColor3(theme, "Cyan", "INFO "));
-						messages.push(getRichTextColor3(theme, "White", message.message));
+						messages.push(getRichTextColor3(theme, "White", text));
 					} else if (message.level === ZirconLogLevel.Debug) {
 						messages.push(getRichTextColor3(theme, "Green", "DEBUG"));
-						messages.push(getRichTextColor3(theme, "White", message.message));
+						messages.push(getRichTextColor3(theme, "White", text));
 					} else if (message.level === ZirconLogLevel.Warning) {
 						messages.push(getRichTextColor3(theme, "Yellow", "WARN "));
-						messages.push(getRichTextColor3(theme, "White", message.message));
+						messages.push(getRichTextColor3(theme, "White", text));
 					}
 
 					if (props.ShowTags && message.tag) {
-						const toAppend = padEnd(message.tag ?? "", 20, " ");
-						messages.push("- " + italicize(getRichTextColor3(theme, "Grey", toAppend)));
+						// const toAppend = padEnd(message.tag ?? "", 20, " ");
+						messages.push("- " + italicize(getRichTextColor3(theme, "Grey", message.tag)));
 					}
 				}
 
@@ -162,13 +168,13 @@ function OutputError(props: { Message: ZrErrorMessage | ZirconLogError; ShowTags
 						messages.push(getRichTextColor3(theme, "Red", "ERROR"));
 						messages.push(getRichTextColor3(theme, "Yellow", zrError.message));
 					} else if (zrError.level === ZirconLogLevel.Wtf) {
-						messages.push(getRichTextColor3(theme, "Red", "WTF  "));
+						messages.push(getRichTextColor3(theme, "Red", "FAIL "));
 						messages.push(getRichTextColor3(theme, "Yellow", zrError.message));
 					}
 
 					if (props.ShowTags && zrError.tag) {
-						const toAppend = padEnd(zrError.tag ?? "", 20, " ");
-						messages.push("- " + italicize(getRichTextColor3(theme, "Grey", toAppend)));
+						// const toAppend = padEnd(zrError.tag ?? "", 20, " ");
+						messages.push("- " + italicize(getRichTextColor3(theme, "Grey", zrError.tag)));
 					}
 				}
 

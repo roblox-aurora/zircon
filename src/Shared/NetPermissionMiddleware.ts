@@ -15,11 +15,9 @@ export default function createPermissionMiddleware(permission: keyof ZirconPermi
 			if (matchingGroup !== undefined) {
 				return nxt(sender, ...args);
 			} else {
-				log.Write(
-					ZirconLogLevel.Error,
-					"NetPermissionMiddleware",
-					`Request to '${event.GetInstance().Name}' by user '${sender}' denied.`,
-				);
+				log.Write(ZirconLogLevel.Error, "NetPermissionMiddleware", `Request to {} by user {} denied.`, {
+					FormatArguments: [event.GetInstance().Name, sender],
+				});
 				warn(`[Zircon] Request to '${event.GetInstance().GetFullName()}' by user '${sender}' denied.`);
 			}
 		};

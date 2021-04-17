@@ -18,13 +18,13 @@ export namespace ZirconLogService {
 		level: ZirconLogLevel.Debug | ZirconLogLevel.Info | ZirconLogLevel.Warning,
 		tag: string,
 		message: string,
-		data?: ZirconLogData,
+		data: ZirconLogData,
 	) {
 		const outputMessage = identity<ZirconStandardOutput>({
 			type: ZirconNetworkMessageType.ZirconStandardOutputMessage,
 			tag,
 			message,
-			data: data ?? {},
+			data,
 			level,
 			time: DateTime.now().UnixTimestamp,
 		});
@@ -40,13 +40,13 @@ export namespace ZirconLogService {
 		level: ZirconLogLevel.Error | ZirconLogLevel.Wtf,
 		tag: string,
 		message: string,
-		data?: ZirconLogData,
+		data: ZirconLogData,
 	) {
 		const outputError = identity<ZirconErrorOutput>({
 			type: ZirconNetworkMessageType.ZirconStandardErrorMessage,
 			tag,
 			message,
-			data: data ?? {},
+			data,
 			level,
 			time: DateTime.now().UnixTimestamp,
 		});
@@ -55,20 +55,22 @@ export namespace ZirconLogService {
 		StandardError.SendToPlayers(loggablePlayers, outputError);
 	}
 
-	/** @internal */
-	export function InternalGetOutputMessages() {
+	/**
+	 * @internal
+	 */
+	export function GetCurrentOutput() {
 		return outputMessages;
 	}
 
 	/**
 	 * Writes a message to either the output stream or input stream of Zircon
 	 */
-	export function Write(level: ZirconLogLevel, tag: string, message: string, data?: ZirconLogData) {
+	export function Write(level: ZirconLogLevel, tag: string, message: string, data: ZirconLogData) {
 		switch (level) {
 			case ZirconLogLevel.Debug:
 			case ZirconLogLevel.Info:
 			case ZirconLogLevel.Warning:
-				writeServerLogMessage(level, tag, message);
+				writeServerLogMessage(level, tag, message, data);
 				break;
 			case ZirconLogLevel.Error:
 			case ZirconLogLevel.Wtf:
