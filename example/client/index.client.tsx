@@ -35,20 +35,15 @@ ZirconClient.BindConsole({
 delayAsync(10).then(() => {
 	Zircon.Log.Info("Test", "Should be good {}", 1);
 	Zircon.Log.Info(
-		"testFormat",
-		"s {}, n: {}, b: {}, a: {}, m: {}, p: {}",
+		"TestFormat",
+		`String {}, Number {}, Boolean {}, Array: {}, Map: {}, Instance: {}, Undefined: {}`,
 		"Hello, World!",
-		10,
+		1337,
 		true,
-		[1, true, "Hello", 3, [4, [6, 7]]],
-		{
-			string: "hi",
-			number: 10,
-			boolean: true,
-			innerArray: [10],
-			innerObject: { a: 10 },
-		},
+		[1, "two", true],
+		{ value: "hi" },
 		Players.LocalPlayer,
+		undefined,
 	);
 	Zircon.Log.Debug("test", "testing debug");
 	Zircon.Log.Warning("TestWarning", "test warning lol");
