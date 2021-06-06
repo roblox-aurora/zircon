@@ -4,12 +4,9 @@
 
 import ZrSiO4Client from "./Client";
 import ZrSiO4Server from "./Server";
-import { ZirconDebugInfo, ZirconLogData, ZirconLoggable, ZirconLogLevel, ZirconTag } from "./Client/Types";
-import { RunService } from "@rbxts/services";
-import Signal from "@rbxts/signal";
 import { ZrValue } from "@rbxts/zirconium/out/Data/Locals";
-import ZirconFunction from "Server/Class/ZirconFunction";
 import { Logger } from "Log";
+import ZrUndefined from "@rbxts/zirconium/out/Data/Undefined";
 
 /**
  * The Zircon console framework
@@ -29,7 +26,7 @@ namespace Zircon {
 	/**
 	 * A function argument for Zircon functions
 	 */
-	export type Argument = ZrValue;
+	export type Argument = ZrValue | ZrUndefined;
 	/**
 	 * A value type for Zircon functions
 	 */

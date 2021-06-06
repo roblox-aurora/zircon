@@ -2,14 +2,9 @@ import ZrContext from "@rbxts/zirconium/out/Data/Context";
 import { ZrValue } from "@rbxts/zirconium/out/Data/Locals";
 import ZrLuauFunction from "@rbxts/zirconium/out/Data/LuauFunction";
 import ZrObject from "@rbxts/zirconium/out/Data/Object";
-import { CommandArgument, MappedOptionsReadonly } from "../../Types";
+import ZrUndefined from "@rbxts/zirconium/out/Data/Undefined";
 
-// export interface ExecutionArgs<K extends CommandOptions, A extends readonly CommandArgument[]> {
-// 	Options: MappedOptions<K> & { stdin?: defined };
-// 	Arguments: MappedOptionsReadonly<A>;
-// }
-
-type ZrTypeCheck = (value: ZrValue) => value is ZrValue;
+type ZrTypeCheck = (value: ZrValue | ZrUndefined) => value is ZrValue | ZrUndefined;
 type ZrInferValue<T> = T extends (value: unknown) => value is infer A ? A : never;
 type InferArguments<T> = { readonly [P in keyof T]: ZrInferValue<T[P]> };
 

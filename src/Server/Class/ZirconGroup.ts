@@ -1,6 +1,8 @@
 import ZrContext from "@rbxts/zirconium/out/Data/Context";
 import { ZrValue } from "@rbxts/zirconium/out/Data/Locals";
 import ZrLuauFunction from "@rbxts/zirconium/out/Data/LuauFunction";
+import ZrUndefined from "@rbxts/zirconium/out/Data/Undefined";
+import { ZrObjectUserdata } from "@rbxts/zirconium/out/Data/Userdata";
 
 export interface ZirconRobloxGroupBinding {
 	GroupId: number;
@@ -39,6 +41,7 @@ export enum ZirconGroupType {
 
 export default class ZirconUserGroup {
 	private functions = new Map<string, ZrLuauFunction>();
+	private namespaces = new Map<string, ZrObjectUserdata<defined>>();
 	private permissions: ZirconPermissionSet;
 	private members = new WeakSet<Player>();
 
@@ -85,12 +88,25 @@ export default class ZirconUserGroup {
 	}
 
 	/** @internal */
-	public _registerFunction(name: string, callback: (ctx: ZrContext, ...args: readonly ZrValue[]) => ZrValue | void) {
+	public _registerFunction(
+		name: string,
+		callback: (ctx: ZrContext, ...args: readonly (ZrValue | ZrUndefined)[]) => ZrValue | void,
+	) {
 		this.functions.set(name, new ZrLuauFunction(callback));
+	}
+
+	/** @internal */
+	public _registerNamespace(name: string, value: Record<string, ZrValue>) {
+		this.namespaces.set(name, ZrObjectUserdata.fromRecord(value));
 	}
 
 	/** @internal */
 	public _getFunctions(): ReadonlyMap<string, ZrLuauFunction> {
 		return this.functions;
+	}
+
+	/** @internal */
+	public _getNamespaces(): ReadonlyMap<string, ZrValue> {
+		return this.namespaces;
 	}
 }

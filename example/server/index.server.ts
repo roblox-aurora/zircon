@@ -1,18 +1,43 @@
 import { ZrValue } from "@rbxts/zirconium/out/Data/Locals";
+import ZrLuauFunction from "@rbxts/zirconium/out/Data/LuauFunction";
+import { ZrInstanceUserdata } from "@rbxts/zirconium/out/Data/Userdata";
 import Zircon from "@zircon";
 import ZirconPrint from "BuiltIn/Print";
 import delayAsync from "Client/BuiltInConsole/DelayAsync";
 
 Zircon.Server.Registry.RegisterFunction(ZirconPrint, [Zircon.Server.Registry.User]);
 
+// Zircon.Server.Registry.RegisterFunction(
+// 	{
+// 		Name: "player",
+// 		Function: (context) => {
+// 			context.getOutput().write(new ZrInstanceUserdata(context.getExecutor()!));
+// 		},
+// 	},
+// 	[Zircon.Server.Registry.User],
+// );
+
+Zircon.Server.Registry.RegisterNamespace(
+	"localplayer",
+	{
+		kill: new ZrLuauFunction((context) => {
+			const player = context.getExecutor();
+			if (player) {
+				player.Character?.BreakJoints();
+			}
+		}),
+	},
+	[Zircon.Server.Registry.User],
+);
+
 Zircon.Server.Registry.RegisterZrLuauFunction(
 	"spam",
 	(context, count) => {
 		// eslint-disable-next-line roblox-ts/lua-truthiness
-		const message = context.getInput().join(" ") || "This is a test message";
+		const message = context.getInput().toArray().join(" ") || "This is a test message";
 		if (typeIs(count, "number")) {
 			for (let i = 0; i < count; i++) {
-				context.pushOutput(message);
+				context.getOutput().write(message);
 			}
 		}
 	},

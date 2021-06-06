@@ -1,6 +1,6 @@
 import Roact from "@rbxts/roact";
 import ZirconIcon from "./Icon";
-import { ZrRichTextHighlighter } from "@rbxts/zirconium-ast";
+import { ZrRichTextHighlighter } from "@rbxts/zirconium/out/Ast";
 import ThemeContext, { convertColorObjectToHex, ThemeSyntaxColors } from "../../Client/UIKit/ThemeContext";
 import Maid from "@rbxts/maid";
 import { UserInputService } from "@rbxts/services";

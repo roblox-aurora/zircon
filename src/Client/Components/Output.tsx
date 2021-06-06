@@ -12,7 +12,7 @@ import {
 import ThemeContext from "../../Client/UIKit/ThemeContext";
 import { ConsoleReducer } from "../../Client/BuiltInConsole/Store/_reducers/ConsoleReducer";
 import ScrollView from "./ScrollView";
-import { ZrRichTextHighlighter } from "@rbxts/zirconium-ast";
+import { ZrRichTextHighlighter } from "@rbxts/zirconium/out/Ast";
 import ZirconIcon from "./Icon";
 import ZirconOutputMessage from "./OutputMessage";
 import { last } from "Shared/Collections";
@@ -138,7 +138,6 @@ const mapStateToProps = (state: ConsoleReducer): MappedProps => {
 		output = output.filter((message) => filter.Levels.has(getLogLevel(message)));
 	}
 
-	print("tags", state.showTagsInOutput);
 	return {
 		output: filter?.Tail ? last(output, 25) : last(output, 100),
 		showTags: state.showTagsInOutput,

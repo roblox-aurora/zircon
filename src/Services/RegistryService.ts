@@ -10,6 +10,7 @@ import { $dbg } from "rbxts-transform-debug";
 import Zircon from "index";
 import ZirconFunction from "Server/Class/ZirconFunction";
 import { ZirconFunctionDeclaration } from "Shared/Types";
+import ZrPlayerScriptContext from "@rbxts/zirconium/out/Runtime/PlayerScriptContext";
 
 export namespace ZirconRegistryService {
 	const contexts = new Map<Player, Array<ZrScriptContext>>();
@@ -26,6 +27,9 @@ export namespace ZirconRegistryService {
 			for (const value of group._getFunctions()) {
 				yield value;
 			}
+			for (const value of group._getNamespaces()) {
+				yield value;
+			}
 		}
 
 		return true;
@@ -35,7 +39,7 @@ export namespace ZirconRegistryService {
 		let contextArray: Array<ZrScriptContext>;
 		if (!contexts.has(player)) {
 			contextArray = [];
-			const context = new ZrScriptContext();
+			const context = new ZrPlayerScriptContext(player);
 			for (const [name, fun] of playerFunctionIterator(player)) {
 				context.registerGlobal(name, fun);
 			}
@@ -67,6 +71,12 @@ export namespace ZirconRegistryService {
 
 	export function RegisterFunction(func: ZirconFunctionDeclaration, groups: ZirconUserGroup[]) {
 		return RegisterZrLuauFunction(func.Name, func.Function, groups);
+	}
+
+	export function RegisterNamespace(name: string, values: Record<string, ZrValue>, groups: ZirconUserGroup[]) {
+		for (const group of groups) {
+			group._registerNamespace(name, values);
+		}
 	}
 
 	/**

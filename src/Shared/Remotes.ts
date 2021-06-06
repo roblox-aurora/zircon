@@ -1,7 +1,7 @@
 import Net from "@rbxts/net";
 import { ZrRuntimeErrorCode } from "@rbxts/zirconium/out/Runtime/Runtime";
 import { RemoteId } from "../RemoteId";
-import { ZrParserErrorCode } from "@rbxts/zirconium-ast/out/Parser";
+import { ZrParserErrorCode } from "@rbxts/zirconium/out/Ast/Parser";
 import { ZirconLogData, ZirconLogLevel } from "../Client/Types";
 import createPermissionMiddleware from "./NetPermissionMiddleware";
 import type { ReadonlyZirconPermissionSet } from "Server/Class/ZirconGroup";

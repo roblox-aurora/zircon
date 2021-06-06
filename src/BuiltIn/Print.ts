@@ -1,12 +1,13 @@
 import ZrContext from "@rbxts/zirconium/out/Data/Context";
 import { ZrValue } from "@rbxts/zirconium/out/Data/Locals";
+import { ZrLuauArgument } from "@rbxts/zirconium/out/Data/LuauFunction";
 import { ZirconFunctionDeclaration } from "Shared/Types";
 
-const ZirconPrint: ZirconFunctionDeclaration<ZrValue[], void> = {
+const ZirconPrint: ZirconFunctionDeclaration<ZrLuauArgument[], void> = {
 	Name: "print",
-	Function: (context: ZrContext, ...args: ZrValue[]) => {
+	Function: (context: ZrContext, ...args: ZrLuauArgument[]) => {
 		const printArgs = args.map((arg) => tostring(arg)).join(" ");
-		context.pushOutput(printArgs);
+		context.getOutput().write(printArgs);
 	},
 };
 

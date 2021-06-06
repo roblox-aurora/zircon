@@ -1,5 +1,5 @@
 import t from "@rbxts/t";
-import ZrTextStream from "@rbxts/zirconium-ast/out/TextStream";
+import ZrTextStream from "@rbxts/zirconium/out/Ast/TextStream";
 import { getRichTextColor3, ZirconTheme } from "Client/UIKit/ThemeContext";
 interface PlainTextToken {
 	Type: "Text";
