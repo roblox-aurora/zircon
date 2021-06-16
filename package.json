@@ -1,12 +1,12 @@
 {
   "name": "@rbxts/zircon",
-  "version": "0.4.0-alpha.0",
+  "version": "0.5.0-alpha.1",
   "description": "",
   "main": "out/init.lua",
   "scripts": {
     "prepare": "npm run build",
     "build": "rbxtsc",
-    "dev": "concurrently npm:watch:example npm:serve:example",
+    "dev:example": "concurrently npm:watch:example npm:serve:example",
     "build:example": "rbxtsc --type=game -p ./example -i ./include",
     "build:luau": "rbxtsc --verbose --type=model --rojo=\"luau/build.project.json\"",
     "watch:example": "cross-env NODE_ENV=development rbxtsc -w --type=game -p ./example -i ./include",
@@ -16,8 +16,7 @@
   "author": "",
   "license": "ISC",
   "publishConfig": {
-    "access": "public",
-    "tag": "alpha"
+    "access": "public"
   },
   "types": "out/index.d.ts",
   "devDependencies": {
@@ -49,6 +48,6 @@
     "@rbxts/snapdragon": "^2.0.0-beta.0",
     "@rbxts/string-utils": "^1.0.2",
     "@rbxts/t": "^1.3.5",
-    "@rbxts/zirconium": "github:roblox-aurora/zirconium"
+    "@rbxts/zirconium": "^1.0.1-rc.0"
   }
 }
