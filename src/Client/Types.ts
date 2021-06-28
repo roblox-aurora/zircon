@@ -1,3 +1,4 @@
+import { StructuredMessage } from "@rbxts/log";
 import {
 	ZirconStandardOutput,
 	ZirconiumRuntimeErrorMessage,
@@ -61,16 +62,12 @@ export interface ZirconLogData {
 	CallDebugInfo?: ZirconDebugInfo;
 }
 
-export enum ZirconLogLevel {
+export const enum ZirconLogLevel {
+	Verbose = 0,
 	Debug,
 	Info,
 	Warning,
 	Error,
-
-	/**
-	 * "What a terrible failure"
-	 * Used if the result should never happen, yet
-	 */
 	Wtf,
 }
 
@@ -78,8 +75,13 @@ export const enum ZirconMessageType {
 	ZirconiumOutput = "zr:output",
 	ZirconiumError = "zr:error",
 	ZirconiumExecutionMessage = "zr:execute",
+	/** @deprecated */
 	ZirconLogOutputMesage = "zirclog:message",
+	/** @deprecated */
 	ZirconLogErrorMessage = "zirclog:error",
+	LogOutputMessage = "log:output",
+	StructuredLog = "slog:output",
+	StructuredError = "slog:err",
 	PlainText = "plain",
 }
 
@@ -176,13 +178,20 @@ export interface ConsoleLuauError extends ZirconContextMessage {
 	readonly stackTrace?: string[];
 }
 
+/** @deprecated */
 export interface ZirconLogMessage extends ZirconContextMessage {
 	readonly type: ZirconMessageType.ZirconLogOutputMesage;
 	readonly message: ZirconLogOutput;
 }
 
+export interface ZirconStructuredLogMessage extends ZirconContextMessage {
+	readonly type: ZirconMessageType.StructuredLog;
+	readonly data: StructuredMessage;
+}
+
 export interface ZirconLogErrorData {}
 
+/** @deprecated */
 export interface ZirconLogError extends ZirconContextMessage {
 	readonly type: ZirconMessageType.ZirconLogErrorMessage;
 	readonly error: ZirconLogErrorOutput;
@@ -195,4 +204,5 @@ export type ConsoleMessage =
 	| ConsoleLuauError
 	| ConsoleSyntaxMessage
 	| ZirconLogMessage
-	| ZirconLogError;
+	| ZirconLogError
+	| ZirconStructuredLogMessage;

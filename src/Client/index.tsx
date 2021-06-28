@@ -13,6 +13,7 @@ import Remotes, { ZirconNetworkMessageType } from "../Shared/Remotes";
 import { RemoteId } from "../RemoteId";
 import { ZirconContext, ZirconLogData, ZirconLogLevel, ZirconMessageType } from "./Types";
 import ZirconTopBar from "./BuiltInConsole/UI/TopbarMenu";
+import { LogLevel, StructuredMessage } from "@rbxts/log";
 
 const IsClient = RunService.IsClient();
 
@@ -42,6 +43,18 @@ namespace ZirconClient {
 		return GetCommandService("ClientDispatchService");
 	});
 
+	export function StructuredLog(data: StructuredMessage) {
+		ZirconClientStore.dispatch({
+			type: ConsoleActionName.AddOutput,
+			message: {
+				type: ZirconMessageType.StructuredLog,
+				data,
+				context: ZirconContext.Client,
+			},
+		});
+	}
+
+	/** @deprecated */
 	export function Log(level: ZirconLogLevel, tag: string, message: string, data: ZirconLogData) {
 		if (level === ZirconLogLevel.Error || level === ZirconLogLevel.Wtf) {
 			ZirconClientStore.dispatch({
@@ -183,6 +196,17 @@ namespace ZirconClient {
 					ZirconClientStore.dispatch({
 						type: ConsoleActionName.AddOutput,
 						message: { type: ZirconMessageType.ZirconiumOutput, context: ZirconContext.Server, message },
+					});
+					break;
+				}
+				case ZirconNetworkMessageType.ZirconSerilogMessage: {
+					ZirconClientStore.dispatch({
+						type: ConsoleActionName.AddOutput,
+						message: {
+							type: ZirconMessageType.StructuredLog,
+							context: ZirconContext.Server,
+							data: message.data,
+						},
 					});
 					break;
 				}

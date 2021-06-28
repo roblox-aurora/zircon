@@ -5,8 +5,9 @@
 import ZrSiO4Client from "./Client";
 import ZrSiO4Server from "./Server";
 import { ZrValue } from "@rbxts/zirconium/out/Data/Locals";
-import { Logger } from "Log";
+import { Logging } from "Log";
 import ZrUndefined from "@rbxts/zirconium/out/Data/Undefined";
+import { ZirconLogLevel } from "Client/Types";
 
 /**
  * The Zircon console framework
@@ -21,7 +22,7 @@ namespace Zircon {
 	 */
 	export const Server = ZrSiO4Server;
 
-	export const Log = Logger;
+	export const Log = Logging;
 
 	/**
 	 * A function argument for Zircon functions

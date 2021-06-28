@@ -99,7 +99,8 @@ class OutputComponent extends Roact.Component<OutputProps, OutputState> {
 									output.type === "luau:error" ||
 									output.type === ZirconMessageType.ZirconLogErrorMessage ||
 									output.type === ZirconMessageType.ZirconLogOutputMesage ||
-									output.type === ZirconMessageType.ZirconiumOutput
+									output.type === ZirconMessageType.ZirconiumOutput ||
+									output.type === ZirconMessageType.StructuredLog
 								) {
 									return <ZirconOutputMessage ShowTags={this.props.showTags} Message={output} />;
 								} else {

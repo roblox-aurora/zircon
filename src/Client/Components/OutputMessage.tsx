@@ -1,3 +1,4 @@
+/* eslint-disable roblox-ts/lua-truthiness */
 import Roact from "@rbxts/roact";
 import { LocalizationService } from "@rbxts/services";
 import {
@@ -9,6 +10,7 @@ import {
 	ZrErrorMessage,
 	ZirconLogError,
 	ConsoleMessage,
+	ZirconStructuredLogMessage,
 } from "../../Client/Types";
 import ThemeContext, {
 	getRichTextColor3,
@@ -21,9 +23,12 @@ import { ZrRichTextHighlighter } from "@rbxts/zirconium/out/Ast";
 import StringUtils from "@rbxts/string-utils";
 import { padEnd } from "Shared/Strings";
 import { formatParse, formatTokens } from "Client/Format";
+import { LogLevel } from "@rbxts/log";
+import { MessageTemplateParser } from "@rbxts/message-templates";
+import { ZirconStructuredMessageTemplateRenderer } from "Client/Format/ZirconStructuredMessageTemplate";
 
 interface OutputMessageProps {
-	Message: ZrOutputMessage | ZirconLogMessage | ZrOutputMessage;
+	Message: ZrOutputMessage | ZirconLogMessage | ZrOutputMessage | ZirconStructuredLogMessage;
 	ShowTags?: boolean;
 }
 function OutputMessage(props: OutputMessageProps) {
@@ -47,6 +52,54 @@ function OutputMessage(props: OutputMessageProps) {
 						),
 					);
 					messages.push(message.message);
+				} else if (output.type === ZirconMessageType.StructuredLog) {
+					const {
+						data: { Template, Timestamp, Level },
+						data,
+					} = output;
+
+					const tokens = MessageTemplateParser.GetTokens(Template);
+					const renderer = new ZirconStructuredMessageTemplateRenderer(tokens);
+					const text = renderer.Render(output.data);
+
+					messages.push(
+						getRichTextColor3(
+							theme,
+							"Grey",
+							`[${
+								DateTime.fromIsoDate(Timestamp)?.FormatLocalTime(
+									"LT",
+									LocalizationService.SystemLocaleId,
+								) ?? "?"
+							}]`,
+						),
+					);
+
+					if (Level === LogLevel.Information) {
+						messages.push(getRichTextColor3(theme, "Cyan", "INFO "));
+						messages.push(getRichTextColor3(theme, "White", text));
+					} else if (Level === LogLevel.Debugging) {
+						messages.push(getRichTextColor3(theme, "Green", "DEBUG"));
+						messages.push(getRichTextColor3(theme, "White", text));
+					} else if (Level === LogLevel.Verbose) {
+						messages.push(getRichTextColor3(theme, "Grey", "VERBOSE"));
+						messages.push(getRichTextColor3(theme, "White", text));
+					} else if (Level === LogLevel.Warning) {
+						messages.push(getRichTextColor3(theme, "Yellow", "WARN "));
+						messages.push(getRichTextColor3(theme, "White", text));
+					} else if (Level === LogLevel.Error) {
+						messages.push(getRichTextColor3(theme, "Red", "ERROR "));
+						messages.push(getRichTextColor3(theme, "Yellow", text));
+					} else if (Level === LogLevel.Fatal) {
+						messages.push(getRichTextColor3(theme, "Red", "FATAL "));
+						messages.push(getRichTextColor3(theme, "Red", text));
+					}
+
+					if (props.ShowTags) {
+						if (data.Tag) {
+							messages.push("- " + italicize(getRichTextColor3(theme, "Grey", tostring(data.Tag))));
+						}
+					}
 				} else if (output.type === ZirconMessageType.ZirconLogOutputMesage) {
 					const { message } = output;
 					messages.push(
@@ -315,7 +368,8 @@ export default class ZirconOutputMessage extends Roact.PureComponent<ZirconOutpu
 			return <OutputError ShowTags={this.props.ShowTags} Message={Message} />;
 		} else if (
 			Message.type === ZirconMessageType.ZirconiumOutput ||
-			Message.type === ZirconMessageType.ZirconLogOutputMesage
+			Message.type === ZirconMessageType.ZirconLogOutputMesage ||
+			Message.type === ZirconMessageType.StructuredLog
 		) {
 			return <OutputMessage ShowTags={this.props.ShowTags} Message={Message} />;
 		}

@@ -5,6 +5,7 @@ import { ZrParserErrorCode } from "@rbxts/zirconium/out/Ast/Parser";
 import { ZirconLogData, ZirconLogLevel } from "../Client/Types";
 import createPermissionMiddleware from "./NetPermissionMiddleware";
 import type { ReadonlyZirconPermissionSet } from "Server/Class/ZirconGroup";
+import { StructuredMessage } from "@rbxts/log";
 
 export interface ZirconiumRuntimeErrorMessage {
 	type: ZirconNetworkMessageType.ZirconiumRuntimeError;
@@ -30,6 +31,8 @@ export const enum ZirconNetworkMessageType {
 	ZirconiumOutput = "ZrStandardOutput",
 	ZirconStandardOutputMessage = "ZirconStandardOutput",
 	ZirconStandardErrorMessage = "ZirconStandardError",
+	ZirconSerilogMessage = "ZirconStructuredOutput",
+	ZirconSerilogError = "ZirconStructuredError",
 }
 
 export interface ZirconiumParserErrorMessage {
@@ -54,7 +57,7 @@ export interface ZirconLogOutput {
 	time: number;
 	data: ZirconLogData;
 	tag: string;
-	level: ZirconLogLevel.Debug | ZirconLogLevel.Info | ZirconLogLevel.Warning;
+	level: ZirconLogLevel.Verbose | ZirconLogLevel.Debug | ZirconLogLevel.Info | ZirconLogLevel.Warning;
 	message: string;
 }
 
@@ -67,7 +70,14 @@ export interface ZirconLogErrorOutput {
 	message: string;
 }
 
-export type ZirconStandardOutput = ZirconExecutionOutput | ZirconLogOutput;
+export interface ZirconStructuredLogOutput {
+	type: ZirconNetworkMessageType.ZirconSerilogMessage;
+	data: StructuredMessage;
+	message: string;
+	time: number;
+}
+
+export type ZirconStandardOutput = ZirconExecutionOutput | ZirconLogOutput | ZirconStructuredLogOutput;
 export type ZirconErrorOutput = ZirconiumRuntimeErrorMessage | ZirconiumParserErrorMessage | ZirconLogErrorOutput;
 
 const Remotes = Net.Definitions.Create(
@@ -88,7 +98,7 @@ const Remotes = Net.Definitions.Create(
 	},
 	[
 		Net.Middleware.Global((remoteName, remoteData, callingPlayer) => {
-			import("Log").then(({ Logger }) => {
+			import("Log").then(({ Logging: Logger }) => {
 				Logger.Debug(script, "Call to {} with {} from {}", remoteName, remoteData, callingPlayer ?? undefined);
 			});
 		}),

@@ -1,3 +1,4 @@
+import { MessageTemplateParser, TemplateTokenKind } from "@rbxts/message-templates";
 import t from "@rbxts/t";
 import ZrTextStream from "@rbxts/zirconium/out/Ast/TextStream";
 import { getRichTextColor3, ZirconTheme } from "Client/UIKit/ThemeContext";
@@ -65,7 +66,7 @@ export function formatParse(formatString: string) {
 const isArray = t.array(t.any);
 const isMap = t.map(t.string, t.any);
 
-function formatRichText(value: unknown, level = 1): string {
+export function formatRichText(value: unknown, level = 1): string {
 	if (typeIs(value, "string")) {
 		return getRichTextColor3(ZirconTheme, "Green", `${value}`);
 	} else if (typeIs(value, "number") || typeIs(value, "boolean")) {
@@ -145,6 +146,16 @@ export function formatTokensPlain(tokens: ReadonlyArray<FormatToken>, vars: unkn
 		}
 	}
 	return resultingStr;
+}
+
+export function formatMessageTemplate(template: string, values: Record<string, defined>) {
+	const tokens = MessageTemplateParser.GetTokens(template);
+	for (const token of tokens) {
+		if (token.kind === TemplateTokenKind.Property) {
+			const value = values[token.propertyName];
+			return formatRichText(value);
+		}
+	}
 }
 
 export function formatTokens(tokens: ReadonlyArray<FormatToken>, vars: unknown[]) {

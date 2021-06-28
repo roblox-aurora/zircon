@@ -2,8 +2,13 @@ import { GetCommandService } from "../Services";
 import Lazy from "../Shared/Lazy";
 import { ZirconLogData, ZirconLogLevel } from "../Client/Types";
 import { RemoteId } from "../RemoteId";
-import Remotes, { ZirconStandardOutput, ZirconErrorOutput, ZirconNetworkMessageType } from "../Shared/Remotes";
-import info from "Shared/Info";
+import Remotes, {
+	ZirconStandardOutput,
+	ZirconErrorOutput,
+	ZirconNetworkMessageType,
+	ZirconStructuredLogOutput,
+} from "../Shared/Remotes";
+import { StructuredMessage } from "@rbxts/log";
 
 const StandardOutput = Remotes.Server.Create(RemoteId.StandardOutput);
 const StandardError = Remotes.Server.Create(RemoteId.StandardError);
@@ -60,6 +65,18 @@ export namespace ZirconLogService {
 	 */
 	export function GetCurrentOutput() {
 		return outputMessages;
+	}
+
+	export function WriteStructured(data: StructuredMessage) {
+		const outputError = identity<ZirconStructuredLogOutput>({
+			type: ZirconNetworkMessageType.ZirconSerilogMessage,
+			data,
+			message: "",
+			time: 0,
+		});
+		outputMessages.push(outputError);
+		const loggablePlayers = Registry.InternalGetPlayersWithPermission("CanRecieveServerLogMessages");
+		StandardOutput.SendToPlayers(loggablePlayers, outputError);
 	}
 
 	/**
