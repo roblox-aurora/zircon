@@ -1,4 +1,4 @@
-import { StructuredMessage } from "@rbxts/log";
+import { LogEvent } from "@rbxts/log";
 import {
 	ZirconStandardOutput,
 	ZirconiumRuntimeErrorMessage,
@@ -62,7 +62,7 @@ export interface ZirconLogData {
 	CallDebugInfo?: ZirconDebugInfo;
 }
 
-export const enum ZirconLogLevel {
+export enum ZirconLogLevel {
 	Verbose = 0,
 	Debug,
 	Info,
@@ -87,12 +87,13 @@ export const enum ZirconMessageType {
 
 export function isContextMessage(
 	message: ConsoleMessage,
-): message is ZrOutputMessage | ZrErrorMessage | ZirconLogMessage | ZirconLogError {
+): message is ZrOutputMessage | ZrErrorMessage | ZirconLogMessage | ZirconLogError | ZirconStructuredLogMessage {
 	return (
 		message.type === ZirconMessageType.ZirconLogErrorMessage ||
 		message.type === ZirconMessageType.ZirconLogOutputMesage ||
 		message.type === ZirconMessageType.ZirconiumOutput ||
-		message.type === ZirconMessageType.ZirconiumError
+		message.type === ZirconMessageType.ZirconiumError ||
+		message.type === ZirconMessageType.StructuredLog
 	);
 }
 
@@ -122,21 +123,28 @@ export function getMessageText(message: ConsoleMessage) {
 		return message.source;
 	} else if (message.type === ZirconMessageType.PlainText) {
 		return message.message;
+	} else if (message.type === ZirconMessageType.StructuredLog) {
+		return message.data.Template;
 	} else {
 		return "";
 	}
 }
 
-export function isLogMessage(message: ConsoleMessage): message is ZirconLogMessage | ZirconLogError {
+export function isLogMessage(
+	message: ConsoleMessage,
+): message is ZirconLogMessage | ZirconLogError | ZirconStructuredLogMessage {
 	return (
 		message.type === ZirconMessageType.ZirconLogErrorMessage ||
-		message.type === ZirconMessageType.ZirconLogOutputMesage
+		message.type === ZirconMessageType.ZirconLogOutputMesage ||
+		message.type === ZirconMessageType.StructuredLog
 	);
 }
 
 export function getLogLevel(message: ConsoleMessage) {
 	if (message.type === ZirconMessageType.ZirconLogOutputMesage) {
 		return message.message.level;
+	} else if (message.type === ZirconMessageType.StructuredLog) {
+		return (message.data.Level as unknown) as ZirconLogLevel;
 	} else if (message.type === ZirconMessageType.ZirconLogErrorMessage) {
 		return message.error.level;
 	} else if (message.type === ZirconMessageType.ZirconiumError) {
@@ -186,7 +194,7 @@ export interface ZirconLogMessage extends ZirconContextMessage {
 
 export interface ZirconStructuredLogMessage extends ZirconContextMessage {
 	readonly type: ZirconMessageType.StructuredLog;
-	readonly data: StructuredMessage;
+	readonly data: LogEvent;
 }
 
 export interface ZirconLogErrorData {}

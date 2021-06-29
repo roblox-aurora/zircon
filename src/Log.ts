@@ -1,4 +1,3 @@
-import { LogLevel, StructuredMessage } from "@rbxts/log/out/Configuration";
 import { RunService } from "@rbxts/services";
 import Signal from "@rbxts/signal";
 import Client from "Client";
@@ -7,6 +6,8 @@ import Server from "Server";
 import { MessageTemplateParser } from "@rbxts/message-templates/out/MessageTemplateParser";
 import { MessageTemplateRenderer, PropertyToken, TextToken } from "@rbxts/message-templates";
 import { DestructureMode } from "@rbxts/message-templates/out/MessageTemplateToken";
+import { LogEvent } from "@rbxts/log";
+import { ILogEventSink } from "@rbxts/log/out/Core";
 
 const logMessageSignal = new Signal<
 	(level: ZirconLogLevel, tag: ZirconTag, message: string, data: ZirconLogData) => void
@@ -42,38 +43,18 @@ export namespace Logging {
 		logMessageSignal.Fire(level, tag, message, data);
 	}
 
-	function GetLogLevel(logLevel: LogLevel) {
-		switch (logLevel) {
-			case LogLevel.Verbose:
-				return ZirconLogLevel.Verbose;
-			case LogLevel.Debugging:
-				return ZirconLogLevel.Debug;
-			case LogLevel.Information:
-				return ZirconLogLevel.Info;
-			case LogLevel.Warning:
-				return ZirconLogLevel.Warning;
-			case LogLevel.Error:
-				return ZirconLogLevel.Error;
-			case LogLevel.Fatal:
-				return ZirconLogLevel.Wtf;
-		}
-	}
-
-	export const ZirconTag = (message: StructuredMessage) => {
-		const [n, s] = debug.info(5, "ns");
-		// eslint-disable-next-line roblox-ts/lua-truthiness
-		message.Source = s;
-		message.ZirconTag = n;
-	};
-
-	export function Console() {
-		return (message: StructuredMessage) => {
+	class LogEventConsoleSink implements ILogEventSink {
+		Emit(message: LogEvent): void {
 			if (RunService.IsServer()) {
 				Server.Log.WriteStructured(message);
 			} else {
 				Client.StructuredLog(message);
 			}
-		};
+		}
+	}
+
+	export function Console() {
+		return new LogEventConsoleSink();
 	}
 
 	const warned = new Set<string>();

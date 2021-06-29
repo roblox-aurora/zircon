@@ -131,7 +131,6 @@ const mapStateToProps = (state: ConsoleReducer): MappedProps => {
 		if (typeIs(filter.SearchQuery, "string")) {
 			const { SearchQuery } = filter;
 			output = output.filter((message) => {
-				// StringUtils.startsWith(getMessageText(message), SearchQuery)
 				return StringUtils.includes(getMessageText(message), SearchQuery);
 			});
 		}

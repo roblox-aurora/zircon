@@ -8,7 +8,7 @@ import Remotes, {
 	ZirconNetworkMessageType,
 	ZirconStructuredLogOutput,
 } from "../Shared/Remotes";
-import { StructuredMessage } from "@rbxts/log";
+import { LogEvent } from "@rbxts/log";
 
 const StandardOutput = Remotes.Server.Create(RemoteId.StandardOutput);
 const StandardError = Remotes.Server.Create(RemoteId.StandardError);
@@ -67,7 +67,7 @@ export namespace ZirconLogService {
 		return outputMessages;
 	}
 
-	export function WriteStructured(data: StructuredMessage) {
+	export function WriteStructured(data: LogEvent) {
 		const outputError = identity<ZirconStructuredLogOutput>({
 			type: ZirconNetworkMessageType.ZirconSerilogMessage,
 			data,

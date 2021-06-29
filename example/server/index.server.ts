@@ -7,14 +7,7 @@ import Zircon from "@zircon";
 import ZirconPrint from "BuiltIn/Print";
 import delayAsync from "Client/BuiltInConsole/DelayAsync";
 
-Log.SetLogger(
-	Logger.configure()
-		.WriteTo(Zircon.Log.Console())
-		.WriteTo((message) => print(message.Timestamp, message))
-		.Enrich(Zircon.Log.ZirconTag)
-		.EnrichWithProperty("Version", PKG_VERSION)
-		.Create(),
-);
+Log.SetLogger(Logger.configure().WriteTo(Zircon.Log.Console()).EnrichWithProperty("Version", PKG_VERSION).Create());
 
 Zircon.Server.Registry.RegisterFunction(ZirconPrint, [Zircon.Server.Registry.User]);
 
@@ -45,20 +38,13 @@ Zircon.Server.Registry.RegisterZrLuauFunction(
 	[Zircon.Server.Registry.User],
 );
 
-function callMe() {}
-
 delayAsync(5).then(() => {
-	Log.Default().Verbose("A verbose message. Yes?");
+	Log.Verbose("A verbose message. Yes?");
 	Log.Debug("A debug message, yes");
 	Log.Info("Hello, {Test}! {Boolean} {Number} {Array}", "Test string", true, 10, [1, 2, 3, [4]]);
 	Log.Warn("Warining {Lol}", "LOL!");
 	Log.Error("ERROR LOL {Yes}", true);
-	Log.Default().Fatal("Fatal message here");
-	Zircon.Log.Info("Test", "testing lol");
-	Zircon.Log.Debug("test", "testing debug");
-	Zircon.Log.Warning("TestWarning", "test warning lol");
-	Zircon.Log.Error("TestError", "test error lol");
-	Zircon.Log.Failure("TestWtf", "wtf lol");
+	Log.Fatal("Fatal message here");
 });
 
 game.GetService("Players").PlayerAdded.Connect((player) => {

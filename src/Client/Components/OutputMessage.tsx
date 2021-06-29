@@ -20,8 +20,6 @@ import ThemeContext, {
 } from "../../Client/UIKit/ThemeContext";
 import { ZirconDebugInformation, ZirconNetworkMessageType } from "../../Shared/Remotes";
 import { ZrRichTextHighlighter } from "@rbxts/zirconium/out/Ast";
-import StringUtils from "@rbxts/string-utils";
-import { padEnd } from "Shared/Strings";
 import { formatParse, formatTokens } from "Client/Format";
 import { LogLevel } from "@rbxts/log";
 import { MessageTemplateParser } from "@rbxts/message-templates";

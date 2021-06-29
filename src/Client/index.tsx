@@ -13,7 +13,7 @@ import Remotes, { ZirconNetworkMessageType } from "../Shared/Remotes";
 import { RemoteId } from "../RemoteId";
 import { ZirconContext, ZirconLogData, ZirconLogLevel, ZirconMessageType } from "./Types";
 import ZirconTopBar from "./BuiltInConsole/UI/TopbarMenu";
-import { LogLevel, StructuredMessage } from "@rbxts/log";
+import { LogEvent, LogLevel } from "@rbxts/log";
 
 const IsClient = RunService.IsClient();
 
@@ -43,7 +43,7 @@ namespace ZirconClient {
 		return GetCommandService("ClientDispatchService");
 	});
 
-	export function StructuredLog(data: StructuredMessage) {
+	export function StructuredLog(data: LogEvent) {
 		ZirconClientStore.dispatch({
 			type: ConsoleActionName.AddOutput,
 			message: {

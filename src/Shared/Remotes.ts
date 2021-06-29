@@ -5,7 +5,7 @@ import { ZrParserErrorCode } from "@rbxts/zirconium/out/Ast/Parser";
 import { ZirconLogData, ZirconLogLevel } from "../Client/Types";
 import createPermissionMiddleware from "./NetPermissionMiddleware";
 import type { ReadonlyZirconPermissionSet } from "Server/Class/ZirconGroup";
-import { StructuredMessage } from "@rbxts/log";
+import { LogEvent } from "@rbxts/log";
 
 export interface ZirconiumRuntimeErrorMessage {
 	type: ZirconNetworkMessageType.ZirconiumRuntimeError;
@@ -72,7 +72,7 @@ export interface ZirconLogErrorOutput {
 
 export interface ZirconStructuredLogOutput {
 	type: ZirconNetworkMessageType.ZirconSerilogMessage;
-	data: StructuredMessage;
+	data: LogEvent;
 	message: string;
 	time: number;
 }

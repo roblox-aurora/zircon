@@ -7,14 +7,7 @@ import { BaseTheme, makeTheme } from "./Client/UIKit/ThemeContext";
 import { Players } from "@rbxts/services";
 import Log, { Logger } from "@rbxts/log";
 
-Log.SetLogger(
-	Logger.configure()
-		.WriteTo(Zircon.Log.Console())
-		.WriteTo((message) => print(message.Timestamp, message))
-		.Enrich(Zircon.Log.ZirconTag)
-		.EnrichWithProperty("Version", PKG_VERSION)
-		.Create(),
-);
+Log.SetLogger(Logger.configure().WriteTo(Zircon.Log.Console()).EnrichWithProperty("Version", PKG_VERSION).Create());
 
 const LightTheme = makeTheme({
 	PrimaryBackgroundColor3: Color3.fromRGB(220, 220, 220),
@@ -41,11 +34,11 @@ ZirconClient.BindConsole({
 });
 
 delayAsync(10).then(() => {
+	Log.Verbose("Verbose message pls");
 	Log.Info("Hello, {Test}! {Boolean} {Number} {Array}", "Test string", true, 10, [1, 2, 3, [4]]);
-	Zircon.Log.Info("Test", "Should be good {}", 1);
-	Zircon.Log.Info(
-		"TestFormat",
-		`String {}, Number {}, Boolean {}, Array: {}, Map: {}, Instance: {}, Undefined: {}, None: {}`,
+	Log.Info("Should be good {Number}", 1);
+	Log.Info(
+		`String {String}, Number {Number}, Boolean {Boolean}, Array: {Array}, Map: {Map}, Instance: {Instance}, Undefined: {Undefined}, None: {None}`,
 		"Hello, World!",
 		1337,
 		true,
@@ -54,8 +47,8 @@ delayAsync(10).then(() => {
 		Players.LocalPlayer,
 		undefined,
 	);
-	Zircon.Log.Debug("test", "testing debug");
-	Zircon.Log.Warning("TestWarning", "test warning lol");
-	Zircon.Log.Error("TestError", "test error lol");
-	Zircon.Log.Failure("TestWtf", "wtf lol");
+	Log.Debug("test", "testing debug");
+	Log.Warn("test warning lol");
+	Log.Error("test error lol");
+	Log.Fatal("wtf lol");
 });

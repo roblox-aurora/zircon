@@ -6,7 +6,7 @@ import ZirconSyntaxTextBox from "../../Components/SyntaxTextBox";
 import { ZirconIconButton } from "../../Components/Icon";
 import Remotes from "../../../Shared/Remotes";
 import { RemoteId } from "../../../RemoteId";
-import ClientEvent, { ClientSenderEvent } from "@rbxts/net/out/client/ClientEvent";
+import { ClientSenderEvent } from "@rbxts/net/out/client/ClientEvent";
 import ZirconOutput from "../../../Client/Components/Output";
 import { DispatchParam } from "@rbxts/rodux";
 import ZirconClientStore from "../Store";
@@ -66,9 +66,9 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 		this.sizeYMotor = new SingleMotor(MAX_SIZE);
 		this.filterSettingsSizeY = new SingleMotor(0);
 		this.outputTransparencyMotor = new SingleMotor(0.1);
-		let setPositionY: Roact.RoactBindingFunc<number>;
-		let setSizeY: Roact.RoactBindingFunc<number>;
-		let setOutputTransparency: Roact.RoactBindingFunc<number>;
+		let setPositionY: Roact.BindingFunction<number>;
+		let setSizeY: Roact.BindingFunction<number>;
+		let setOutputTransparency: Roact.BindingFunction<number>;
 		let setFilterSizeY: Roact.BindingFunction<number>;
 
 		// Bindings
@@ -191,6 +191,10 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 										SelectedItemIds={this.state.levelFilter}
 										Items={[
 											{
+												Id: ZirconLogLevel.Verbose,
+												Text: "Verbose",
+											},
+											{
 												Id: ZirconLogLevel.Debug,
 												Text: "Debugging",
 											},
@@ -293,8 +297,6 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 										Size={new UDim2(1, -16 - 32 - 100, 1, 0)}
 										Position={new UDim2(0, 16, 0, 0)}
 										Focused={this.state.isVisible}
-										// PlaceholderText="Enter Script"
-										// AutoFocus
 										Source={this.state.source}
 										OnEnterSubmit={(input) => {
 											this.props.addMessage(input);
