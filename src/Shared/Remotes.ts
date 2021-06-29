@@ -80,28 +80,19 @@ export interface ZirconStructuredLogOutput {
 export type ZirconStandardOutput = ZirconExecutionOutput | ZirconLogOutput | ZirconStructuredLogOutput;
 export type ZirconErrorOutput = ZirconiumRuntimeErrorMessage | ZirconiumParserErrorMessage | ZirconLogErrorOutput;
 
-const Remotes = Net.Definitions.Create(
-	{
-		[RemoteId.StandardOutput]: Net.Definitions.ServerToClientEvent<[output: ZirconStandardOutput]>(),
-		[RemoteId.StandardError]: Net.Definitions.ServerToClientEvent<[output: ZirconErrorOutput]>(),
-		[RemoteId.DispatchToServer]: Net.Definitions.ClientToServerEvent<[message: string]>([
-			createPermissionMiddleware("CanExecuteZirconiumScripts"),
-			Net.Middleware.RateLimit({ MaxRequestsPerMinute: 25 }),
-			Net.Middleware.TypeChecking((value: unknown): value is string => typeIs(value, "string")),
-		]),
-		[RemoteId.GetPlayerPermissions]: Net.Definitions.ServerAsyncFunction<() => ReadonlyZirconPermissionSet>([
-			Net.Middleware.RateLimit({ MaxRequestsPerMinute: 1 }),
-		]),
-		[RemoteId.GetServerLogMessages]: Net.Definitions.ServerAsyncFunction<
-			() => Array<ZirconStandardOutput | ZirconErrorOutput>
-		>([createPermissionMiddleware("CanRecieveServerLogMessages")]),
-	},
-	[
-		Net.Middleware.Global((remoteName, remoteData, callingPlayer) => {
-			import("Log").then(({ Logging: Logger }) => {
-				Logger.Debug(script, "Call to {} with {} from {}", remoteName, remoteData, callingPlayer ?? undefined);
-			});
-		}),
-	],
-);
+const Remotes = Net.Definitions.Create({
+	[RemoteId.StandardOutput]: Net.Definitions.ServerToClientEvent<[output: ZirconStandardOutput]>(),
+	[RemoteId.StandardError]: Net.Definitions.ServerToClientEvent<[output: ZirconErrorOutput]>(),
+	[RemoteId.DispatchToServer]: Net.Definitions.ClientToServerEvent<[message: string]>([
+		createPermissionMiddleware("CanExecuteZirconiumScripts"),
+		Net.Middleware.RateLimit({ MaxRequestsPerMinute: 25 }),
+		Net.Middleware.TypeChecking((value: unknown): value is string => typeIs(value, "string")),
+	]),
+	[RemoteId.GetPlayerPermissions]: Net.Definitions.ServerAsyncFunction<() => ReadonlyZirconPermissionSet>([
+		Net.Middleware.RateLimit({ MaxRequestsPerMinute: 1 }),
+	]),
+	[RemoteId.GetServerLogMessages]: Net.Definitions.ServerAsyncFunction<
+		() => Array<ZirconStandardOutput | ZirconErrorOutput>
+	>([createPermissionMiddleware("CanRecieveServerLogMessages")]),
+});
 export default Remotes;

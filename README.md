@@ -1,9 +1,42 @@
 <div align="center">
     <img src="https://i.imgur.com/YgpbX7G.png"/>
+    <h2>A clean, sleek, runtime debugging console for Roblox</h2>
+    <p>Note: I am working on the API for the Zircon scripting still - so Coming soon&trade;</p>
 </div>
 
 ----
 
-Work in progress runtime debugging console for Roblox, with script capability using `Zirconium`.
+## Setup
+To begin, it is recommended to do
+```
+npm i @rbxts/zircon @rbxts/log
+```
 
-![Zircon Screenshot](./zircon-ingame.png)
+This will install both Zircon, as well as the logging support. It is recommended to use the logging as it can be filtered easily through the Zircon console.
+
+## Features
+- ### Zirconium Language Scripting
+    Zircon comes inbuilt with a runtime scripting language called [Zirconium](https://github.com/roblox-aurora/zirconium). This allows you to run scripts against your game during runtime.
+
+    More information on how to set this up, will come when Zircon is closer to being production-ready.
+
+- ### Structured Logging
+    If you want logging for Zircon, you will need to install [@rbxts/log](https://github.com/roblox-aurora/rbx-log).
+
+    Then to use Zircon with Log, you simply do 
+    ```ts
+    import Log from "@rbxts/log";
+    import Log, { Logger } from "@rbxts/log";
+    import Zircon from "@rbxts/zircon";
+
+    Log.SetLogger(
+        Logger.configure()
+            // ... Any other configurations/enrichers go here.
+            .WriteTo(Zircon.Log.Console()) // This will emit any `Log` messages to the Zircon console
+            .Create() // Creates the logger from the configuration
+    );
+    ```
+
+    This will need to be done on both the _client_ and _server_ to achieve full logging.
+
+    All logging done through this can be filtered through the console itself. That's the power of structured logging! ;-)
