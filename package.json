@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "@rbxts/flipper": "^1.2.0",
-    "@rbxts/log": "^0.3.0-alpha.0",
+    "@rbxts/log": "^0.3.0-alpha.1",
     "@rbxts/maid": "^1.0.0-ts.1",
     "@rbxts/message-templates": "^0.2.0",
     "@rbxts/net": "^2.1.0",
