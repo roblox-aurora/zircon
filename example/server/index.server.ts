@@ -6,6 +6,7 @@ import { ZrInstanceUserdata } from "@rbxts/zirconium/out/Data/Userdata";
 import Zircon from "@zircon";
 import ZirconPrint from "BuiltIn/Print";
 import { ZirconFunctionBuilder } from "Class/ZirconFunctionBuilder";
+import { ZirconNamespaceBuilder } from "Class/ZirconNamespaceBuilder";
 import delayAsync from "Client/BuiltInConsole/DelayAsync";
 
 Log.SetLogger(
@@ -29,6 +30,23 @@ Zircon.Server.Registry.RegisterFunction(
 	new ZirconFunctionBuilder("print_message")
 		.AddArguments("string")
 		.Bind((context, message) => Log.Info("Zircon says {Message} from {Player}", message, context.GetExecutor())),
+	[Zircon.Server.Registry.User],
+);
+
+Zircon.Server.Registry.RegisterNamespace(
+	new ZirconNamespaceBuilder("example")
+		.AddFunction(
+			new ZirconFunctionBuilder("print").Bind((context, ...args) => {
+				Log.Info("[Example print] " + args.map((a) => tostring(a)).join(" "));
+			}),
+		)
+		.AddFunction(
+			new ZirconFunctionBuilder("test").Bind((context) => {
+				Log.Info("Test!");
+			}),
+		)
+		.AddFunction(ZirconPrint)
+		.Build(),
 	[Zircon.Server.Registry.User],
 );
 

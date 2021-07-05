@@ -1,14 +1,17 @@
-import ZrContext from "@rbxts/zirconium/out/Data/Context";
-import { ZrValue } from "@rbxts/zirconium/out/Data/Locals";
-import { ZrLuauArgument } from "@rbxts/zirconium/out/Data/LuauFunction";
-import { ZirconFunctionDeclaration } from "Shared/Types";
+import { LogLevel } from "@rbxts/log";
+import { RunService } from "@rbxts/services";
+import { ZirconFunctionBuilder } from "Class/ZirconFunctionBuilder";
+import { Server } from "index";
 
-const ZirconPrint: ZirconFunctionDeclaration<ZrLuauArgument[], void> = {
-	Name: "print",
-	Function: (context: ZrContext, ...args: ZrLuauArgument[]) => {
-		const printArgs = args.map((arg) => tostring(arg)).join(" ");
-		context.getOutput().write(printArgs);
-	},
-};
+const ZirconPrint = new ZirconFunctionBuilder("print").Bind((_, ...args) => {
+	if (RunService.IsServer()) {
+		Server.Log.WriteStructured({
+			Template: "{PrintData}",
+			PrintData: args,
+			Level: LogLevel.Information,
+			Timestamp: DateTime.now().ToIsoDate(),
+		});
+	}
+});
 
 export = ZirconPrint;

@@ -1,6 +1,9 @@
+import { LogLevel } from "@rbxts/log";
+import { RunService } from "@rbxts/services";
 import ZrContext from "@rbxts/zirconium/out/Data/Context";
 import ZrLuauFunction, { ZrLuauArgument } from "@rbxts/zirconium/out/Data/LuauFunction";
 import ZrPlayerScriptContext from "@rbxts/zirconium/out/Runtime/PlayerScriptContext";
+import { Server } from "index";
 import { ZirconFunctionBuilder } from "./ZirconFunctionBuilder";
 import { InferArguments, Validator, ZirconValidator } from "./ZirconTypeValidator";
 
@@ -38,15 +41,23 @@ export class ZirconFunction<V extends readonly ZirconValidator<unknown, unknown>
 					const argument = args[i];
 					if (validator && validator.Validate(argument)) {
 						if (validator.Transform !== undefined) {
-							print("validate", i);
 							transformedArguments[i] = validator.Transform(argument) as defined;
 						} else {
-							print("noValidate", i);
 							transformedArguments[i] = argument;
 						}
 					} else {
-						// TODO: Error message based on type, argument index etc.
-						error("Failed at argument" + i);
+						if (RunService.IsServer()) {
+							Server.Log.WriteStructured({
+								Level: LogLevel.Error,
+								Template: `Call to {FunctionName} failed - Argument#{ArgIndex} expected {ArgType}`,
+								Timestamp: DateTime.now().ToIsoDate(),
+								FunctionName: this.name,
+								CallingPlayer: context.getExecutor()!,
+								ArgIndex: i + 1,
+								ArgType: validator.Type,
+							});
+						}
+						return;
 					}
 				}
 			} else {

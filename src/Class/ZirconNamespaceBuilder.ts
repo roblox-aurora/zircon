@@ -8,6 +8,7 @@ export class ZirconNamespaceBuilder {
 
 	public AddFunction(func: ZirconFunction<any, any>) {
 		this.functions.push(func);
+		return this;
 	}
 
 	public Build() {
