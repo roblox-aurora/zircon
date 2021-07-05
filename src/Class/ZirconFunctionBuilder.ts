@@ -34,12 +34,6 @@ export class ZirconFunctionBuilder<V extends ZirconValidator<any, any>[] = []> {
 		return (this as unknown) as ZirconFunctionBuilder<[...V, ...InferValidators<TValidation>]>;
 	}
 
-	public AddArgument<TValidation extends Validator>(type: TValidation) {
-		return (this as unknown) as ZirconFunctionBuilder<[...V, ...InferValidator<TValidation>[]]>;
-	}
-
-	public AddOptionalArgument<TValidation extends Validator>(type: TValidation) {}
-
 	/** @internal */
 	public AddVaradicArgument<TValidation extends Validator>(arg: TValidation) {
 		this.hasVaradic = true;
@@ -54,5 +48,3 @@ export class ZirconFunctionBuilder<V extends ZirconValidator<any, any>[] = []> {
 		return new ZirconFunction(this.name, this.validators as V, fn);
 	}
 }
-
-new ZirconFunctionBuilder("test").AddArguments("player", "object", "unknown").Bind((context, pl, obj, val) => {});

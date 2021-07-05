@@ -34,4 +34,4 @@ namespace Zircon {
 	export type Value = ZrValue;
 }
 
-export = Zircon;
+export default Zircon;

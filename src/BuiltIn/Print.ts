@@ -1,9 +1,9 @@
 import { LogLevel } from "@rbxts/log";
 import { RunService } from "@rbxts/services";
 import { ZirconFunctionBuilder } from "Class/ZirconFunctionBuilder";
-import { Server } from "index";
+import Server from "../Server";
 
-const ZirconPrint = new ZirconFunctionBuilder("print").Bind((_, ...args) => {
+const ZirconPrint = new ZirconFunctionBuilder("print").AddVaradicArgument("unknown").Bind((_, ...args) => {
 	if (RunService.IsServer()) {
 		Server.Log.WriteStructured({
 			Template: "{PrintData}",

@@ -3,7 +3,7 @@ import { RunService } from "@rbxts/services";
 import ZrContext from "@rbxts/zirconium/out/Data/Context";
 import ZrLuauFunction, { ZrLuauArgument } from "@rbxts/zirconium/out/Data/LuauFunction";
 import ZrPlayerScriptContext from "@rbxts/zirconium/out/Runtime/PlayerScriptContext";
-import { Server } from "index";
+import Server from "../Server";
 import { ZirconFunctionBuilder } from "./ZirconFunctionBuilder";
 import { InferArguments, Validator, ZirconValidator } from "./ZirconTypeValidator";
 
