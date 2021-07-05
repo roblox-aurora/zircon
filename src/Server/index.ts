@@ -186,4 +186,4 @@ namespace Zircon {
 		});
 	}
 }
-export = Zircon;
+export default Zircon;

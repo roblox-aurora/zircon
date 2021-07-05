@@ -57,7 +57,7 @@ function OutputMessage(props: OutputMessageProps) {
 					} = output;
 
 					const tokens = MessageTemplateParser.GetTokens(Template);
-					const renderer = new ZirconStructuredMessageTemplateRenderer(tokens);
+					const renderer = new ZirconStructuredMessageTemplateRenderer(tokens, theme);
 					const text = renderer.Render(output.data);
 
 					messages.push(

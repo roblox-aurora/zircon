@@ -1,14 +1,8 @@
 import { RunService } from "@rbxts/services";
-import Signal from "@rbxts/signal";
-import Client from "Client";
-import { ZirconLogLevel, ZirconLogData, ZirconTag } from "Client/Types";
-import Server from "Server";
+import Client from "./Client";
 import { LogEvent } from "@rbxts/log";
 import { ILogEventSink } from "@rbxts/log/out/Core";
-
-const logMessageSignal = new Signal<
-	(level: ZirconLogLevel, tag: ZirconTag, message: string, data: ZirconLogData) => void
->();
+import Server from "./Server";
 
 export namespace Logging {
 	class LogEventConsoleSink implements ILogEventSink {

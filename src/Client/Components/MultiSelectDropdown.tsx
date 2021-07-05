@@ -246,8 +246,8 @@ export default class MultiSelectDropdown<T = string> extends Roact.Component<Dro
 								Font={theme.Font}
 								TextSize={15}
 								TextXAlignment="Left"
-								TextColor3={Disabled ? new Color3(50, 50, 50) : new Color3(200, 200, 200)}
-								TextStrokeTransparency={0.5}
+								TextColor3={Disabled ? theme.PrimaryDisabledColor3 : theme.PrimaryTextColor3}
+								// TextStrokeTransparency={0.5}
 								Text={this.props.Label.format(values.size())}
 								Event={{
 									MouseButton1Click: () => !Disabled && this.setState({ active: !this.state.active }),
@@ -256,7 +256,7 @@ export default class MultiSelectDropdown<T = string> extends Roact.Component<Dro
 						</frame>
 						<imagelabel
 							Image="rbxassetid://2657038128"
-							ImageColor3={Disabled ? Color3.fromRGB(100, 100, 100) : Color3.fromRGB(255, 255, 255)}
+							ImageColor3={Disabled ? theme.PrimaryDisabledColor3 : Color3.fromRGB(255, 255, 255)}
 							Position={new UDim2(1, -25, 0, 5)}
 							BackgroundTransparency={1}
 							Rotation={this.state.active ? 0 : 180}

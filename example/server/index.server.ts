@@ -1,9 +1,5 @@
 import Log, { Logger } from "@rbxts/log";
-import { LogConfiguration } from "@rbxts/log/out/Configuration";
-import { ZrValue } from "@rbxts/zirconium/out/Data/Locals";
-import ZrLuauFunction from "@rbxts/zirconium/out/Data/LuauFunction";
-import { ZrInstanceUserdata } from "@rbxts/zirconium/out/Data/Userdata";
-import Zircon from "@zircon";
+import Zircon, { ZirconServer } from "@zircon";
 import ZirconPrint from "BuiltIn/Print";
 import { ZirconFunctionBuilder } from "Class/ZirconFunctionBuilder";
 import { ZirconNamespaceBuilder } from "Class/ZirconNamespaceBuilder";
@@ -17,23 +13,23 @@ Log.SetLogger(
 		.Create(),
 );
 
-Zircon.Server.Registry.RegisterFunction(
+ZirconServer.Registry.RegisterFunction(
 	new ZirconFunctionBuilder("kill").AddArguments("player?").Bind((context, player) => {
 		const target = player ?? context.GetExecutor();
 		target.Character?.BreakJoints();
 		Log.Info("Killed {target}", target);
 	}),
-	[Zircon.Server.Registry.User],
+	[ZirconServer.Registry.User],
 );
 
-Zircon.Server.Registry.RegisterFunction(
+ZirconServer.Registry.RegisterFunction(
 	new ZirconFunctionBuilder("print_message")
 		.AddArguments("string")
 		.Bind((context, message) => Log.Info("Zircon says {Message} from {Player}", message, context.GetExecutor())),
-	[Zircon.Server.Registry.User],
+	[ZirconServer.Registry.User],
 );
 
-Zircon.Server.Registry.RegisterNamespace(
+ZirconServer.Registry.RegisterNamespace(
 	new ZirconNamespaceBuilder("example")
 		.AddFunction(
 			new ZirconFunctionBuilder("print").Bind((context, ...args) => {
@@ -47,14 +43,14 @@ Zircon.Server.Registry.RegisterNamespace(
 		)
 		.AddFunction(ZirconPrint)
 		.Build(),
-	[Zircon.Server.Registry.User],
+	[ZirconServer.Registry.User],
 );
 
-Zircon.Server.Registry.RegisterFunction(
+ZirconServer.Registry.RegisterFunction(
 	new ZirconFunctionBuilder("print").Bind((context, ...args) => {
 		Log.Info(args.map((a) => tostring(a)).join(" "));
 	}),
-	[Zircon.Server.Registry.User],
+	[ZirconServer.Registry.User],
 );
 
 delayAsync(5).then(() => {
@@ -66,10 +62,10 @@ delayAsync(5).then(() => {
 	Log.Fatal("Fatal message here");
 });
 
-game.GetService("Players").PlayerAdded.Connect((player) => {
-	Zircon.Server.Registry.AddPlayerToGroups(player, ["creator"]);
-});
+// game.GetService("Players").PlayerAdded.Connect((player) => {
+// 	ZirconServer.Registry.AddPlayerToGroups(player, ["creator"]);
+// });
 
-for (const player of game.GetService("Players").GetPlayers()) {
-	Zircon.Server.Registry.AddPlayerToGroups(player, ["creator"]);
-}
+// for (const player of game.GetService("Players").GetPlayers()) {
+// 	Zircon.Server.Registry.AddPlayerToGroups(player, ["creator"]);
+// }

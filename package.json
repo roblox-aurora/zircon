@@ -1,6 +1,6 @@
 {
   "name": "@rbxts/zircon",
-  "version": "0.8.0-alpha.0",
+  "version": "0.8.0-beta.0",
   "description": "",
   "main": "out/init.lua",
   "scripts": {
@@ -33,6 +33,7 @@
     "prettier": "^2.1.2",
     "rbxts-transform-debug": "^0.2.0",
     "rbxts-transform-env": "^0.3.0",
+    "rbxts-transformer-services": "^1.0.0",
     "roblox-ts": "^1.1.1",
     "typescript": "^4.1.3"
   },
@@ -45,7 +46,7 @@
     "@rbxts/roact": "^1.3.0-ts.14",
     "@rbxts/roact-rodux": "^0.2.2-ts.2",
     "@rbxts/rodux": "^3.0.0-ts.2",
-    "@rbxts/services": "^1.1.1",
+    "@rbxts/services": "^1.1.5",
     "@rbxts/signal": "^1.0.3",
     "@rbxts/snapdragon": "^2.0.0-beta.0",
     "@rbxts/string-utils": "^1.0.2",

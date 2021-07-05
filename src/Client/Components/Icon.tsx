@@ -3,6 +3,7 @@ import ThemeContext from "../../Client/UIKit/ThemeContext";
 
 interface IconDefinition {
 	Offset: Vector2;
+	NoOverrideColor?: boolean;
 	TintColor?: Color3;
 }
 
@@ -88,6 +89,7 @@ export default class ZirconIcon extends Roact.PureComponent<IconProps> {
 							Size={new UDim2(0, 16, 0, 16)}
 							BackgroundTransparency={1}
 							Image={theme.IconAssetUri}
+							ImageColor3={theme.IconColor3}
 							ImageRectOffset={icon.Offset}
 							Position={this.props.Position}
 							ImageRectSize={new Vector2(16, 16)}

@@ -202,12 +202,12 @@ export default class Dropdown<T = string> extends Roact.Component<DropdownProps<
 								TextXAlignment="Left"
 								TextColor3={
 									Disabled
-										? new Color3(50, 50, 50)
+										? theme.PrimaryDisabledColor3
 										: item.TextColor3
 										? item.TextColor3
-										: new Color3(200, 200, 200)
+										: theme.PrimaryTextColor3
 								}
-								TextStrokeTransparency={0.5}
+								// TextStrokeTransparency={0.5}
 								Text={item.SelectedText ?? item.Text}
 								Event={{
 									MouseButton1Click: () => !Disabled && this.setState({ active: !this.state.active }),
@@ -216,7 +216,7 @@ export default class Dropdown<T = string> extends Roact.Component<DropdownProps<
 						</frame>
 						<imagelabel
 							Image="rbxassetid://2657038128"
-							ImageColor3={Disabled ? Color3.fromRGB(100, 100, 100) : Color3.fromRGB(255, 255, 255)}
+							ImageColor3={Disabled ? theme.PrimaryDisabledColor3 : theme.PrimaryTextColor3}
 							Position={new UDim2(1, -25, 0, 5)}
 							BackgroundTransparency={1}
 							Rotation={this.state.active ? 0 : 180}

@@ -1,34 +1,15 @@
 import Roact from "@rbxts/roact";
-import Zircon from "@zircon";
-import ZirconClient from "./Client";
+import Zircon, { ZirconClient } from "@zircon";
 import delayAsync from "./Client/BuiltInConsole/DelayAsync";
 import ZirconDockedConsole from "./Client/BuiltInConsole/UI/DockedConsole";
-import { BaseTheme, makeTheme } from "./Client/UIKit/ThemeContext";
+import ThemeContext, { ZirconDarkPlastic, makeTheme, ZirconFrost } from "./Client/UIKit/ThemeContext";
 import { Players } from "@rbxts/services";
 import Log, { Logger } from "@rbxts/log";
 
 Log.SetLogger(Logger.configure().WriteTo(Zircon.Log.Console()).EnrichWithProperty("Version", PKG_VERSION).Create());
 
-const LightTheme = makeTheme({
-	PrimaryBackgroundColor3: Color3.fromRGB(220, 220, 220),
-	SecondaryBackgroundColor3: Color3.fromRGB(200, 200, 200),
-	PrimaryTextColor3: Color3.fromRGB(40, 40, 40),
-	ConsoleColors: {
-		...BaseTheme.ConsoleColors,
-		White: Color3.fromRGB(40, 40, 40),
-	},
-});
-
-function CustomConsole() {
-	return (
-		// <UIKTheme.Provider value={undefined}>
-		<ZirconDockedConsole />
-		// </UIKTheme.Provider>
-	);
-}
-
 ZirconClient.BindConsole({
-	ConsoleComponent: CustomConsole,
+	Theme: "Plastic",
 	EnableTags: true,
 	Keys: [Enum.KeyCode.Backquote],
 });

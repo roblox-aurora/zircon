@@ -33,20 +33,23 @@ export interface ZirconThemeDefinition {
 	readonly SecondaryBackgroundColor3: Color3;
 	readonly PrimarySelectColor3: Color3;
 	readonly PrimaryTextColor3: Color3;
+	readonly PrimaryDisabledColor3: Color3;
 	readonly SecondaryTextColor3: Color3;
 	readonly ErrorTextColor3: Color3;
 	readonly ServerContextColor: Color3;
+	readonly IconColor3?: Color3;
 	readonly ClientContextColor: Color3;
 	readonly ConsoleColors: ConsoleColors;
 	readonly Dock: DockOptions;
 	readonly SyntaxHighlighter?: ThemeSyntaxColors;
 }
 
-export const BaseTheme = identity<ZirconThemeDefinition>({
+export const ZirconDarkPlastic = identity<ZirconThemeDefinition>({
 	IconAssetUri: "rbxassetid://6413958171",
 	Font: "Ubuntu",
 	ConsoleFont: "RobotoMono",
 	PrimaryBackgroundColor3: Color3.fromRGB(33, 37, 43),
+	PrimaryDisabledColor3: Color3.fromRGB(100, 100, 100),
 	PrimaryTextColor3: Color3.fromRGB(255, 255, 255),
 	SecondaryTextColor3: Color3.fromRGB(170, 170, 170),
 	SecondaryBackgroundColor3: Color3.fromRGB(24, 26, 31),
@@ -66,6 +69,39 @@ export const BaseTheme = identity<ZirconThemeDefinition>({
 		Orange: Color3.fromRGB(255, 135, 0),
 	},
 });
+
+export const ZirconFrost = identity<ZirconThemeDefinition>({
+	IconAssetUri: "rbxassetid://6413958171",
+	Font: "Ubuntu",
+	ConsoleFont: "RobotoMono",
+	PrimaryBackgroundColor3: Color3.fromRGB(212, 218, 212),
+	PrimaryDisabledColor3: Color3.fromRGB(100, 100, 100),
+	SecondaryBackgroundColor3: Color3.fromRGB(231, 229, 224),
+	PrimaryTextColor3: Color3.fromRGB(33, 33, 33),
+	IconColor3: Color3.fromRGB(33, 33, 33),
+	SecondaryTextColor3: Color3.fromRGB(46, 46, 46),
+	PrimarySelectColor3: new Color3(0.68, 0.73, 0.82),
+	ErrorTextColor3: Color3.fromRGB(224, 108, 117),
+	ServerContextColor: Color3.fromRGB(0, 255, 144),
+	ClientContextColor: Color3.fromRGB(0, 148, 255),
+	Dock: {},
+
+	ConsoleColors: {
+		Red: Color3.fromRGB(224, 108, 117),
+		Yellow: Color3.fromRGB(232, 179, 77),
+		Cyan: new Color3(0.19, 0.51, 0.55),
+		Grey: Color3.fromRGB(90, 99, 116),
+		White: Color3.fromRGB(41, 43, 43),
+		Green: Color3.fromRGB(102, 148, 69),
+		Orange: Color3.fromRGB(255, 135, 0),
+	},
+});
+
+export const BuiltInThemes = {
+	Frost: ZirconFrost,
+	Plastic: ZirconDarkPlastic,
+};
+export type BuiltInThemes = typeof BuiltInThemes;
 
 type Color3Keys<T> = { [P in keyof T]: T[P] extends Color3 ? P & string : never }[keyof T];
 type Color3ToHex<T> = {
@@ -108,9 +144,10 @@ export function italicize(text: string) {
 }
 
 export function makeTheme(theme: Partial<ZirconThemeDefinition>) {
-	return identity<ZirconThemeDefinition>({ ...BaseTheme, ...theme });
+	return identity<ZirconThemeDefinition>({ ...ZirconDarkPlastic, ...theme });
 }
 
+/** @deprecated */
 export const ZirconTheme = makeTheme({
 	Font: "Sarpanch",
 	ConsoleFont: "Code",
@@ -118,6 +155,6 @@ export const ZirconTheme = makeTheme({
 	SecondaryBackgroundColor3: Color3.fromRGB(24, 26, 31),
 });
 
-const ThemeContext = Roact.createContext<ZirconThemeDefinition>(BaseTheme);
+const ThemeContext = Roact.createContext<ZirconThemeDefinition>(ZirconDarkPlastic);
 
 export default ThemeContext;

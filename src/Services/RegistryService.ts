@@ -1,14 +1,8 @@
 import { Players, RunService } from "@rbxts/services";
-import ZrContext from "@rbxts/zirconium/out/Data/Context";
-import { ZrValue } from "@rbxts/zirconium/out/Data/Locals";
-import ZrLuauFunction from "@rbxts/zirconium/out/Data/LuauFunction";
 import ZrScriptContext from "@rbxts/zirconium/out/Runtime/ScriptContext";
 import { toArray } from "../Shared/Collections";
 import ZirconUserGroup, { ZirconPermissions } from "../Server/Class/ZirconGroup";
 import { $ifEnv } from "rbxts-transform-env";
-import { $dbg } from "rbxts-transform-debug";
-import Zircon from "index";
-import { ZirconFunctionDeclaration } from "Shared/Types";
 import ZrPlayerScriptContext from "@rbxts/zirconium/out/Runtime/PlayerScriptContext";
 import { ZirconFunction } from "Class/ZirconFunction";
 import { ZirconNamespace } from "Class/ZirconNamespace";
@@ -246,10 +240,7 @@ export namespace ZirconRegistryService {
 			if (player.GetRankInGroup(game.CreatorId) >= 255) {
 				groups.push(Creator);
 			}
-		} else if (
-			(game.CreatorType === Enum.CreatorType.User && game.CreatorId === player.UserId) ||
-			game.GameId === 0
-		) {
+		} else if (game.CreatorType === Enum.CreatorType.User && game.CreatorId === player.UserId) {
 			groups.push(Creator);
 		}
 

@@ -1,7 +1,7 @@
 import { MessageTemplateParser, TemplateTokenKind } from "@rbxts/message-templates";
 import t from "@rbxts/t";
 import ZrTextStream from "@rbxts/zirconium/out/Ast/TextStream";
-import { getRichTextColor3, ZirconTheme } from "Client/UIKit/ThemeContext";
+import { getRichTextColor3, ZirconTheme, ZirconThemeDefinition } from "Client/UIKit/ThemeContext";
 interface PlainTextToken {
 	Type: "Text";
 	Value: string;
@@ -66,37 +66,37 @@ export function formatParse(formatString: string) {
 const isArray = t.array(t.any);
 const isMap = t.map(t.string, t.any);
 
-export function formatRichText(value: unknown, level = 1): string {
+export function formatRichText(value: unknown, level = 1, theme: ZirconThemeDefinition): string {
 	if (typeIs(value, "string")) {
-		return getRichTextColor3(ZirconTheme, "Green", `${value}`);
+		return getRichTextColor3(theme, "Green", `${value}`);
 	} else if (typeIs(value, "number") || typeIs(value, "boolean")) {
-		return getRichTextColor3(ZirconTheme, "Cyan", tostring(value));
+		return getRichTextColor3(theme, "Cyan", tostring(value));
 	} else if (isArray(value)) {
 		if (level > 1) {
-			return getRichTextColor3(ZirconTheme, "Grey", `[...]`);
+			return getRichTextColor3(theme, "Grey", `[...]`);
 		} else {
 			return getRichTextColor3(
 				ZirconTheme,
 				"Grey",
-				`[${value.map((v) => formatRichText(v, level + 1)).join(", ")}]`,
+				`[${value.map((v) => formatRichText(v, level + 1, theme)).join(", ")}]`,
 			);
 		}
 	} else if (isMap(value)) {
 		if (level > 1) {
-			return getRichTextColor3(ZirconTheme, "Grey", `{...}`);
+			return getRichTextColor3(theme, "Grey", `{...}`);
 		} else {
 			const arr = new Array<string>();
 			for (const [k, v] of value) {
-				arr.push(`${getRichTextColor3(ZirconTheme, "White", k)}: ${formatRichText(v, level + 1)}`);
+				arr.push(`${getRichTextColor3(theme, "White", k)}: ${formatRichText(v, level + 1, theme)}`);
 			}
-			return getRichTextColor3(ZirconTheme, "Grey", `{${arr.join(", ")}}`);
+			return getRichTextColor3(theme, "Grey", `{${arr.join(", ")}}`);
 		}
 	} else if (typeIs(value, "Instance")) {
-		return getRichTextColor3(ZirconTheme, "Orange", `${value.GetFullName()}`);
+		return getRichTextColor3(theme, "Orange", `${value.GetFullName()}`);
 	} else if (value === undefined) {
-		return getRichTextColor3(ZirconTheme, "Cyan", "undefined");
+		return getRichTextColor3(theme, "Cyan", "undefined");
 	} else {
-		return getRichTextColor3(ZirconTheme, "Yellow", `<${tostring(value)}>`);
+		return getRichTextColor3(theme, "Yellow", `<${tostring(value)}>`);
 	}
 }
 
@@ -153,7 +153,7 @@ export function formatMessageTemplate(template: string, values: Record<string, d
 	for (const token of tokens) {
 		if (token.kind === TemplateTokenKind.Property) {
 			const value = values[token.propertyName];
-			return formatRichText(value);
+			return formatRichText(value, undefined, ZirconTheme);
 		}
 	}
 }
@@ -169,7 +169,7 @@ export function formatTokens(tokens: ReadonlyArray<FormatToken>, vars: unknown[]
 				if (idxOffset > vars.size()) {
 					resultingStr += getRichTextColor3(ZirconTheme, "Red", `{${token.Value}}`);
 				} else {
-					resultingStr += formatRichText(vars[idxOffset]);
+					resultingStr += formatRichText(vars[idxOffset], undefined, ZirconTheme);
 					idxOffset += 1;
 				}
 			}

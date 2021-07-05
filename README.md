@@ -45,10 +45,10 @@ This will install both Zircon, as well as the logging support. It is recommended
 Below is an example of how to register a command in Zircon:
 
 ```ts
-import Zircon from "@rbxts/zircon";
+import { ZirconServer, ZirconFunctionBuilder } from "@rbxts/zircon";
 import Log from "@rbxts/log";
 
-Zircon.Server.Registry.RegisterFunction(
+ZirconServer.Registry.RegisterFunction(
     new ZirconFunctionBuilder("print_message")
         .AddArguments("string")
         .Bind((context, message) => Log.Info(
@@ -56,7 +56,7 @@ Zircon.Server.Registry.RegisterFunction(
                 message,
                 context.GetExecutor()
         )),
-    [Zircon.Server.Registry.User]
+    [ZirconServer.Registry.User]
 )
 ```
 

@@ -1,7 +1,7 @@
 import Roact from "@rbxts/roact";
 import { ComponentInstanceHandle } from "@rbxts/roact";
 import RoactRodux from "@rbxts/roact-rodux";
-import { ContextActionService, GuiService, LogService, Players, RunService, StarterGui } from "@rbxts/services";
+import { ContextActionService, Players, RunService, StarterGui } from "@rbxts/services";
 import ZirconClientStore from "./BuiltInConsole/Store";
 import { ConsoleActionName } from "./BuiltInConsole/Store/_reducers/ConsoleReducer";
 import ZirconDockedConsole, { DockedConsoleProps } from "./BuiltInConsole/UI/DockedConsole";
@@ -13,7 +13,8 @@ import Remotes, { ZirconNetworkMessageType } from "../Shared/Remotes";
 import { RemoteId } from "../RemoteId";
 import { ZirconContext, ZirconLogData, ZirconLogLevel, ZirconMessageType } from "./Types";
 import ZirconTopBar from "./BuiltInConsole/UI/TopbarMenu";
-import { LogEvent, LogLevel } from "@rbxts/log";
+import { LogEvent } from "@rbxts/log";
+import ThemeContext, { BuiltInThemes } from "./UIKit/ThemeContext";
 
 const IsClient = RunService.IsClient();
 
@@ -120,6 +121,8 @@ namespace ZirconClient {
 		Keys?: Array<Enum.KeyCode>;
 		EnableTags?: boolean;
 		ConsoleComponent?: typeof Roact.Component | ((props: defined) => Roact.Element);
+		/** @internal */
+		Theme?: keyof BuiltInThemes;
 	}
 
 	let consoleBound = false;
@@ -136,19 +139,21 @@ namespace ZirconClient {
 		if (consoleBound) return;
 		consoleBound = true;
 
-		const { Keys = [Enum.KeyCode.F10], ConsoleComponent = ZirconDockedConsole } = options;
+		const { Keys = [Enum.KeyCode.F10], ConsoleComponent = ZirconDockedConsole, Theme = "Plastic" } = options;
 
 		$ifEnv("NODE_ENV", "development", () => {
 			print("[zircon-debug] bindConsole called with", ...Keys);
 		});
 		BindActivationKeys(Keys);
 		handle = Roact.mount(
-			<RoactRodux.StoreProvider store={ZirconClientStore}>
-				<Roact.Fragment>
-					<ZirconTopBar />
-					<ConsoleComponent />
-				</Roact.Fragment>
-			</RoactRodux.StoreProvider>,
+			<ThemeContext.Provider value={BuiltInThemes[Theme]}>
+				<RoactRodux.StoreProvider store={ZirconClientStore}>
+					<Roact.Fragment>
+						<ZirconTopBar />
+						<ConsoleComponent />
+					</Roact.Fragment>
+				</RoactRodux.StoreProvider>
+			</ThemeContext.Provider>,
 			Players.LocalPlayer.FindFirstChildOfClass("PlayerGui"),
 		);
 

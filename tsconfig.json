@@ -28,6 +28,9 @@
 				"environmentRequires": {
 					"NODE_ENV": "development"
 				}
+			},
+			{
+				"transform": "rbxts-transformer-services"
 			}
 		]
 	},
