@@ -8,9 +8,10 @@ import ZirconUserGroup, { ZirconPermissions } from "../Server/Class/ZirconGroup"
 import { $ifEnv } from "rbxts-transform-env";
 import { $dbg } from "rbxts-transform-debug";
 import Zircon from "index";
-import ZirconFunction from "Server/Class/ZirconFunction";
 import { ZirconFunctionDeclaration } from "Shared/Types";
 import ZrPlayerScriptContext from "@rbxts/zirconium/out/Runtime/PlayerScriptContext";
+import { ZirconFunction } from "Class/ZirconFunction";
+import { ZirconNamespace } from "Class/ZirconNamespace";
 
 export namespace ZirconRegistryService {
 	const contexts = new Map<Player, Array<ZrScriptContext>>();
@@ -35,6 +36,7 @@ export namespace ZirconRegistryService {
 		return true;
 	}
 
+	/** @internal */
 	export function GetScriptContextsForPlayer(player: Player) {
 		let contextArray: Array<ZrScriptContext>;
 		if (!contexts.has(player)) {
@@ -53,29 +55,24 @@ export namespace ZirconRegistryService {
 	}
 
 	/**
-	 * Register a raw ZrLuauFunction. Use `RegisterFunction` instead for a more secure version.
-	 * @internal
+	 * Registers a function in the global namespace to the specified group(s)
+	 * @param func The function to register
+	 * @param groups The groups
 	 */
-	export function RegisterZrLuauFunction(
-		name: string,
-		fn: (ctx: ZrContext, ...args: readonly Zircon.Argument[]) => Zircon.Value | undefined | void,
-		groups: ZirconUserGroup[],
-	) {
-		const funct = new ZrLuauFunction(fn);
+	export function RegisterFunction(func: ZirconFunction<any, any>, groups: ZirconUserGroup[]) {
 		for (const group of groups) {
-			$ifEnv("NODE_ENV", "development", () => print(`Add global '${name}' to group ${group.GetName()}`));
-			group._registerFunction(name, fn);
+			group.RegisterFunction(func);
 		}
-		return funct;
 	}
 
-	export function RegisterFunction(func: ZirconFunctionDeclaration, groups: ZirconUserGroup[]) {
-		return RegisterZrLuauFunction(func.Name, func.Function, groups);
-	}
-
-	export function RegisterNamespace(name: string, values: Record<string, ZrValue>, groups: ZirconUserGroup[]) {
+	/**
+	 * Registers a namespace to the specified group(s)
+	 * @param namespace The namespace
+	 * @param groups The groups to register it to
+	 */
+	export function RegisterNamespace(namespace: ZirconNamespace, groups: ZirconUserGroup[]) {
 		for (const group of groups) {
-			group._registerNamespace(name, values);
+			group.RegisterNamespace(namespace);
 		}
 	}
 

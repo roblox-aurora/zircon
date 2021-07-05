@@ -3,6 +3,8 @@ import { ZrValue } from "@rbxts/zirconium/out/Data/Locals";
 import ZrLuauFunction from "@rbxts/zirconium/out/Data/LuauFunction";
 import ZrUndefined from "@rbxts/zirconium/out/Data/Undefined";
 import { ZrObjectUserdata } from "@rbxts/zirconium/out/Data/Userdata";
+import { ZirconFunction } from "Class/ZirconFunction";
+import { ZirconNamespace } from "Class/ZirconNamespace";
 
 export interface ZirconRobloxGroupBinding {
 	GroupId: number;
@@ -88,16 +90,13 @@ export default class ZirconUserGroup {
 	}
 
 	/** @internal */
-	public _registerFunction(
-		name: string,
-		callback: (ctx: ZrContext, ...args: readonly (ZrValue | ZrUndefined)[]) => ZrValue | void,
-	) {
-		this.functions.set(name, new ZrLuauFunction(callback));
+	public RegisterFunction(func: ZirconFunction<any, any>) {
+		this.functions.set(func.GetName(), func);
 	}
 
 	/** @internal */
-	public _registerNamespace(name: string, value: Record<string, ZrValue>) {
-		this.namespaces.set(name, ZrObjectUserdata.fromRecord(value));
+	public RegisterNamespace(namespace: ZirconNamespace) {
+		this.namespaces.set(namespace.GetName(), namespace.ToUserdata());
 	}
 
 	/** @internal */

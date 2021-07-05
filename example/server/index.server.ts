@@ -5,36 +5,37 @@ import ZrLuauFunction from "@rbxts/zirconium/out/Data/LuauFunction";
 import { ZrInstanceUserdata } from "@rbxts/zirconium/out/Data/Userdata";
 import Zircon from "@zircon";
 import ZirconPrint from "BuiltIn/Print";
+import { ZirconFunctionBuilder } from "Class/ZirconFunctionBuilder";
 import delayAsync from "Client/BuiltInConsole/DelayAsync";
 
-Log.SetLogger(Logger.configure().WriteTo(Zircon.Log.Console()).EnrichWithProperty("Version", PKG_VERSION).Create());
+Log.SetLogger(
+	Logger.configure()
+		.WriteTo(Log.RobloxOutput())
+		.WriteTo(Zircon.Log.Console())
+		.EnrichWithProperty("Version", PKG_VERSION)
+		.Create(),
+);
 
-Zircon.Server.Registry.RegisterFunction(ZirconPrint, [Zircon.Server.Registry.User]);
-
-Zircon.Server.Registry.RegisterNamespace(
-	"localplayer",
-	{
-		kill: new ZrLuauFunction((context) => {
-			const player = context.getExecutor();
-			if (player) {
-				player.Character?.BreakJoints();
-			}
-		}),
-	},
+Zircon.Server.Registry.RegisterFunction(
+	new ZirconFunctionBuilder("kill").AddArguments("player?").Bind((context, player) => {
+		const target = player ?? context.GetExecutor();
+		target.Character?.BreakJoints();
+		Log.Info("Killed {target}", target);
+	}),
 	[Zircon.Server.Registry.User],
 );
 
-Zircon.Server.Registry.RegisterZrLuauFunction(
-	"spam",
-	(context, count) => {
-		// eslint-disable-next-line roblox-ts/lua-truthiness
-		const message = context.getInput().toArray().join(" ") || "This is a test message";
-		if (typeIs(count, "number")) {
-			for (let i = 0; i < count; i++) {
-				context.getOutput().write(message);
-			}
-		}
-	},
+Zircon.Server.Registry.RegisterFunction(
+	new ZirconFunctionBuilder("print_message")
+		.AddArguments("string")
+		.Bind((context, message) => Log.Info("Zircon says {Message} from {Player}", message, context.GetExecutor())),
+	[Zircon.Server.Registry.User],
+);
+
+Zircon.Server.Registry.RegisterFunction(
+	new ZirconFunctionBuilder("print").Bind((context, ...args) => {
+		Log.Info(args.map((a) => tostring(a)).join(" "));
+	}),
 	[Zircon.Server.Registry.User],
 );
 

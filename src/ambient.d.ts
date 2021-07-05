@@ -26,3 +26,11 @@ type DebugInfoResult<T extends DebugInfoString> = Values<Split<T, "">>;
 declare namespace debug {
 	function info<A extends DebugInfoString>(funLevel: number | (() => void), value: A): LuaTuple<DebugInfoResult<A>>;
 }
+
+declare interface ReadonlyArray<T> extends ArrayLike<T>, Iterable<T> {
+    /**
+     * @hidden
+     * @deprecated This is required by Zircon to be able to infer arguments correctly. It should not otherwise be used.
+     */
+    readonly length: number;
+}

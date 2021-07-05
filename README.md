@@ -40,3 +40,30 @@ This will install both Zircon, as well as the logging support. It is recommended
     This will need to be done on both the _client_ and _server_ to achieve full logging.
 
     All logging done through this can be filtered through the console itself. That's the power of structured logging! ;-)
+
+## Registering and using Zircon Commands
+Below is an example of how to register a command in Zircon:
+
+```ts
+import Zircon from "@rbxts/zircon";
+import Log from "@rbxts/log";
+
+Zircon.Server.Registry.RegisterFunction(
+    new ZirconFunctionBuilder("print_message")
+        .AddArguments("string")
+        .Bind((context, message) => Log.Info(
+                "Zircon says {Message} from {Player}", 
+                message,
+                context.GetExecutor()
+        )),
+    [Zircon.Server.Registry.User]
+)
+```
+
+This will create a global `print_message` that all players can run.
+
+Then if run in Zircon:
+
+<img src="./assets/Example1.png"/>
+
+The first argument of `RegisterFunction` takes a `ZirconFunctionBuilder` - which is the easiest way to build a function. `AddArguments` takes any number of arguments for types you want, in built types in Zircon you can use a string for. Otherwise you supply the type validator object.
