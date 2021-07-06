@@ -1,10 +1,11 @@
 <div align="center">
     <img src="https://i.imgur.com/YgpbX7G.png"/>
     <h2>A clean, sleek, runtime debugging console for Roblox</h2>
-    <p>Note: I am working on the API for the Zircon scripting still - so Coming soon&trade;</p>
 </div>
 
 ----
+
+<img src="./assets/Example2.jpg"/>
 
 ## Setup
 To begin, it is recommended to do
