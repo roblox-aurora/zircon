@@ -147,11 +147,19 @@ export default class ZirconWindow extends Roact.Component<WindowProps, WindowSta
 				this.dragController.Connect();
 
 				if (this.props.DragBegan !== undefined) {
-					this.maid.GiveTask(this.dragController.DragBegan.Connect(this.props.DragBegan));
+					this.maid.GiveTask(
+						this.dragController.DragBegan.Connect((began) => {
+							this.props.DragBegan?.(began.InputPosition);
+						}),
+					);
 				}
 
 				if (this.props.DragEnded !== undefined) {
-					this.maid.GiveTask(this.dragController.DragBegan.Connect(this.props.DragEnded));
+					this.maid.GiveTask(
+						this.dragController.DragBegan.Connect((ended) => {
+							this.props.DragEnded?.(ended.InputPosition);
+						}),
+					);
 				}
 			}
 

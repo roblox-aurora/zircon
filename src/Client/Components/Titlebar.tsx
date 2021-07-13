@@ -56,11 +56,19 @@ export default class ZirconTitlebar extends Roact.Component<TitlebarProps> {
 			this.maid.GiveTask(this.dragController);
 
 			if (this.props.DragBegan !== undefined) {
-				this.maid.GiveTask(this.dragController.DragEnded.Connect(this.props.DragBegan));
+				this.maid.GiveTask(
+					this.dragController.DragEnded.Connect((ended) => {
+						this.props.DragEnded?.(ended.InputPosition);
+					}),
+				);
 			}
 
 			if (this.props.DragEnded !== undefined) {
-				this.maid.GiveTask(this.dragController.DragEnded.Connect(this.props.DragEnded));
+				this.maid.GiveTask(
+					this.dragController.DragEnded.Connect((ended) => {
+						this.props.DragEnded?.(ended.InputPosition);
+					}),
+				);
 			}
 		}
 	}

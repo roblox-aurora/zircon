@@ -8,7 +8,7 @@ export function toArray<TValue>(collection: ReadonlyMap<defined, TValue>): Array
 export function toArray<V, K extends keyof V>(collection: { [P in K]: V[P] }) {
 	const arr = new Array<K>();
 	for (const [key] of pairs(collection)) {
-		arr.push(key);
+		arr.push(key as K);
 	}
 	return arr;
 }

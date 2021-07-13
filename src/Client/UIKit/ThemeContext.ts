@@ -125,7 +125,7 @@ export function convertColorObjectToHex<T>(values: T): Color3ToHex<T> {
 	for (const [key, value] of pairs<typeof newArr>(values)) {
 		if (typeIs(value, "Color3")) {
 			const numeric = ((value.R * 255) << 16) | ((value.G * 255) << 8) | ((value.B * 255) << 0);
-			newArr[key] = "#%.6X".format(numeric);
+			newArr[key as keyof T] = "#%.6X".format(numeric);
 		}
 	}
 	return newArr as Color3ToHex<T>;
