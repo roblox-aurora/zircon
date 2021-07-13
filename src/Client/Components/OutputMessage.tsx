@@ -25,6 +25,13 @@ import { LogLevel } from "@rbxts/log";
 import { MessageTemplateParser } from "@rbxts/message-templates";
 import { ZirconStructuredMessageTemplateRenderer } from "Client/Format/ZirconStructuredMessageTemplate";
 
+function sanitise(input: string) {
+	return input.gsub("[<>]", {
+		">": "&gt;",
+		"<": "&lt;",
+	})[0];
+}
+
 interface OutputMessageProps {
 	Message: ZrOutputMessage | ZirconLogMessage | ZrOutputMessage | ZirconStructuredLogMessage;
 	ShowTags?: boolean;
@@ -56,7 +63,7 @@ function OutputMessage(props: OutputMessageProps) {
 						data,
 					} = output;
 
-					const tokens = MessageTemplateParser.GetTokens(Template);
+					const tokens = MessageTemplateParser.GetTokens(sanitise(Template));
 					const renderer = new ZirconStructuredMessageTemplateRenderer(tokens, theme);
 					const text = renderer.Render(output.data);
 
@@ -94,8 +101,10 @@ function OutputMessage(props: OutputMessageProps) {
 					}
 
 					if (props.ShowTags) {
-						if (data.Tag) {
-							messages.push("- " + italicize(getRichTextColor3(theme, "Grey", tostring(data.Tag))));
+						if (data.SourceContext) {
+							messages.push(
+								"- " + italicize(getRichTextColor3(theme, "Grey", tostring(data.SourceContext))),
+							);
 						}
 					}
 				} else if (output.type === ZirconMessageType.ZirconLogOutputMesage) {

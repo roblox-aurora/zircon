@@ -1,4 +1,5 @@
 import Log, { Logger } from "@rbxts/log";
+import { Workspace } from "@rbxts/services";
 import Zircon, { ZirconServer } from "@zircon";
 import ZirconPrint from "BuiltIn/Print";
 import { ZirconFunctionBuilder } from "Class/ZirconFunctionBuilder";
@@ -53,11 +54,30 @@ ZirconServer.Registry.RegisterFunction(
 	[ZirconServer.Registry.User],
 );
 
-delayAsync(5).then(() => {
-	Log.Verbose("A verbose message. Yes?");
+class Example {
+	private _logger = Log.ForContext(Example);
+	public constructor() {}
+	public example() {
+		this._logger.Info("Testing from class!");
+		this._logger.Warn("Warning from class!");
+	}
+}
+
+Promise.delay(5).then(() => {
+	const testLogger = Log.ForScript();
+
+	testLogger.Verbose("A verbose message. Yes?");
+	testLogger.Info("Breaking <0> RichText Fix");
+	testLogger.Info("Another test <font>Test</font>");
+
+	new Example().example();
+
+	Log.ForContext(Workspace).Info("Using workspace");
+
 	Log.Debug("A debug message, yes");
 	Log.Info("Hello, {Test}! {Boolean} {Number} {Array}", "Test string", true, 10, [1, 2, 3, [4]]);
 	Log.Warn("Warining {Lol}", "LOL!");
+
 	Log.Error("ERROR LOL {Yes}", true);
 	Log.Fatal("Fatal message here");
 });
