@@ -8,6 +8,7 @@ import {
 	ZirconValidator,
 } from "./ZirconTypeValidator";
 import { ZirconContext, ZirconFunction } from "./ZirconFunction";
+import { ZrValue } from "@rbxts/zirconium/out/Data/Locals";
 
 export class ZirconFunctionBuilder<V extends ZirconValidator<any, any>[] = []> {
 	private validators = new Array<ZirconValidator<any, any>>();
@@ -44,7 +45,7 @@ export class ZirconFunctionBuilder<V extends ZirconValidator<any, any>[] = []> {
 		>;
 	}
 
-	public Bind(fn: (context: ZirconContext, ...args: InferArguments<V>) => void) {
+	public Bind<R extends ZrValue | void>(fn: (context: ZirconContext, ...args: InferArguments<V>) => R) {
 		return new ZirconFunction(this.name, this.validators as V, fn);
 	}
 }

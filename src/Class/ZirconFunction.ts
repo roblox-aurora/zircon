@@ -1,6 +1,7 @@
 import { LogLevel } from "@rbxts/log";
 import { RunService } from "@rbxts/services";
 import ZrContext from "@rbxts/zirconium/out/Data/Context";
+import { ZrValue } from "@rbxts/zirconium/out/Data/Locals";
 import ZrLuauFunction, { ZrLuauArgument } from "@rbxts/zirconium/out/Data/LuauFunction";
 import ZrPlayerScriptContext from "@rbxts/zirconium/out/Runtime/PlayerScriptContext";
 import Server from "../Server";
@@ -24,7 +25,10 @@ export class ZirconContext {
 	}
 }
 
-export class ZirconFunction<V extends readonly ZirconValidator<unknown, unknown>[], R> extends ZrLuauFunction {
+export class ZirconFunction<
+	V extends readonly ZirconValidator<unknown, unknown>[],
+	R extends ZrValue | void
+> extends ZrLuauFunction {
 	public constructor(
 		private name: string,
 		private argumentValidators: V,
@@ -65,7 +69,7 @@ export class ZirconFunction<V extends readonly ZirconValidator<unknown, unknown>
 			}
 
 			/// This is not pretty, I know.
-			this.zirconCallback(
+			return this.zirconCallback(
 				new ZirconContext(context),
 				...((transformedArguments as unknown) as InferArguments<V>),
 			);
