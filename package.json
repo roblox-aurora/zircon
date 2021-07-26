@@ -1,6 +1,6 @@
 {
   "name": "@rbxts/zircon",
-  "version": "0.9.2-beta.0",
+  "version": "0.11.0-beta.0",
   "description": "",
   "main": "out/init.lua",
   "scripts": {
@@ -10,7 +10,7 @@
     "build:example": "rbxtsc --type=game -p ./example -i ./include",
     "build:luau": "rbxtsc --verbose --type=model --rojo=\"luau/build.project.json\"",
     "watch:example": "cross-env NODE_ENV=development rbxtsc -w --type=game -p ./example -i ./include",
-    "serve:example": "rojo serve ./example/default.project.json --port 34000"
+    "serve:example": "rojo serve ./example/default.project.json --port 34567"
   },
   "keywords": [],
   "author": "",

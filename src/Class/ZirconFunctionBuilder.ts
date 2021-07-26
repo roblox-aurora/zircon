@@ -13,6 +13,8 @@ import { ZrValue } from "@rbxts/zirconium/out/Data/Locals";
 export class ZirconFunctionBuilder<V extends ZirconValidator<any, any>[] = []> {
 	private validators = new Array<ZirconValidator<any, any>>();
 	private hasVaradic = false;
+	private description?: string;
+
 	public constructor(private name: string) {}
 
 	/**
@@ -45,7 +47,17 @@ export class ZirconFunctionBuilder<V extends ZirconValidator<any, any>[] = []> {
 		>;
 	}
 
+	/**
+	 * Adds a description to the function
+	 * @param description The description of this function
+	 * @returns
+	 */
+	public AddDescription(description: string) {
+		this.description = description;
+		return this as Omit<this, "AddDescription">;
+	}
+
 	public Bind<R extends ZrValue | void>(fn: (context: ZirconContext, ...args: InferArguments<V>) => R) {
-		return new ZirconFunction(this.name, this.validators as V, fn);
+		return new ZirconFunction(this.name, this.validators as V, fn, { Description: this.description });
 	}
 }

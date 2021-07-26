@@ -57,7 +57,7 @@ export const ZirconObject: ZirconValidator<ZrObject> = {
 	},
 };
 
-export function ZirconOptional<K extends ZirconValidator<unknown, unknown>>(validator: K) {
+export function ZirconOptional<K extends ZirconValidator<ZrValue, unknown>>(validator: K) {
 	return {
 		Type: validator.Type + "?",
 		Validate(value: unknown): value is InferTypeFromValidator2<K> | undefined {

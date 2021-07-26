@@ -2,9 +2,10 @@ import Log, { Logger } from "@rbxts/log";
 import { Workspace } from "@rbxts/services";
 import Zircon, { ZirconServer } from "@zircon";
 import ZirconPrint from "BuiltIn/Print";
+import { ZirconEnumItem } from "Class/ZirconEnum";
+import { ZirconEnumBuilder } from "Class/ZirconEnumBuilder";
 import { ZirconFunctionBuilder } from "Class/ZirconFunctionBuilder";
 import { ZirconNamespaceBuilder } from "Class/ZirconNamespaceBuilder";
-import delayAsync from "Client/BuiltInConsole/DelayAsync";
 
 Log.SetLogger(
 	Logger.configure()
@@ -14,11 +15,54 @@ Log.SetLogger(
 		.Create(),
 );
 
+enum ExistingEnumType {
+	EnumA,
+	EnumB,
+}
+
+const TestEnum = ZirconServer.Registry.RegisterEnum("TestEnum", ["Value1", "Value2"], [ZirconServer.Registry.User]);
+
+const ExistingEnum = ZirconServer.Registry.RegisterEnumType(new ZirconEnumBuilder("test").FromEnum(ExistingEnumType), [
+	ZirconServer.Registry.User,
+]);
+
 ZirconServer.Registry.RegisterFunction(
-	new ZirconFunctionBuilder("kill").AddArguments("player?").Bind((context, player) => {
-		const target = player ?? context.GetExecutor();
-		target.Character?.BreakJoints();
-		Log.Info("Killed {target}", target);
+	new ZirconFunctionBuilder("kill")
+		.AddArguments("player?")
+		.AddDescription("testing lol")
+		.Bind((context, player) => {
+			const target = player ?? context.GetExecutor();
+			target.Character?.BreakJoints();
+			Log.Info("Killed {target}", target);
+		}),
+	[ZirconServer.Registry.User],
+);
+
+ZirconServer.Registry.RegisterFunction(
+	new ZirconFunctionBuilder("test_enum").AddArguments(TestEnum.GetMemberType()).Bind((context, value) => {
+		value.Match({
+			Value2: () => {
+				Log.Info("Got given enum item 2 (member)");
+			},
+			Value1: () => {
+				Log.Info("Got given enum item 1 (member)");
+			},
+		});
+		TestEnum.Match(value, {
+			Value1: () => {
+				Log.Info("Got given enum item 1 (parent)");
+			},
+			Value2: () => {
+				Log.Info("Got given enum item 2 (parent)");
+			},
+		});
+	}),
+	[ZirconServer.Registry.User],
+);
+
+ZirconServer.Registry.RegisterFunction(
+	new ZirconFunctionBuilder("test_enum2").AddArguments(ExistingEnum.GetMemberType()).Bind((context, value) => {
+		Log.Info("Got {NumberValue} ({StringValue})", ExistingEnumType[value.GetName()], value.GetName());
 	}),
 	[ZirconServer.Registry.User],
 );

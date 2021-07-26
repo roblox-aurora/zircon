@@ -4,6 +4,7 @@ import ZrContext from "@rbxts/zirconium/out/Data/Context";
 import { ZrValue } from "@rbxts/zirconium/out/Data/Locals";
 import ZrLuauFunction, { ZrLuauArgument } from "@rbxts/zirconium/out/Data/LuauFunction";
 import ZrPlayerScriptContext from "@rbxts/zirconium/out/Runtime/PlayerScriptContext";
+import { $env } from "rbxts-transform-env";
 import Server from "../Server";
 import { ZirconFunctionBuilder } from "./ZirconFunctionBuilder";
 import { InferArguments, Validator, ZirconValidator } from "./ZirconTypeValidator";
@@ -25,14 +26,18 @@ export class ZirconContext {
 	}
 }
 
+export interface ZirconFunctionMetadata {
+	readonly Description?: string;
+}
 export class ZirconFunction<
-	V extends readonly ZirconValidator<unknown, unknown>[],
+	V extends readonly ZirconValidator<ZrValue, unknown>[],
 	R extends ZrValue | void
 > extends ZrLuauFunction {
 	public constructor(
 		private name: string,
 		private argumentValidators: V,
 		private zirconCallback: (context: ZirconContext, ...args: InferArguments<V>) => R,
+		private metadata: ZirconFunctionMetadata,
 	) {
 		super((context, ...args) => {
 			// We'll need to type check all the arguments to ensure they're valid
@@ -60,6 +65,10 @@ export class ZirconFunction<
 								ArgIndex: i + 1,
 								ArgType: validator.Type,
 							});
+
+							if ($env("NODE_ENV") === "development") {
+								print("Got", argument);
+							}
 						}
 						return;
 					}
@@ -89,9 +98,15 @@ export class ZirconFunction<
 		context.registerGlobal(this.name, this);
 	}
 
+	public GetDescription() {
+		return this.metadata.Description;
+	}
+
 	public toString() {
 		return (
-			`function ${this.name}(` +
+			`${this.metadata.Description !== undefined ? `/* ${this.metadata.Description} */` : ""} function ${
+				this.name
+			}(` +
 			this.GetArgumentTypes()
 				.map((typeName, argIndex) => `a${argIndex}: ${typeName}`)
 				.join(", ") +

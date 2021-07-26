@@ -3,6 +3,7 @@ import { ZrValue } from "@rbxts/zirconium/out/Data/Locals";
 import ZrLuauFunction from "@rbxts/zirconium/out/Data/LuauFunction";
 import ZrUndefined from "@rbxts/zirconium/out/Data/Undefined";
 import { ZrObjectUserdata } from "@rbxts/zirconium/out/Data/Userdata";
+import { ZirconEnum } from "Class/ZirconEnum";
 import { ZirconFunction } from "Class/ZirconFunction";
 import { ZirconNamespace } from "Class/ZirconNamespace";
 
@@ -92,6 +93,11 @@ export default class ZirconUserGroup {
 	/** @internal */
 	public RegisterFunction(func: ZirconFunction<any, any>) {
 		this.functions.set(func.GetName(), func);
+	}
+
+	/** @internal */
+	public RegisterEnum(enumerable: ZirconEnum<any>) {
+		this.namespaces.set(enumerable.GetName(), enumerable);
 	}
 
 	/** @internal */

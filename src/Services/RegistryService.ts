@@ -6,6 +6,8 @@ import { $ifEnv } from "rbxts-transform-env";
 import ZrPlayerScriptContext from "@rbxts/zirconium/out/Runtime/PlayerScriptContext";
 import { ZirconFunction } from "Class/ZirconFunction";
 import { ZirconNamespace } from "Class/ZirconNamespace";
+import { ZirconEnum } from "Class/ZirconEnum";
+import t from "@rbxts/t";
 
 export namespace ZirconRegistryService {
 	const contexts = new Map<Player, Array<ZrScriptContext>>();
@@ -68,6 +70,23 @@ export namespace ZirconRegistryService {
 		for (const group of groups) {
 			group.RegisterNamespace(namespace);
 		}
+	}
+
+	export function RegisterEnum<K extends string>(name: string, values: K[], groups: ZirconUserGroup[]) {
+		return RegisterEnumType(new ZirconEnum(name, values), groups);
+	}
+
+	/**
+	 * Registers an enumerable type to the specified group(s)
+	 * @param enumType The enumerable type
+	 * @param groups The groups to register the enum to
+	 * @returns The enum
+	 */
+	export function RegisterEnumType<K extends string>(enumType: ZirconEnum<K>, groups: ZirconUserGroup[]) {
+		for (const group of groups) {
+			group.RegisterEnum(enumType);
+		}
+		return enumType;
 	}
 
 	/**
