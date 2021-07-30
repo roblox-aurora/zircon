@@ -2,7 +2,6 @@ import Log, { Logger } from "@rbxts/log";
 import { Workspace } from "@rbxts/services";
 import Zircon, { ZirconServer } from "@zircon";
 import ZirconPrint from "BuiltIn/Print";
-import { ZirconEnumItem } from "Class/ZirconEnum";
 import { ZirconEnumBuilder } from "Class/ZirconEnumBuilder";
 import { ZirconFunctionBuilder } from "Class/ZirconFunctionBuilder";
 import { ZirconNamespaceBuilder } from "Class/ZirconNamespaceBuilder";
@@ -20,9 +19,13 @@ enum ExistingEnumType {
 	EnumB,
 }
 
-const TestEnum = ZirconServer.Registry.RegisterEnum("TestEnum", ["Value1", "Value2"], [ZirconServer.Registry.User]);
+const TestEnum = ZirconServer.Registry.RegisterEnumFromArray(
+	"TestEnum",
+	["Value1", "Value2"],
+	[ZirconServer.Registry.User],
+);
 
-const ExistingEnum = ZirconServer.Registry.RegisterEnumType(new ZirconEnumBuilder("test").FromEnum(ExistingEnumType), [
+const ExistingEnum = ZirconServer.Registry.RegisterEnum(new ZirconEnumBuilder("test").FromEnum(ExistingEnumType), [
 	ZirconServer.Registry.User,
 ]);
 
@@ -39,7 +42,7 @@ ZirconServer.Registry.RegisterFunction(
 );
 
 ZirconServer.Registry.RegisterFunction(
-	new ZirconFunctionBuilder("test_enum").AddArguments(TestEnum.GetMemberType()).Bind((context, value) => {
+	new ZirconFunctionBuilder("test_enum").AddArguments(TestEnum).Bind((context, value) => {
 		value.Match({
 			Value2: () => {
 				Log.Info("Got given enum item 2 (member)");
