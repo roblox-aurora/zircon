@@ -1,4 +1,5 @@
-import { ZirconEnum, ZirconEnumItem } from "./ZirconEnum";
+import { ZirconEnum } from "./ZirconEnum";
+import { ZirconEnumItem } from "./ZirconEnumItem";
 
 function keysOf<K2 extends string>(value: Record<K2, number>): K2[] {
 	const keys = new Array<K2>();

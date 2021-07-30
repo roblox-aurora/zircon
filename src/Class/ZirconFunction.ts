@@ -30,7 +30,7 @@ export interface ZirconFunctionMetadata {
 	readonly Description?: string;
 }
 export class ZirconFunction<
-	V extends readonly ZirconValidator<ZrValue, unknown>[],
+	V extends readonly ZirconValidator<unknown, unknown>[],
 	R extends ZrValue | void
 > extends ZrLuauFunction {
 	public constructor(

@@ -2,6 +2,8 @@ import { ZrValue } from "@rbxts/zirconium/out/Data/Locals";
 import ZrObject from "@rbxts/zirconium/out/Data/Object";
 import ZrUndefined from "@rbxts/zirconium/out/Data/Undefined";
 import { ZrInstanceUserdata } from "@rbxts/zirconium/out/Data/Userdata";
+import { ZirconEnum, ZirconEnumValidator } from "./ZirconEnum";
+import { ZirconEnumItem } from "./ZirconEnumItem";
 import { OptionalZirconFuzzyPlayer, ZirconFuzzyPlayer, ZirconFuzzyPlayerValidator } from "./ZirconFuzzyPlayerValidator";
 
 type PickFrom<T, U> = U extends never ? T : U;
@@ -113,7 +115,7 @@ export const BuiltInValidators = {
 };
 export type BuiltInValidators = typeof BuiltInValidators;
 
-export type Validator = keyof typeof BuiltInValidators | ZirconValidator<any, any>;
+export type Validator = keyof typeof BuiltInValidators | ZirconValidator<any, any> | ZirconEnum<any>;
 
 export type InferValidators<T extends ReadonlyArray<Validator>> = {
 	readonly // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -139,13 +141,19 @@ export type InferArguments<T extends readonly ZirconValidator<any, any>[]> = T e
 			[P in keyof T]: InferTypeFromValidator2<T[P]>;
 	  };
 
-export type InferValidator<T extends Validator> = T extends keyof BuiltInValidators ? BuiltInValidators[T] : T;
+export type InferValidator<T extends Validator> = T extends keyof BuiltInValidators
+	? BuiltInValidators[T]
+	: T extends ZirconEnum<infer K>
+	? ZirconEnumValidator<K>
+	: T;
 export type InferTypeFromValidator<T extends Validator> = T extends keyof BuiltInValidators
 	? InferTypeFromValidator<BuiltInValidators[T] & Validator>
 	: T extends ZirconValidator<infer A, never>
 	? A
 	: T extends ZirconValidator<infer _, infer U>
 	? U
+	: T extends ZirconEnum<infer K>
+	? ZirconEnumValidator<K>
 	: never;
 
 export type InferTypeFromValidator2<T extends ZirconValidator<any, any>> = T extends ZirconValidator<infer A, never>

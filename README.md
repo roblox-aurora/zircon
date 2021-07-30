@@ -19,6 +19,17 @@ This will install both Zircon, as well as the logging support. It is recommended
 
     More information on how to set this up, will come when Zircon is closer to being production-ready.
 
+    Supports:
+
+    - Functions
+        
+        Using `ZirconServer.Registry.RegisterFunction` +  `ZirconFunctionBuilder`
+    - Namespaces
+        
+        Using `ZirconServer.Registry.RegisterNamespace` + `ZirconNamespaceBuilder`
+    - Enums
+        
+        Using `ZirconServer.Registry.RegisterEnum` + `ZirconEnumBuilder`
 - ### Structured Logging
     If you want logging for Zircon, you will need to install [@rbxts/log](https://github.com/roblox-aurora/rbx-log).
 

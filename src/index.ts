@@ -3,6 +3,7 @@ import ZrSiO4Server from "./Server";
 import { Logging } from "Log";
 export { ZirconNamespaceBuilder } from "Class/ZirconNamespaceBuilder";
 export { ZirconFunctionBuilder } from "Class/ZirconFunctionBuilder";
+export { ZirconEnumBuilder } from "Class/ZirconEnumBuilder";
 export { default as ZirconServer } from "./Server";
 export { default as ZirconClient } from "./Client";
 

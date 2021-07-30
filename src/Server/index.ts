@@ -13,10 +13,17 @@ import { ReadonlyZirconPermissionSet, ZirconGroupConfiguration } from "./Class/Z
 const IsServer = RunService.IsServer();
 
 namespace Zircon {
+	/**
+	 * The server registry for Zircon
+	 */
 	export const Registry = Lazy(() => {
 		assert(IsServer, "Zircon Service only accessible on server");
 		return GetCommandService("RegistryService");
 	});
+
+	/**
+	 * The server dispatch for Zircon
+	 */
 	export const Dispatch = Lazy(() => {
 		assert(IsServer, "Zircon Service only accessible on server");
 		return GetCommandService("DispatchService");
@@ -135,21 +142,19 @@ namespace Zircon {
 						StandardOutput.SendToPlayer(player, {
 							type: ZirconNetworkMessageType.ZirconiumOutput,
 							time: DateTime.now().UnixTimestamp,
-							script: "zircon",
+							script: "zr",
 							message,
 						});
 					}
 				})
 				.catch((err: (ZrRuntimeError | ZrParserError)[]) => {
-					print("err", err);
-
 					for (const zrError of err) {
 						if (isParserError(zrError)) {
 							const debug = zrError.token ? getDebugInformation(message, zrError.token) : undefined;
 
 							StandardError.SendToPlayer(player, {
 								type: ZirconNetworkMessageType.ZirconiumParserError,
-								script: "zircon",
+								script: "zr",
 								time: DateTime.now().UnixTimestamp,
 								source: debug ? debug.LineAndColumn : undefined,
 								debug,
@@ -163,7 +168,7 @@ namespace Zircon {
 								type: ZirconNetworkMessageType.ZirconiumRuntimeError,
 								time: DateTime.now().UnixTimestamp,
 								debug,
-								script: "zircon",
+								script: "zr",
 								message: zrError.message,
 								code: zrError.code,
 							});

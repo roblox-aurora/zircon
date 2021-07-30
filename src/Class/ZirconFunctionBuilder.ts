@@ -9,9 +9,10 @@ import {
 } from "./ZirconTypeValidator";
 import { ZirconContext, ZirconFunction } from "./ZirconFunction";
 import { ZrValue } from "@rbxts/zirconium/out/Data/Locals";
+import { ZirconEnum } from "./ZirconEnum";
 
-export class ZirconFunctionBuilder<V extends ZirconValidator<any, any>[] = []> {
-	private validators = new Array<ZirconValidator<any, any>>();
+export class ZirconFunctionBuilder<V extends ZirconValidator<unknown, unknown>[] = []> {
+	private validators = new Array<ZirconValidator<unknown, unknown>>();
 	private hasVaradic = false;
 	private description?: string;
 
@@ -28,13 +29,29 @@ export class ZirconFunctionBuilder<V extends ZirconValidator<any, any>[] = []> {
 		}
 
 		for (const argValidator of args) {
-			if (typeIs(argValidator, "string")) {
-				this.validators.push(BuiltInValidators[argValidator]);
-			} else {
-				this.validators.push(argValidator);
-			}
+			this.AddArgument(argValidator);
 		}
 		return (this as unknown) as ZirconFunctionBuilder<[...V, ...InferValidators<TValidation>]>;
+	}
+
+	/**
+	 * Adds an argnument to this zircon function
+	 * @param argValidator The argument type/validator
+	 * @param description The description for this argument
+	 * @returns The builder
+	 */
+	public AddArgument<TValidation extends Validator>(argValidator: TValidation, description?: string) {
+		let validator: ZirconValidator<unknown, unknown>;
+		if (typeIs(argValidator, "string")) {
+			validator = BuiltInValidators[argValidator as keyof BuiltInValidators];
+		} else if (argValidator instanceof ZirconEnum) {
+			validator = argValidator.GetMemberType();
+		} else {
+			validator = argValidator;
+		}
+
+		this.validators.push(validator);
+		return (this as unknown) as ZirconFunctionBuilder<[...V, InferValidator<TValidation>]>;
 	}
 
 	/** @internal */

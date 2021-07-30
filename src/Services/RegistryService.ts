@@ -72,8 +72,14 @@ export namespace ZirconRegistryService {
 		}
 	}
 
-	export function RegisterEnum<K extends string>(name: string, values: K[], groups: ZirconUserGroup[]) {
-		return RegisterEnumType(new ZirconEnum(name, values), groups);
+	/**
+	 * Registers an enum from an array of strings
+	 * @param name The name of the enum
+	 * @param values The values of the enum
+	 * @param groups The groups this enum applies to
+	 */
+	export function RegisterEnumFromArray<K extends string>(name: string, values: K[], groups: ZirconUserGroup[]) {
+		return RegisterEnum(new ZirconEnum(name, values), groups);
 	}
 
 	/**
@@ -82,7 +88,7 @@ export namespace ZirconRegistryService {
 	 * @param groups The groups to register the enum to
 	 * @returns The enum
 	 */
-	export function RegisterEnumType<K extends string>(enumType: ZirconEnum<K>, groups: ZirconUserGroup[]) {
+	export function RegisterEnum<K extends string>(enumType: ZirconEnum<K>, groups: ZirconUserGroup[]) {
 		for (const group of groups) {
 			group.RegisterEnum(enumType);
 		}
