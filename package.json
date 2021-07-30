@@ -46,6 +46,7 @@
     "@rbxts/roact": "1.4.0-ts.0",
     "@rbxts/roact-rodux": "0.2.2-ts.4",
     "@rbxts/rodux": "3.0.0-ts.3",
+    "@rbxts/rust-classes": "^0.10.0",
     "@rbxts/services": "^1.1.5",
     "@rbxts/signal": "^1.0.3",
     "@rbxts/snapdragon": "2.0.0-beta.1",
