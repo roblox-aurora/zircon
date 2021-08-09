@@ -12,7 +12,7 @@ import { ZirconLogLevel } from "../Client/Types";
 import { ReadonlyZirconPermissionSet, ZirconGroupConfiguration } from "./Class/ZirconGroup";
 const IsServer = RunService.IsServer();
 
-namespace Zircon {
+namespace ZirconServer {
 	/**
 	 * The server registry for Zircon
 	 */
@@ -191,4 +191,4 @@ namespace Zircon {
 		});
 	}
 }
-export default Zircon;
+export default ZirconServer;
