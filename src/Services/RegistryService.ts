@@ -7,7 +7,6 @@ import ZrPlayerScriptContext from "@rbxts/zirconium/out/Runtime/PlayerScriptCont
 import { ZirconFunction } from "Class/ZirconFunction";
 import { ZirconNamespace } from "Class/ZirconNamespace";
 import { ZirconEnum } from "Class/ZirconEnum";
-import t from "@rbxts/t";
 
 export namespace ZirconRegistryService {
 	const contexts = new Map<Player, Array<ZrScriptContext>>();
@@ -55,7 +54,7 @@ export namespace ZirconRegistryService {
 	 * @param func The function to register
 	 * @param groups The groups
 	 */
-	export function RegisterFunction(func: ZirconFunction<any, any>, groups: ZirconUserGroup[]) {
+	export function RegisterFunction(func: ZirconFunction<any, any>, groups: ZirconUserGroup[] = [Creator]) {
 		for (const group of groups) {
 			group.RegisterFunction(func);
 		}
@@ -66,7 +65,7 @@ export namespace ZirconRegistryService {
 	 * @param namespace The namespace
 	 * @param groups The groups to register it to
 	 */
-	export function RegisterNamespace(namespace: ZirconNamespace, groups: ZirconUserGroup[]) {
+	export function RegisterNamespace(namespace: ZirconNamespace, groups: ZirconUserGroup[] = [Creator]) {
 		for (const group of groups) {
 			group.RegisterNamespace(namespace);
 		}
@@ -78,7 +77,11 @@ export namespace ZirconRegistryService {
 	 * @param values The values of the enum
 	 * @param groups The groups this enum applies to
 	 */
-	export function RegisterEnumFromArray<K extends string>(name: string, values: K[], groups: ZirconUserGroup[]) {
+	export function RegisterEnumFromArray<K extends string>(
+		name: string,
+		values: K[],
+		groups: ZirconUserGroup[] = [Creator],
+	) {
 		return RegisterEnum(new ZirconEnum(name, values), groups);
 	}
 
@@ -88,7 +91,7 @@ export namespace ZirconRegistryService {
 	 * @param groups The groups to register the enum to
 	 * @returns The enum
 	 */
-	export function RegisterEnum<K extends string>(enumType: ZirconEnum<K>, groups: ZirconUserGroup[]) {
+	export function RegisterEnum<K extends string>(enumType: ZirconEnum<K>, groups: ZirconUserGroup[] = [Creator]) {
 		for (const group of groups) {
 			group.RegisterEnum(enumType);
 		}
