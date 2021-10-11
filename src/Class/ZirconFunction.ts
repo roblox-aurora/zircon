@@ -57,6 +57,7 @@ export class ZirconFunction<
 					} else {
 						if (RunService.IsServer()) {
 							Server.Log.WriteStructured({
+								SourceContext: tostring(this),
 								Level: LogLevel.Error,
 								Template: `Call to {FunctionName} failed - Argument#{ArgIndex} expected {ArgType}`,
 								Timestamp: DateTime.now().ToIsoDate(),

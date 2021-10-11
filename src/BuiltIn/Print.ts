@@ -6,6 +6,7 @@ import Server from "../Server";
 const ZirconPrint = new ZirconFunctionBuilder("print").AddVaradicArgument("unknown").Bind((_, ...args) => {
 	if (RunService.IsServer()) {
 		Server.Log.WriteStructured({
+			SourceContext: "ZirconPrint",
 			Template: "{PrintData}",
 			PrintData: args,
 			Level: LogLevel.Information,
