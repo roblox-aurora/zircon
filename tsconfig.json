@@ -36,6 +36,7 @@
 	},
 	"exclude": [
 		"example/**",
-		"out/**"
+		"out/**",
+		"docs/**"
 	]
 }
