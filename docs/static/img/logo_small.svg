@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:export-ydpi="6.0000005"
+   inkscape:export-xdpi="6.0000005"
+   inkscape:export-filename="./zircon_small.png"
+   sodipodi:docname="logo_small.svg"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   id="svg8"
+   version="1.1"
+   viewBox="0 0 135.46666 135.46667"
+   height="512"
+   width="512">
+  <defs
+     id="defs2">
+    <rect
+       x="-147.26551"
+       y="7.7508162"
+       width="55.592061"
+       height="52.919366"
+       id="rect842" />
+    <rect
+       id="rect869"
+       height="32.694941"
+       width="54.239583"
+       y="29.293155"
+       x="-70.681548" />
+    <rect
+       id="rect863"
+       height="24.379464"
+       width="33.072917"
+       y="31.561012"
+       x="-92.793155" />
+    <rect
+       id="rect837"
+       height="52.160714"
+       width="69.547619"
+       y="30.80506"
+       x="-96.005952" />
+    <rect
+       x="-70.681549"
+       y="29.293156"
+       width="54.239582"
+       height="32.694942"
+       id="rect869-9" />
+    <rect
+       x="-70.681549"
+       y="29.293156"
+       width="54.239582"
+       height="32.694942"
+       id="rect855" />
+  </defs>
+  <sodipodi:namedview
+     inkscape:window-maximized="1"
+     inkscape:window-y="-8"
+     inkscape:window-x="-8"
+     inkscape:window-height="1377"
+     inkscape:window-width="2560"
+     units="px"
+     showgrid="false"
+     inkscape:document-rotation="0"
+     inkscape:current-layer="layer1"
+     inkscape:document-units="mm"
+     inkscape:cy="178.77231"
+     inkscape:cx="208.03749"
+     inkscape:zoom="0.9899495"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:groupmode="layer"
+     inkscape:label="Layer 1">
+    <rect
+       y="0.49850109"
+       x="35.559853"
+       height="94.792397"
+       width="94.792397"
+       id="rect833"
+       style="fill:#333333;stroke-width:0.230398;stroke-linecap:square"
+       transform="rotate(15)" />
+    <text
+       xml:space="preserve"
+       id="text840"
+       style="fill:black;fill-opacity:1;line-height:1.25;stroke:none;font-family:sans-serif;font-style:normal;font-weight:normal;font-size:10.58333333px;white-space:pre;shape-inside:url(#rect842);" />
+    <text
+       xml:space="preserve"
+       id="text867-9"
+       style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect869-9);fill:#e6e6e6;fill-opacity:1;stroke:none;"
+       transform="matrix(5.087213,0,0,5.087213,393.63954,-117.14591)"><tspan
+         x="-70.681641"
+         y="38.656708"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Fira Code';-inkscape-font-specification:'Fira Code Bold';fill:#e6e6e6">&gt;_</tspan></tspan></text>
+  </g>
+</svg>
