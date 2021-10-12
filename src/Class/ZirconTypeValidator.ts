@@ -118,9 +118,7 @@ export type BuiltInValidators = typeof BuiltInValidators;
 export type Validator = keyof typeof BuiltInValidators | ZirconValidator<any, any> | ZirconEnum<any>;
 
 export type InferValidators<T extends ReadonlyArray<Validator>> = {
-	readonly // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-	/** @ts-ignore Because otherwise we can't get this working. */
-	[P in keyof T]: InferValidator<T[P]>;
+	readonly [P in keyof T]: T[P] extends Validator ? InferValidator<T[P]> : never;
 };
 
 // export type InferArguments<T extends ReadonlyArray<Validator>> = {
@@ -136,9 +134,7 @@ export type IWantToStabMyselfWithAFuckingFork<T> = T extends keyof BuiltInValida
 export type InferArguments<T extends readonly ZirconValidator<any, any>[]> = T extends []
 	? [...(readonly (ZrValue | ZrUndefined)[])]
 	: {
-			readonly // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			/** @ts-ignore */
-			[P in keyof T]: InferTypeFromValidator2<T[P]>;
+			readonly [P in keyof T]: T[P] extends ZirconValidator<any, any> ? InferTypeFromValidator2<T[P]> : never;
 	  };
 
 export type InferValidator<T extends Validator> = T extends keyof BuiltInValidators

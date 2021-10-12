@@ -31,7 +31,7 @@ const ExistingEnum = ZirconServer.Registry.RegisterEnum(new ZirconEnumBuilder("t
 
 ZirconServer.Registry.RegisterFunction(
 	new ZirconFunctionBuilder("kill")
-		.AddArguments("player?")
+		.AddArgument("player?")
 		.AddDescription("testing lol")
 		.Bind((context, player) => {
 			const target = player ?? context.GetExecutor();
@@ -42,7 +42,7 @@ ZirconServer.Registry.RegisterFunction(
 );
 
 ZirconServer.Registry.RegisterFunction(
-	new ZirconFunctionBuilder("test_enum").AddArguments(TestEnum).Bind((context, value) => {
+	new ZirconFunctionBuilder("test_enum").AddArgument(TestEnum).Bind((context, value) => {
 		value.Match({
 			Value2: () => {
 				Log.Info("Got given enum item 2 (member)");
@@ -64,7 +64,7 @@ ZirconServer.Registry.RegisterFunction(
 );
 
 ZirconServer.Registry.RegisterFunction(
-	new ZirconFunctionBuilder("test_enum2").AddArguments(ExistingEnum.GetMemberType()).Bind((context, value) => {
+	new ZirconFunctionBuilder("test_enum2").AddArgument(ExistingEnum.GetMemberType()).Bind((context, value) => {
 		Log.Info("Got {NumberValue} ({StringValue})", ExistingEnumType[value.GetName()], value.GetName());
 	}),
 	[ZirconServer.Registry.User],
@@ -72,7 +72,7 @@ ZirconServer.Registry.RegisterFunction(
 
 ZirconServer.Registry.RegisterFunction(
 	new ZirconFunctionBuilder("print_message")
-		.AddArguments("string")
+		.AddArgument("string")
 		.Bind((context, message) => Log.Info("Zircon says {Message} from {Player}", message, context.GetExecutor())),
 	[ZirconServer.Registry.User],
 );

@@ -19,22 +19,6 @@ export class ZirconFunctionBuilder<V extends ZirconValidator<unknown, unknown>[]
 	public constructor(private name: string) {}
 
 	/**
-	 * Adds these arguments to this function
-	 * @param args The arguments
-	 * @returns
-	 */
-	public AddArguments<TValidation extends Validator[]>(...args: TValidation) {
-		if (this.hasVaradic) {
-			throw `Cannot add argument past varadic argument`;
-		}
-
-		for (const argValidator of args) {
-			this.AddArgument(argValidator);
-		}
-		return (this as unknown) as ZirconFunctionBuilder<[...V, ...InferValidators<TValidation>]>;
-	}
-
-	/**
 	 * Adds an argnument to this zircon function
 	 * @param argValidator The argument type/validator
 	 * @param description The description for this argument
@@ -60,7 +44,7 @@ export class ZirconFunctionBuilder<V extends ZirconValidator<unknown, unknown>[]
 
 		return (this as unknown) as Omit<
 			ZirconFunctionBuilder<[...V, ...InferValidator<TValidation>[]]>,
-			"AddArguments" | "AddVaradicArgument"
+			"AddVaradicArgument"
 		>;
 	}
 
