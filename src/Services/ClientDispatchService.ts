@@ -15,7 +15,7 @@ export namespace ZirconClientDispatchService {
 	/** @internal */
 	export const dependencies = ["ClientRegistryService"];
 
-	const DispatchToServer = Remotes.Client.Get(RemoteId.DispatchToServer);
+	const DispatchToServer = Remotes.Client.WaitFor(RemoteId.DispatchToServer).expect();
 	export function Dispatch(input: string) {
 		DispatchToServer.SendToServer(input);
 	}

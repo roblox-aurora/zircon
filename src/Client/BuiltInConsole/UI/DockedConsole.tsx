@@ -83,7 +83,7 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 		this.sizeYMotor.onStep((value) => setSizeY(value));
 		this.outputTransparencyMotor.onStep((value) => setOutputTransparency(value));
 
-		const DispatchToServer = Remotes.Client.Get(RemoteId.DispatchToServer);
+		const DispatchToServer = Remotes.Client.WaitFor(RemoteId.DispatchToServer).expect();
 		this.dispatch = DispatchToServer;
 	}
 

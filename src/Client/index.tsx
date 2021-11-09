@@ -157,7 +157,7 @@ namespace ZirconClient {
 			Players.LocalPlayer.FindFirstChildOfClass("PlayerGui"),
 		);
 
-		const GetPlayerOptions = Remotes.Client.Get(RemoteId.GetPlayerPermissions);
+		const GetPlayerOptions = Remotes.Client.WaitFor(RemoteId.GetPlayerPermissions).expect();
 		GetPlayerOptions.CallServerAsync().then((permissions) => {
 			ZirconClientStore.dispatch({
 				type: ConsoleActionName.SetConfiguration,
@@ -174,87 +174,92 @@ namespace ZirconClient {
 	}
 
 	if (IsClient) {
-		const StandardOutput = Remotes.Client.Get(RemoteId.StandardOutput);
-		const StandardError = Remotes.Client.Get(RemoteId.StandardError);
+		Remotes.Client.WaitFor(RemoteId.StandardOutput).then((StandardOutput) => {
+			StandardOutput.Connect((message) => {
+				switch (message.type) {
+					case ZirconNetworkMessageType.ZirconiumOutput: {
+						ZirconClientStore.dispatch({
+							type: ConsoleActionName.AddOutput,
+							message: {
+								type: ZirconMessageType.ZirconiumOutput,
+								context: ZirconContext.Server,
+								message,
+							},
+						});
+						break;
+					}
+					case ZirconNetworkMessageType.ZirconSerilogMessage: {
+						ZirconClientStore.dispatch({
+							type: ConsoleActionName.AddOutput,
+							message: {
+								type: ZirconMessageType.StructuredLog,
+								context: ZirconContext.Server,
+								data: message.data,
+							},
+						});
+						break;
+					}
+					case ZirconNetworkMessageType.ZirconStandardOutputMessage: {
+						ZirconClientStore.dispatch({
+							type: ConsoleActionName.AddOutput,
+							message: {
+								type: ZirconMessageType.ZirconLogOutputMesage,
+								context: ZirconContext.Server,
+								message,
+							},
+						});
+						break;
+					}
+				}
+			});
 
-		ZirconClientStore.dispatch({
-			type: ConsoleActionName.AddOutput,
-			message: {
-				type: ZirconMessageType.ZirconLogOutputMesage,
-				context: ZirconContext.Client,
+			ZirconClientStore.dispatch({
+				type: ConsoleActionName.AddOutput,
 				message: {
-					type: ZirconNetworkMessageType.ZirconStandardOutputMessage,
-					message: `Loaded Zircon v${PKG_VERSION}`,
-					level: ZirconLogLevel.Debug,
-					time: DateTime.now().UnixTimestamp,
-					tag: "INIT",
-					data: {
-						Variables: [],
+					type: ZirconMessageType.ZirconLogOutputMesage,
+					context: ZirconContext.Client,
+					message: {
+						type: ZirconNetworkMessageType.ZirconStandardOutputMessage,
+						message: `Loaded Zircon v${PKG_VERSION}`,
+						level: ZirconLogLevel.Debug,
+						time: DateTime.now().UnixTimestamp,
+						tag: "INIT",
+						data: {
+							Variables: [],
+						},
 					},
 				},
-			},
+			});
 		});
 
-		StandardOutput.Connect((message) => {
-			switch (message.type) {
-				case ZirconNetworkMessageType.ZirconiumOutput: {
-					ZirconClientStore.dispatch({
-						type: ConsoleActionName.AddOutput,
-						message: { type: ZirconMessageType.ZirconiumOutput, context: ZirconContext.Server, message },
-					});
-					break;
+		Remotes.Client.WaitFor(RemoteId.StandardError).then((StandardError) => {
+			StandardError.Connect((err) => {
+				switch (err.type) {
+					case ZirconNetworkMessageType.ZirconiumParserError:
+					case ZirconNetworkMessageType.ZirconiumRuntimeError: {
+						ZirconClientStore.dispatch({
+							type: ConsoleActionName.AddOutput,
+							message: {
+								type: ZirconMessageType.ZirconiumError,
+								context: ZirconContext.Server,
+								error: err,
+							},
+						});
+						break;
+					}
+					case ZirconNetworkMessageType.ZirconStandardErrorMessage: {
+						ZirconClientStore.dispatch({
+							type: ConsoleActionName.AddOutput,
+							message: {
+								type: ZirconMessageType.ZirconLogErrorMessage,
+								context: ZirconContext.Server,
+								error: err,
+							},
+						});
+						break;
+					}
 				}
-				case ZirconNetworkMessageType.ZirconSerilogMessage: {
-					ZirconClientStore.dispatch({
-						type: ConsoleActionName.AddOutput,
-						message: {
-							type: ZirconMessageType.StructuredLog,
-							context: ZirconContext.Server,
-							data: message.data,
-						},
-					});
-					break;
-				}
-				case ZirconNetworkMessageType.ZirconStandardOutputMessage: {
-					ZirconClientStore.dispatch({
-						type: ConsoleActionName.AddOutput,
-						message: {
-							type: ZirconMessageType.ZirconLogOutputMesage,
-							context: ZirconContext.Server,
-							message,
-						},
-					});
-					break;
-				}
-			}
-		});
-
-		StandardError.Connect((err) => {
-			switch (err.type) {
-				case ZirconNetworkMessageType.ZirconiumParserError:
-				case ZirconNetworkMessageType.ZirconiumRuntimeError: {
-					ZirconClientStore.dispatch({
-						type: ConsoleActionName.AddOutput,
-						message: {
-							type: ZirconMessageType.ZirconiumError,
-							context: ZirconContext.Server,
-							error: err,
-						},
-					});
-					break;
-				}
-				case ZirconNetworkMessageType.ZirconStandardErrorMessage: {
-					ZirconClientStore.dispatch({
-						type: ConsoleActionName.AddOutput,
-						message: {
-							type: ZirconMessageType.ZirconLogErrorMessage,
-							context: ZirconContext.Server,
-							error: err,
-						},
-					});
-					break;
-				}
-			}
+			});
 		});
 	}
 }
