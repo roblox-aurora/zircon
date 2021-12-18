@@ -37,7 +37,7 @@ class ZirconTopbarMenuComponent extends Roact.Component<TopbarProps, TopbarState
 		return (
 			<ThemeContext.Consumer
 				render={(theme) => (
-					<screengui DisplayOrder={10001} IgnoreGuiInset>
+					<screengui DisplayOrder={10001} ResetOnSpawn={false} IgnoreGuiInset>
 						<frame
 							Visible={this.state.isVisible}
 							Size={new UDim2(1, 0, 0, 40)}

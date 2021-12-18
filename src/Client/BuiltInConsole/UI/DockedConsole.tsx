@@ -118,7 +118,7 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 		return (
 			<ThemeContext.Consumer
 				render={(theme) => (
-					<screengui DisplayOrder={10000} IgnoreGuiInset>
+					<screengui DisplayOrder={10000} ResetOnSpawn={false} IgnoreGuiInset>
 						<frame
 							Key="ZirconViewport"
 							Active={this.state.isFullView}
