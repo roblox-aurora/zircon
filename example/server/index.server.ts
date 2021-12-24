@@ -64,6 +64,7 @@ ZirconServer.Registry.Init(
 	new ZirconConfigurationBuilder()
 		.CreateDefaultCreatorGroup()
 		.CreateDefaultUserGroup()
+		.CreateDefaultAdminGroup()
 		.AddFunction(
 			new ZirconFunctionBuilder("print").Bind((context, ...args) => {
 				Log.Info(args.map((a) => tostring(a)).join(" "));

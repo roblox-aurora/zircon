@@ -1,4 +1,6 @@
+import { LogLevel } from "@rbxts/log";
 import { NamespaceBuilder } from "@rbxts/net/out/definitions/NamespaceBuilder";
+import ZirconServer from "Server";
 import ZirconFunction, { ZrTypeCheck } from "Server/Class/ZirconFunction";
 import { ZirconPermissions } from "Server/Class/ZirconGroup";
 import { ZirconEnum } from "./ZirconEnum";
@@ -12,6 +14,12 @@ export interface ZirconConfiguration {
 		type: ZirconNamespace | ZirconEnum<any> | ZirconFunction<any>,
 		groups: readonly string[],
 	][];
+}
+
+export const enum ZirconDefaultGroup {
+	Admin = "admin",
+	User = "user",
+	Creator = "creator",
 }
 
 export class ZirconConfigurationBuilder {
@@ -39,7 +47,7 @@ export class ZirconConfigurationBuilder {
 	 * @returns
 	 */
 	public CreateDefaultCreatorGroup() {
-		return new ZirconGroupBuilder(this, 255, "creator")
+		return new ZirconGroupBuilder(this, 255, ZirconDefaultGroup.Creator)
 			.BindToCreator()
 			.SetPermissions({
 				CanAccessFullZirconEditor: true,
@@ -50,11 +58,45 @@ export class ZirconConfigurationBuilder {
 	}
 
 	/**
+	 * Creates a default `admin` group.
+	 *
+	 * If this place is a group-owned place, and no arguments are provided anyone in the group
+	 * with a rank equal or higher to `250` is considered an administrator.
+	 *
+	 * If this isn't a group game, or you want a custom rule for `admin` you need to provide a configuration callback
+	 * @returns
+	 */
+	public CreateDefaultAdminGroup(c?: (group: ZirconGroupBuilder) => ZirconGroupBuilder) {
+		const group = new ZirconGroupBuilder(this, 250, ZirconDefaultGroup.Admin).SetPermissions({
+			CanAccessFullZirconEditor: true,
+			CanExecuteZirconiumScripts: true,
+			CanRecieveServerLogMessages: true,
+		});
+		if (c !== undefined) {
+			c(group);
+		} else {
+			if (game.CreatorType === Enum.CreatorType.Group) {
+				group.BindToGroupRank(game.CreatorId, 250);
+			} else {
+				ZirconServer.Log.WriteStructured({
+					Level: LogLevel.Warning,
+					Template:
+						"Implicit administrator groups only work in group places, try explicitly setting the admin group config",
+					Timestamp: DateTime.now().ToIsoDate(),
+					SourceContext: "CreateDefaultAdminGroup",
+				});
+			}
+		}
+
+		return group.Add();
+	}
+
+	/**
 	 * Creates a default `user` group, this refers to _anyone_ and shouldn't be used for more sensitive things.
 	 * @returns
 	 */
 	public CreateDefaultUserGroup() {
-		return new ZirconGroupBuilder(this, 1, "user").BindToEveryone().Add();
+		return new ZirconGroupBuilder(this, 1, ZirconDefaultGroup.User).BindToEveryone().Add();
 	}
 
 	public CreateNamespace(name: string, cb: (namespace: ZirconNamespaceBuilder) => ZirconNamespaceBuilder) {

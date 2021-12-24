@@ -58,19 +58,44 @@ This will install both Zircon, as well as the logging support. It is recommended
 Below is an example of how to register a command in Zircon:
 
 ```ts
-import { ZirconServer, ZirconFunctionBuilder } from "@rbxts/zircon";
+import { 
+    ZirconServer,
+    ZirconFunctionBuilder,
+    ZirconDefaultGroup,
+    ZirconConfigurationBuilder
+} from "@rbxts/zircon";
 import Log from "@rbxts/log";
 
-ZirconServer.Registry.RegisterFunction(
-    new ZirconFunctionBuilder("print_message")
-        .AddArguments("string")
-        .Bind((context, message) => Log.Info(
-                "Zircon says {Message} from {Player}", 
-                message,
-                context.GetExecutor()
-        )),
-    [ZirconServer.Registry.GetGroups("User")]
-)
+const PrintMessage = new ZirconFunctionBuilder("print_message")
+    .AddArguments("string")
+    .Bind((context, message) => Log.Info(
+            "Zircon says {Message} from {Player}", 
+            message,
+            context.GetExecutor()
+    ));
+
+const CreatorCommand = new ZirconFunctionBuilder("kill")
+    .AddArguments("player")
+    .Bind((context, player) => {
+        const character = player.Character;
+        if (character) {
+            character.BreakJoints()
+        }
+    });
+
+ZirconServer.Registry.Init(
+    new ZirconConfigurationBuilder()
+        // Creates a 'creator' group
+        .CreateDefaultCreatorGroup()
+        // Creates a 'user' group
+        .CreateDefaultUserGroup()
+        // Adds an executable function called 'print_message', allowed to be executed by `User` (everyone)
+        .AddFunction(PrintMessage, [ZirconDefaultGroup.User])
+        // Adds an executable function called 'kill' that can only be executed by a creator of the place.
+        .AddFunction(CreatorCommand, [ZirconDefaultGroup.Creator])
+        // Builds the configuration for Zircon
+        .Build()
+);
 ```
 
 This will create a global `print_message` that all players can run.
