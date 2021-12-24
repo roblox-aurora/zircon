@@ -8,12 +8,14 @@ import { ZirconGroupBuilder, ZirconGroupConfiguration } from "./ZirconGroupBuild
 import { ZirconNamespace } from "./ZirconNamespace";
 import { ZirconNamespaceBuilder } from "./ZirconNamespaceBuilder";
 
+export type ZirconScopedGlobal = readonly [
+	type: ZirconNamespace | ZirconEnum<any> | ZirconFunction<any>,
+	groups: readonly string[],
+];
+
 export interface ZirconConfiguration {
 	readonly Groups: readonly ZirconGroupConfiguration[];
-	readonly Registry: readonly [
-		type: ZirconNamespace | ZirconEnum<any> | ZirconFunction<any>,
-		groups: readonly string[],
-	][];
+	readonly Registry: ZirconScopedGlobal[];
 }
 
 export const enum ZirconDefaultGroup {
@@ -119,6 +121,37 @@ export class ZirconConfigurationBuilder {
 	) {
 		this.configuration.Registry = [...this.configuration.Registry, [functionType, groups]];
 		return this;
+	}
+
+	/**
+	 * Returns a logging configuration, which creates a `creator` group with the permission to read server output, and a `user` group.
+	 * @returns
+	 */
+	public static logging() {
+		return new ZirconConfigurationBuilder()
+			.CreateGroup(255, ZirconDefaultGroup.Creator, (group) =>
+				group.BindToCreator().SetPermissions({
+					CanAccessFullZirconEditor: false,
+					CanExecuteZirconiumScripts: false,
+					CanRecieveServerLogMessages: true,
+				}),
+			)
+			.CreateDefaultUserGroup()
+			.Build();
+	}
+
+	/**
+	 * Returns a default configuration, which includes the `creator`, `admin`, and `user` groups.
+	 */
+	public static default() {
+		if (game.CreatorType === Enum.CreatorType.Group) {
+			return new ZirconConfigurationBuilder()
+				.CreateDefaultCreatorGroup()
+				.CreateDefaultAdminGroup()
+				.CreateDefaultUserGroup();
+		} else {
+			return new ZirconConfigurationBuilder().CreateDefaultCreatorGroup().CreateDefaultUserGroup();
+		}
 	}
 
 	/** @internal */

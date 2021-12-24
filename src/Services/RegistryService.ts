@@ -1,4 +1,4 @@
-import { Players, RunService } from "@rbxts/services";
+import { Players } from "@rbxts/services";
 import ZrScriptContext from "@rbxts/zirconium/out/Runtime/ScriptContext";
 import { toArray } from "../Shared/Collections";
 import ZirconUserGroup, { ZirconPermissions } from "../Server/Class/ZirconGroup";
@@ -7,13 +7,14 @@ import ZrPlayerScriptContext from "@rbxts/zirconium/out/Runtime/PlayerScriptCont
 import { ZirconFunction } from "Class/ZirconFunction";
 import { ZirconNamespace } from "Class/ZirconNamespace";
 import { ZirconEnum } from "Class/ZirconEnum";
-import { ZirconConfiguration } from "Class/ZirconConfigurationBuilder";
-import { ZirconBindingType } from "Class/ZirconGroupBuilder";
+import { ZirconConfiguration, ZirconConfigurationBuilder, ZirconScopedGlobal } from "Class/ZirconConfigurationBuilder";
 
 export namespace ZirconRegistryService {
 	const contexts = new Map<Player, Array<ZrScriptContext>>();
 	const groups = new Map<string, ZirconUserGroup>();
 	const playerGroupMap = new Map<Player, Array<ZirconUserGroup>>();
+	const unregisteredTypes = new Array<ZirconScopedGlobal>();
+	let initalized = false;
 
 	function* playerFunctionIterator(player: Player) {
 		const groups = playerGroupMap.get(player);
@@ -55,10 +56,15 @@ export namespace ZirconRegistryService {
 	 * Registers a function in the global namespace to the specified group(s)
 	 * @param func The function to register
 	 * @param groups The groups
+	 * @deprecated Use `ZirconFunctionBuilder` + the ZirconConfigurationBuilder API
 	 */
-	export function RegisterFunction(func: ZirconFunction<any, any>, groups: ZirconUserGroup[]) {
-		for (const group of groups) {
-			group.RegisterFunction(func);
+	export function RegisterFunction(func: ZirconFunction<any, any>, groupIds: readonly string[]) {
+		if (!initalized) {
+			unregisteredTypes.push([func, groupIds]);
+		} else {
+			for (const group of GetGroups(groupIds)) {
+				group.RegisterFunction(func);
+			}
 		}
 	}
 
@@ -66,25 +72,20 @@ export namespace ZirconRegistryService {
 	 * Registers a namespace to the specified group(s)
 	 * @param namespace The namespace
 	 * @param groups The groups to register it to
+	 * @deprecated Use `ZirconNamespaceBuilder` + the ZirconConfigurationBuilder API
 	 */
-	export function RegisterNamespace(namespace: ZirconNamespace, groups: ZirconUserGroup[]) {
-		for (const group of groups) {
-			group.RegisterNamespace(namespace);
+	export function RegisterNamespace(namespace: ZirconNamespace, groupIds: readonly string[]) {
+		if (!initalized) {
+			unregisteredTypes.push([namespace, groupIds]);
+		} else {
+			for (const group of GetGroups(groupIds)) {
+				group.RegisterNamespace(namespace);
+			}
 		}
 	}
 
-	export function GetGroups(...groupIds: string[]) {
+	export function GetGroups(groupIds: readonly string[]) {
 		return groupIds.mapFiltered((groupId) => groups.get(groupId.lower()));
-	}
-
-	/**
-	 * Registers an enum from an array of strings
-	 * @param name The name of the enum
-	 * @param values The values of the enum
-	 * @param groups The groups this enum applies to
-	 */
-	export function RegisterEnumFromArray<K extends string>(name: string, values: K[], groups: ZirconUserGroup[]) {
-		return RegisterEnum(new ZirconEnum(name, values), groups);
 	}
 
 	/**
@@ -92,12 +93,16 @@ export namespace ZirconRegistryService {
 	 * @param enumType The enumerable type
 	 * @param groups The groups to register the enum to
 	 * @returns The enum
+	 * @deprecated Use `ZirconEnumBuilder` + the ZirconConfigurationBuilder API
 	 */
-	export function RegisterEnum<K extends string>(enumType: ZirconEnum<K>, groups: ZirconUserGroup[]) {
-		for (const group of groups) {
-			group.RegisterEnum(enumType);
+	export function RegisterEnum<K extends string>(enumType: ZirconEnum<K>, groupIds: readonly string[]) {
+		if (!initalized) {
+			unregisteredTypes.push([enumType, groupIds]);
+		} else {
+			for (const group of GetGroups(groupIds)) {
+				group.RegisterEnum(enumType);
+			}
 		}
-		return enumType;
 	}
 
 	/**
@@ -185,27 +190,59 @@ export namespace ZirconRegistryService {
 		return group;
 	}
 
+	function RegisterZirconGlobal([typeId, typeGroups]: ZirconScopedGlobal) {
+		if (typeId instanceof ZirconFunction) {
+			for (const group of GetGroups(typeGroups)) {
+				group.RegisterFunction(typeId);
+			}
+		} else if (typeId instanceof ZirconEnum) {
+			for (const group of GetGroups(typeGroups)) {
+				group.RegisterEnum(typeId);
+			}
+		} else if (typeId instanceof ZirconNamespace) {
+			for (const group of GetGroups(typeGroups)) {
+				group.RegisterNamespace(typeId);
+			}
+		}
+	}
+
 	/**
-	 * Initializes Zircon on the server with the given configuration
+	 * Initializes Zircon as a logging console *only*.
 	 *
-	 * This needs to be done for Zircon to run.
-	 * @param configuration
+	 * This is equivalent to
+	 * ```ts
+	 * ZirconServer.Registry.Init(ZirconConfigurationBuilder.logging())
+	 * ```
+	 */
+	export function InitLogging() {
+		return Init(ZirconConfigurationBuilder.logging());
+	}
+
+	/**
+	 * Initializes Zircon on the server with a given configuration if specified.
+	 *
+	 * If no configuration is passed, it will behave as a logging console _only_.
+	 * @param configuration The configuration
 	 */
 	export function Init(configuration: ZirconConfiguration) {
+		if (initalized) {
+			return;
+		}
+
 		const configurationGroups = configuration.Groups;
 		for (const group of configurationGroups) {
 			const userGroup = new ZirconUserGroup(group.Rank, group.Id, group);
 			groups.set(group.Id.lower(), userGroup);
 		}
 
-		for (const [typeId, typeGroups] of configuration.Registry) {
-			if (typeId instanceof ZirconFunction) {
-				RegisterFunction(typeId, GetGroups(...typeGroups));
-			} else if (typeId instanceof ZirconEnum) {
-				RegisterEnum(typeId, GetGroups(...typeGroups));
-			} else if (typeId instanceof ZirconNamespace) {
-				RegisterNamespace(typeId, GetGroups(...typeGroups));
-			}
+		// Handle builder API types
+		for (const typeId of configuration.Registry) {
+			RegisterZirconGlobal(typeId);
+		}
+
+		// Handle any types registered with the deprecated api
+		for (const typeId of unregisteredTypes) {
+			RegisterZirconGlobal(typeId);
 		}
 
 		Players.PlayerAdded.Connect((player) => {
@@ -237,6 +274,8 @@ export namespace ZirconRegistryService {
 
 			AddPlayerToGroups(player, groupsToJoin);
 		}
+
+		initalized = true;
 	}
 }
 

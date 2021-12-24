@@ -1,6 +1,6 @@
 import Log, { Logger } from "@rbxts/log";
 import { Workspace } from "@rbxts/services";
-import Zircon, { ZirconConfigurationBuilder, ZirconServer } from "@zircon";
+import Zircon, { ZirconConfigurationBuilder, ZirconDefaultGroup, ZirconServer } from "@zircon";
 import ZirconPrint from "BuiltIn/Print";
 import { ZirconEnumBuilder } from "Class/ZirconEnumBuilder";
 import { ZirconFunctionBuilder } from "Class/ZirconFunctionBuilder";
@@ -14,11 +14,7 @@ Log.SetLogger(
 		.Create(),
 );
 
-const TestEnum = ZirconServer.Registry.RegisterEnumFromArray(
-	"TestEnum",
-	["Value1", "Value2"],
-	ZirconServer.Registry.GetGroups("User"),
-);
+const TestEnum = new ZirconEnumBuilder("TestEnum").FromArray(["Value1", "Value2"]);
 
 ZirconServer.Registry.RegisterFunction(
 	new ZirconFunctionBuilder("kill")
@@ -29,7 +25,7 @@ ZirconServer.Registry.RegisterFunction(
 			target.Character?.BreakJoints();
 			Log.Info("Killed {target}", target);
 		}),
-	ZirconServer.Registry.GetGroups("User"),
+	[ZirconDefaultGroup.User],
 );
 
 class Example {
@@ -71,6 +67,7 @@ ZirconServer.Registry.Init(
 			}),
 			["User"],
 		)
+		.AddEnum(TestEnum, [ZirconDefaultGroup.User])
 		.AddNamespace(
 			new ZirconNamespaceBuilder("example")
 				.AddFunction(
@@ -85,7 +82,7 @@ ZirconServer.Registry.Init(
 				)
 				.AddFunction(ZirconPrint)
 				.Build(),
-			["User"],
+			[ZirconDefaultGroup.User],
 		)
 		.AddFunction(
 			new ZirconFunctionBuilder("print_message")
@@ -93,7 +90,7 @@ ZirconServer.Registry.Init(
 				.Bind((context, message) =>
 					Log.Info("Zircon says {Message} from {Player}", message, context.GetExecutor()),
 				),
-			["User"],
+			[ZirconDefaultGroup.User],
 		)
 		.AddFunction(
 			new ZirconFunctionBuilder("test_enum").AddArgument(TestEnum).Bind((context, value) => {
@@ -114,7 +111,7 @@ ZirconServer.Registry.Init(
 					},
 				});
 			}),
-			["User"],
+			[ZirconDefaultGroup.User],
 		)
 		.Build(),
 );
