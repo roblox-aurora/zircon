@@ -154,7 +154,6 @@ export class ZirconConfigurationBuilder {
 		}
 	}
 
-	/** @internal */
 	public Build(): ZirconConfiguration {
 		return this.configuration;
 	}
