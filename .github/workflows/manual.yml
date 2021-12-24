@@ -1,0 +1,29 @@
+name: Publish
+
+on:
+  workflow_dispatch:
+#   schedule:
+#     - cron: '0 7 * * *'
+
+jobs:
+  publish:
+    if: github.repository == 'roblox-aurora/zircon' && github.ref == 'refs/heads/master'
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2.3.4
+
+      - name: Install NPM dependencies
+        uses: bahmutov/npm-install@v1.7.4
+
+      - name: Publish
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "noreply@github.com"
+          echo $(cat package.json | jq ".version |= . + \"-dev-$(git rev-parse --short HEAD)\"") > package.json
+          echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > .npmrc
+          npm publish --tag next
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
