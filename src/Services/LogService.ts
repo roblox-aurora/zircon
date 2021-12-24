@@ -1,12 +1,12 @@
 import { GetCommandService } from "../Services";
 import Lazy from "../Shared/Lazy";
 import { ZirconLogData, ZirconLogLevel } from "../Client/Types";
-import { RemoteId } from "../RemoteId";
 import Remotes, {
 	ZirconStandardOutput,
 	ZirconErrorOutput,
 	ZirconNetworkMessageType,
 	ZirconStructuredLogOutput,
+	RemoteId,
 } from "../Shared/Remotes";
 import { LogEvent } from "@rbxts/log";
 

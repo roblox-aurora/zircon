@@ -16,18 +16,6 @@ Log.SetLogger(
 
 const TestEnum = new ZirconEnumBuilder("TestEnum").FromArray(["Value1", "Value2"]);
 
-ZirconServer.Registry.RegisterFunction(
-	new ZirconFunctionBuilder("kill")
-		.AddArgument("player?")
-		.AddDescription("testing lol")
-		.Bind((context, player) => {
-			const target = player ?? context.GetExecutor();
-			target.Character?.BreakJoints();
-			Log.Info("Killed {target}", target);
-		}),
-	[ZirconDefaultGroup.User],
-);
-
 class Example {
 	private _logger = Log.ForContext(Example);
 	public constructor() {}
@@ -114,4 +102,16 @@ ZirconServer.Registry.Init(
 			[ZirconDefaultGroup.User],
 		)
 		.Build(),
+);
+
+ZirconServer.Registry.RegisterFunction(
+	new ZirconFunctionBuilder("kill")
+		.AddArgument("player?")
+		.AddDescription("testing lol")
+		.Bind((context, player) => {
+			const target = player ?? context.GetExecutor();
+			target.Character?.BreakJoints();
+			Log.Info("Killed {target}", target);
+		}),
+	[ZirconDefaultGroup.User],
 );

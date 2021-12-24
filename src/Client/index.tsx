@@ -9,8 +9,7 @@ import { $ifEnv } from "rbxts-transform-env";
 import { $dbg } from "rbxts-transform-debug";
 import Lazy from "../Shared/Lazy";
 import { GetCommandService } from "../Services";
-import Remotes, { ZirconNetworkMessageType } from "../Shared/Remotes";
-import { RemoteId } from "../RemoteId";
+import Remotes, { RemoteId, ZirconNetworkMessageType } from "../Shared/Remotes";
 import { ZirconContext, ZirconLogData, ZirconLogLevel, ZirconMessageType } from "./Types";
 import ZirconTopBar from "./BuiltInConsole/UI/TopbarMenu";
 import { LogEvent } from "@rbxts/log";
@@ -127,18 +126,7 @@ namespace ZirconClient {
 
 	let consoleBound = false;
 
-	/**
-	 * Binds the built-in Zircon console
-	 * Default Keybind: F10
-	 *
-	 * @param options The console options
-	 *
-	 * *This is not required, you can use your own console solution!*
-	 */
-	export function BindConsole(options: ConsoleOptions = {}) {
-		if (consoleBound) return;
-		consoleBound = true;
-
+	function BindConsoleIntl(options: ConsoleOptions) {
 		const { Keys = [Enum.KeyCode.F10], ConsoleComponent = ZirconDockedConsole, Theme = "Plastic" } = options;
 
 		$ifEnv("NODE_ENV", "development", () => {
@@ -166,6 +154,36 @@ namespace ZirconClient {
 				showTagsInOutput: options.EnableTags ?? false,
 			});
 		});
+	}
+
+	/**
+	 * Binds the built-in Zircon console
+	 * Default Keybind: F10
+	 *
+	 * @param options The console options
+	 *
+	 * *This is not required, you can use your own console solution!*
+	 */
+	export function Init(options: ConsoleOptions = {}) {
+		if (consoleBound) return;
+		const initialized = Remotes.Client.Get(RemoteId.GetZirconInitialized).CallServerAsync().expect();
+
+		consoleBound = true;
+		if (initialized === false) {
+			Remotes.Client.WaitFor(RemoteId.ZirconInitialized).then((remote) => {
+				const connection = remote.Connect(() => {
+					BindConsoleIntl(options);
+					connection.Disconnect();
+				});
+			});
+		} else {
+			BindConsoleIntl(options);
+		}
+	}
+
+	/** @deprecated Use `Init` */
+	export function BindConsole(options: ConsoleOptions = {}) {
+		return Init(options);
 	}
 
 	export function BindActivationKeys(keys: Enum.KeyCode[]) {

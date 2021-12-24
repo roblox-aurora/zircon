@@ -1,6 +1,5 @@
 import { LogService, RunService } from "@rbxts/services";
-import Remotes, { ZirconDebugInformation, ZirconNetworkMessageType } from "../Shared/Remotes";
-import { RemoteId } from "../RemoteId";
+import Remotes, { RemoteId, ZirconDebugInformation, ZirconNetworkMessageType } from "../Shared/Remotes";
 import { GetCommandService } from "../Services";
 import Lazy from "../Shared/Lazy";
 import { ZrRuntimeError } from "@rbxts/zirconium/out/Runtime/Runtime";

@@ -1,6 +1,5 @@
 import Net from "@rbxts/net";
 import { ZrRuntimeErrorCode } from "@rbxts/zirconium/out/Runtime/Runtime";
-import { RemoteId } from "../RemoteId";
 import { ZrParserErrorCode } from "@rbxts/zirconium/out/Ast/Parser";
 import { ZirconLogData, ZirconLogLevel } from "../Client/Types";
 import createPermissionMiddleware from "./NetPermissionMiddleware";
@@ -77,6 +76,21 @@ export interface ZirconStructuredLogOutput {
 	time: number;
 }
 
+export const enum RemoteId {
+	StandardOutput = "ZrSiO4/StandardOutput",
+	StandardError = "ZrSiO4/StandardError",
+	DispatchToServer = "ZrSiO4/DispatchToServer",
+	GetPlayerPermissions = "ZrSiO4/GetPlayerPermissions",
+	GetServerLogMessages = "ZrSOi4/GetServerLogMessages",
+	PlayerPermissionsUpdated = "ZrSOi4/PlayerPermissionsUpdated",
+	ZirconInitialized = "ZrSOi4/ZirconInit",
+	GetZirconInitialized = "ZrSOi4/GetZirconInit",
+}
+
+export interface ZirconPermissionsEvent {
+	readonlyPermissions: ReadonlyZirconPermissionSet;
+}
+
 export type ZirconStandardOutput = ZirconExecutionOutput | ZirconLogOutput | ZirconStructuredLogOutput;
 export type ZirconErrorOutput = ZirconiumRuntimeErrorMessage | ZirconiumParserErrorMessage | ZirconLogErrorOutput;
 
@@ -94,6 +108,8 @@ const Remotes = Net.CreateDefinitions({
 	[RemoteId.GetServerLogMessages]: Net.Definitions.ServerAsyncFunction<
 		() => Array<ZirconStandardOutput | ZirconErrorOutput>
 	>([createPermissionMiddleware("CanRecieveServerLogMessages")]),
-	[RemoteId.PlayerGroupsUpdated]: Net.Definitions.ServerToClientEvent(),
+	[RemoteId.PlayerPermissionsUpdated]: Net.Definitions.ServerToClientEvent<[event: ZirconPermissionsEvent]>(),
+	[RemoteId.ZirconInitialized]: Net.Definitions.ServerToClientEvent<[]>(),
+	[RemoteId.GetZirconInitialized]: Net.Definitions.ServerAsyncFunction<() => boolean>(),
 });
 export default Remotes;

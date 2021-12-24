@@ -8,6 +8,8 @@ import { ZirconFunction } from "Class/ZirconFunction";
 import { ZirconNamespace } from "Class/ZirconNamespace";
 import { ZirconEnum } from "Class/ZirconEnum";
 import { ZirconConfiguration, ZirconConfigurationBuilder, ZirconScopedGlobal } from "Class/ZirconConfigurationBuilder";
+import Remotes, { RemoteId } from "Shared/Remotes";
+import { $print } from "rbxts-transform-debug";
 
 export namespace ZirconRegistryService {
 	const contexts = new Map<Player, Array<ZrScriptContext>>();
@@ -62,6 +64,7 @@ export namespace ZirconRegistryService {
 		if (!initalized) {
 			unregisteredTypes.push([func, groupIds]);
 		} else {
+			$print("registered", func, "after init");
 			for (const group of GetGroups(groupIds)) {
 				group.RegisterFunction(func);
 			}
@@ -78,6 +81,7 @@ export namespace ZirconRegistryService {
 		if (!initalized) {
 			unregisteredTypes.push([namespace, groupIds]);
 		} else {
+			$print("registered", namespace, "after init");
 			for (const group of GetGroups(groupIds)) {
 				group.RegisterNamespace(namespace);
 			}
@@ -99,6 +103,7 @@ export namespace ZirconRegistryService {
 		if (!initalized) {
 			unregisteredTypes.push([enumType, groupIds]);
 		} else {
+			$print("registered", enumType, "after init");
 			for (const group of GetGroups(groupIds)) {
 				group.RegisterEnum(enumType);
 			}
@@ -231,17 +236,20 @@ export namespace ZirconRegistryService {
 
 		const configurationGroups = configuration.Groups;
 		for (const group of configurationGroups) {
+			$print("register zircon group", group.Id);
 			const userGroup = new ZirconUserGroup(group.Rank, group.Id, group);
 			groups.set(group.Id.lower(), userGroup);
 		}
 
 		// Handle builder API types
 		for (const typeId of configuration.Registry) {
+			$print("register zircon global (thru new api)", typeId[0]);
 			RegisterZirconGlobal(typeId);
 		}
 
 		// Handle any types registered with the deprecated api
 		for (const typeId of unregisteredTypes) {
+			$print("register zircon global (thru deprecated api)", typeId[0]);
 			RegisterZirconGlobal(typeId);
 		}
 
@@ -256,6 +264,7 @@ export namespace ZirconRegistryService {
 			}
 
 			AddPlayerToGroups(player, groupsToJoin);
+			Remotes.Server.Get(RemoteId.ZirconInitialized).SendToPlayer(player);
 		});
 
 		Players.PlayerRemoving.Connect((player) => {
@@ -276,7 +285,10 @@ export namespace ZirconRegistryService {
 		}
 
 		initalized = true;
+		Remotes.Server.Get(RemoteId.ZirconInitialized).SendToAllPlayers();
 	}
+
+	Remotes.Server.OnFunction(RemoteId.GetZirconInitialized, () => initalized);
 }
 
 export type ZirconRegistryService = typeof ZirconRegistryService;
