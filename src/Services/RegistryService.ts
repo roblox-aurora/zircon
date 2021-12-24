@@ -7,6 +7,8 @@ import ZrPlayerScriptContext from "@rbxts/zirconium/out/Runtime/PlayerScriptCont
 import { ZirconFunction } from "Class/ZirconFunction";
 import { ZirconNamespace } from "Class/ZirconNamespace";
 import { ZirconEnum } from "Class/ZirconEnum";
+import { ZirconConfiguration } from "Class/ZirconConfigurationBuilder";
+import { ZirconBindingType } from "Class/ZirconGroupBuilder";
 
 export namespace ZirconRegistryService {
 	const contexts = new Map<Player, Array<ZrScriptContext>>();
@@ -54,7 +56,7 @@ export namespace ZirconRegistryService {
 	 * @param func The function to register
 	 * @param groups The groups
 	 */
-	export function RegisterFunction(func: ZirconFunction<any, any>, groups: ZirconUserGroup[] = [Creator]) {
+	export function RegisterFunction(func: ZirconFunction<any, any>, groups: ZirconUserGroup[]) {
 		for (const group of groups) {
 			group.RegisterFunction(func);
 		}
@@ -65,10 +67,14 @@ export namespace ZirconRegistryService {
 	 * @param namespace The namespace
 	 * @param groups The groups to register it to
 	 */
-	export function RegisterNamespace(namespace: ZirconNamespace, groups: ZirconUserGroup[] = [Creator]) {
+	export function RegisterNamespace(namespace: ZirconNamespace, groups: ZirconUserGroup[]) {
 		for (const group of groups) {
 			group.RegisterNamespace(namespace);
 		}
+	}
+
+	export function GetGroups(...groupIds: string[]) {
+		return groupIds.mapFiltered((groupId) => groups.get(groupId.lower()));
 	}
 
 	/**
@@ -77,11 +83,7 @@ export namespace ZirconRegistryService {
 	 * @param values The values of the enum
 	 * @param groups The groups this enum applies to
 	 */
-	export function RegisterEnumFromArray<K extends string>(
-		name: string,
-		values: K[],
-		groups: ZirconUserGroup[] = [Creator],
-	) {
+	export function RegisterEnumFromArray<K extends string>(name: string, values: K[], groups: ZirconUserGroup[]) {
 		return RegisterEnum(new ZirconEnum(name, values), groups);
 	}
 
@@ -91,62 +93,11 @@ export namespace ZirconRegistryService {
 	 * @param groups The groups to register the enum to
 	 * @returns The enum
 	 */
-	export function RegisterEnum<K extends string>(enumType: ZirconEnum<K>, groups: ZirconUserGroup[] = [Creator]) {
+	export function RegisterEnum<K extends string>(enumType: ZirconEnum<K>, groups: ZirconUserGroup[]) {
 		for (const group of groups) {
 			group.RegisterEnum(enumType);
 		}
 		return enumType;
-	}
-
-	/**
-	 * Registers a group to Zircon, which is used for the permissions of Zircon command execution as well as different zircon tools
-	 * @param rankInt The rank integer - a number between 0 and 255. Higher number is a higher priority group.
-	 * @param name The name of the group. Case insensitive.
-	 * @param permissions The zircon permissions of this group
-	 */
-	export function RegisterGroup(rankInt: number, name: string, permissions: Partial<ZirconPermissions>) {
-		assert(rankInt >= 0 && rankInt <= 255, "rankInt should be between 0 - 255");
-		const group = new ZirconUserGroup(rankInt, name, {
-			Permissions: {
-				CanRecieveServerLogMessages: false,
-				CanExecuteZirconiumScripts: false,
-				CanAccessFullZirconEditor: false,
-				...permissions,
-			},
-		});
-		groups.set(name.lower(), group);
-		return group;
-	}
-
-	/**
-	 * Registers a group to Zircon, which is used for the permissions of Zircon command execution as well as different zircon tools.
-	 * This function automatically binds this group to a roblox group rank
-	 * @param groupId The group's id
-	 * @param rankInt The rank integer - a number between 0 and 255. Higher number is a higher priority group. This should be the same as the roblox group rank.
-	 * @param name The name of the group. Case insensitive.
-	 * @param permissions The zircon permissions of this group
-	 */
-	export function RegisterGroupToRobloxGroup(
-		groupId: number,
-		rankInt: number,
-		name: string,
-		permissions: Partial<ZirconPermissions>,
-	) {
-		assert(rankInt >= 0 && rankInt <= 255, "rankInt should be between 0 - 255");
-		const group = new ZirconUserGroup(rankInt, name, {
-			BoundToGroup: {
-				GroupId: groupId,
-				GroupRank: rankInt,
-			},
-			Permissions: {
-				CanRecieveServerLogMessages: false,
-				CanExecuteZirconiumScripts: false,
-				CanAccessFullZirconEditor: false,
-				...permissions,
-			},
-		});
-		groups.set(name.lower(), group);
-		return group;
 	}
 
 	/**
@@ -163,7 +114,7 @@ export namespace ZirconRegistryService {
 	 * @param player The player to add to the groups
 	 * @param targetGroups The groups to add the player to
 	 */
-	export function AddPlayerToGroups(player: Player, targetGroups: Array<string | ZirconUserGroup>) {
+	function AddPlayerToGroups(player: Player, targetGroups: Array<string | ZirconUserGroup>) {
 		const playerGroups = playerGroupMap.get(player) ?? [];
 		for (const groupOrId of targetGroups) {
 			const group = typeIs(groupOrId, "string") ? groups.get(groupOrId) : groupOrId;
@@ -235,63 +186,57 @@ export namespace ZirconRegistryService {
 	}
 
 	/**
-	 * The default `user` group. All players are a member of this group by default.
-	 */
-	export const User = RegisterGroup(1, "user", {});
-
-	/**
-	 * The default `creator` group. The group or place owner is added to this group by default.
+	 * Initializes Zircon on the server with the given configuration
 	 *
-	 * This group has _all_ permissions, you should use `administrator` if you want to add other people with high permissions.
+	 * This needs to be done for Zircon to run.
+	 * @param configuration
 	 */
-	export const Creator = RegisterGroup(255, "creator", {
-		CanRecieveServerLogMessages: true,
-		CanExecuteZirconiumScripts: true,
-		CanAccessFullZirconEditor: true,
-	});
+	export function Init(configuration: ZirconConfiguration) {
+		const configurationGroups = configuration.Groups;
+		for (const group of configurationGroups) {
+			const userGroup = new ZirconUserGroup(group.Rank, group.Id, group);
+			groups.set(group.Id.lower(), userGroup);
+		}
 
-	/**
-	 * The default `administrator` group. If this is a group place,
-	 * it will add anyone with a rank higher than 250 to this group.
-	 *
-	 * This group has high permissions, so be careful about adding anyone else to it unless you explicitly trust them.
-	 */
-	export const Administrator = RegisterGroup(250, "administrator", {
-		CanRecieveServerLogMessages: true,
-		CanExecuteZirconiumScripts: true,
-		CanAccessFullZirconEditor: true,
-	});
-
-	function getPlayerDefaultGroups(player: Player) {
-		const groups = [User];
-		if (game.CreatorType === Enum.CreatorType.Group) {
-			if (player.GetRankInGroup(game.CreatorId) >= 255) {
-				groups.push(Creator);
+		for (const [typeId, typeGroups] of configuration.Registry) {
+			if (typeId instanceof ZirconFunction) {
+				RegisterFunction(typeId, GetGroups(...typeGroups));
+			} else if (typeId instanceof ZirconEnum) {
+				RegisterEnum(typeId, GetGroups(...typeGroups));
+			} else if (typeId instanceof ZirconNamespace) {
+				RegisterNamespace(typeId, GetGroups(...typeGroups));
 			}
-		} else if (game.CreatorType === Enum.CreatorType.User && game.CreatorId === player.UserId) {
-			groups.push(Creator);
 		}
 
-		if (RunService.IsStudio()) {
-			groups.push(Administrator);
+		Players.PlayerAdded.Connect((player) => {
+			permissionGroupCache.clear();
+
+			const groupsToJoin = new Array<ZirconUserGroup>();
+			for (const [, group] of groups) {
+				if (group.CanJoinGroup(player)) {
+					groupsToJoin.push(group);
+				}
+			}
+
+			AddPlayerToGroups(player, groupsToJoin);
+		});
+
+		Players.PlayerRemoving.Connect((player) => {
+			permissionGroupCache.clear();
+			contexts.delete(player);
+			playerGroupMap.delete(player);
+		});
+
+		for (const player of Players.GetPlayers()) {
+			const groupsToJoin = new Array<ZirconUserGroup>();
+			for (const [, group] of groups) {
+				if (group.CanJoinGroup(player)) {
+					groupsToJoin.push(group);
+				}
+			}
+
+			AddPlayerToGroups(player, groupsToJoin);
 		}
-
-		return groups;
-	}
-
-	Players.PlayerAdded.Connect((player) => {
-		permissionGroupCache.clear();
-		AddPlayerToGroups(player, getPlayerDefaultGroups(player));
-	});
-
-	Players.PlayerRemoving.Connect((player) => {
-		permissionGroupCache.clear();
-		contexts.delete(player);
-		playerGroupMap.delete(player);
-	});
-
-	for (const player of Players.GetPlayers()) {
-		AddPlayerToGroups(player, getPlayerDefaultGroups(player));
 	}
 }
 

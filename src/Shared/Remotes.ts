@@ -80,7 +80,7 @@ export interface ZirconStructuredLogOutput {
 export type ZirconStandardOutput = ZirconExecutionOutput | ZirconLogOutput | ZirconStructuredLogOutput;
 export type ZirconErrorOutput = ZirconiumRuntimeErrorMessage | ZirconiumParserErrorMessage | ZirconLogErrorOutput;
 
-const Remotes = Net.Definitions.Create({
+const Remotes = Net.CreateDefinitions({
 	[RemoteId.StandardOutput]: Net.Definitions.ServerToClientEvent<[output: ZirconStandardOutput]>(),
 	[RemoteId.StandardError]: Net.Definitions.ServerToClientEvent<[output: ZirconErrorOutput]>(),
 	[RemoteId.DispatchToServer]: Net.Definitions.ClientToServerEvent<[message: string]>([
@@ -94,5 +94,6 @@ const Remotes = Net.Definitions.Create({
 	[RemoteId.GetServerLogMessages]: Net.Definitions.ServerAsyncFunction<
 		() => Array<ZirconStandardOutput | ZirconErrorOutput>
 	>([createPermissionMiddleware("CanRecieveServerLogMessages")]),
+	[RemoteId.PlayerGroupsUpdated]: Net.Definitions.ServerToClientEvent(),
 });
 export default Remotes;

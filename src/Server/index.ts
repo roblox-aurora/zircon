@@ -9,7 +9,7 @@ import { Token } from "@rbxts/zirconium/out/Ast/Tokens/Tokens";
 import { Node } from "@rbxts/zirconium/out/Ast/Nodes/NodeTypes";
 import { $dbg } from "rbxts-transform-debug";
 import { ZirconLogLevel } from "../Client/Types";
-import { ReadonlyZirconPermissionSet, ZirconGroupConfiguration } from "./Class/ZirconGroup";
+import { ReadonlyZirconPermissionSet } from "./Class/ZirconGroup";
 const IsServer = RunService.IsServer();
 
 namespace ZirconServer {

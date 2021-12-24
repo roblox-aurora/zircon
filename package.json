@@ -1,6 +1,6 @@
 {
   "name": "@rbxts/zircon",
-  "version": "0.12.3-beta.0",
+  "version": "0.20.0-beta.0",
   "description": "",
   "main": "out/init.lua",
   "scripts": {
@@ -12,7 +12,11 @@
     "watch:example": "cross-env NODE_ENV=development rbxtsc -w --type=game -p ./example -i ./include",
     "serve:example": "rojo serve ./example/default.project.json --port 34567"
   },
-  "keywords": ["Runtime scripting", "Roblox", "Debugging"],
+  "keywords": [
+    "Runtime scripting",
+    "Roblox",
+    "Debugging"
+  ],
   "author": "Vorlias",
   "license": "MIT",
   "publishConfig": {
@@ -20,7 +24,7 @@
   },
   "types": "out/index.d.ts",
   "devDependencies": {
-    "@rbxts/compiler-types": "1.2.3-types.1",
+    "@rbxts/compiler-types": "1.2.7-types.1",
     "@rbxts/types": "^1.0.537",
     "@typescript-eslint/eslint-plugin": "^4.4.1",
     "@typescript-eslint/parser": "^4.4.1",
@@ -31,18 +35,18 @@
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-roblox-ts": "0.0.24",
     "prettier": "^2.1.2",
-    "rbxts-transform-debug": "1.0.0-rc.1",
-    "rbxts-transform-env": "1.0.0-rc.0",
+    "rbxts-transform-debug": "1.0.0-ts4.4",
+    "rbxts-transform-env": "1.0.0-ts4.4",
     "rbxts-transformer-services": "^1.0.0",
-    "roblox-ts": "^1.2.3",
-    "typescript": "=4.3.5"
+    "roblox-ts": "^1.2.7",
+    "typescript": "=4.4.4"
   },
   "dependencies": {
     "@rbxts/flipper": "^2.0.1",
     "@rbxts/log": "0.5.0-beta.1",
     "@rbxts/maid": "^1.0.0-ts.1",
     "@rbxts/message-templates": "^0.3.2",
-    "@rbxts/net": "^2.1.4",
+    "@rbxts/net": "^3.0.0-alpha.0",
     "@rbxts/roact": "1.4.0-ts.2",
     "@rbxts/roact-rodux": "0.2.2-ts.5",
     "@rbxts/rodux": "3.0.0-ts.3",
