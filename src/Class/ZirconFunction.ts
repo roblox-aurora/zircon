@@ -26,8 +26,29 @@ export class ZirconContext {
 	}
 }
 
-export interface ZirconFunctionMetadata {
+export function emitArgumentError(
+	func: ZirconFunction<any, any>,
+	context: ZrContext,
+	arg: number,
+	validator: ZirconValidator<unknown, unknown>,
+) {
+	Server.Log.WriteStructured({
+		SourceContext: tostring(func),
+		Level: LogLevel.Error,
+		Template: `Call to {FunctionName} failed - Argument#{ArgIndex} expected {ArgType}`,
+		Timestamp: DateTime.now().ToIsoDate(),
+		FunctionName: func.GetName(),
+		CallingPlayer: context.getExecutor()!,
+		ArgIndex: arg + 1,
+		ArgType: validator.Type,
+	});
+}
+
+export interface ZirconFunctionMetadata<V extends readonly ZirconValidator<unknown, unknown>[]> {
 	readonly Description?: string;
+	readonly ArgumentValidators: ZirconValidator<unknown, unknown>[];
+	readonly VariadicValidator?: ZirconValidator<unknown, unknown>;
+	readonly HasVaradic: boolean;
 }
 export class ZirconFunction<
 	V extends readonly ZirconValidator<unknown, unknown>[],
@@ -35,18 +56,18 @@ export class ZirconFunction<
 > extends ZrLuauFunction {
 	public constructor(
 		private name: string,
-		private argumentValidators: V,
 		private zirconCallback: (context: ZirconContext, ...args: InferArguments<V>) => R,
-		private metadata: ZirconFunctionMetadata,
+		private metadata: ZirconFunctionMetadata<V>,
 	) {
+		const { VariadicValidator, ArgumentValidators } = metadata;
 		super((context, ...args) => {
 			// We'll need to type check all the arguments to ensure they're valid
 			// and transform as appropriate for the user side
 
 			let transformedArguments = new Array<defined>();
-			if (this.argumentValidators.size() > 0) {
-				for (let i = 0; i < this.argumentValidators.size(); i++) {
-					const validator = this.argumentValidators[i];
+			if (ArgumentValidators.size() > 0) {
+				for (let i = 0; i < ArgumentValidators.size(); i++) {
+					const validator = ArgumentValidators[i];
 					const argument = args[i];
 					if (validator && validator.Validate(argument)) {
 						if (validator.Transform !== undefined) {
@@ -56,16 +77,7 @@ export class ZirconFunction<
 						}
 					} else {
 						if (RunService.IsServer()) {
-							Server.Log.WriteStructured({
-								SourceContext: tostring(this),
-								Level: LogLevel.Error,
-								Template: `Call to {FunctionName} failed - Argument#{ArgIndex} expected {ArgType}`,
-								Timestamp: DateTime.now().ToIsoDate(),
-								FunctionName: this.name,
-								CallingPlayer: context.getExecutor()!,
-								ArgIndex: i + 1,
-								ArgType: validator.Type,
-							});
+							emitArgumentError(this, context, i, validator);
 
 							if ($env("NODE_ENV") === "development") {
 								print("Got", argument);
@@ -74,8 +86,29 @@ export class ZirconFunction<
 						return;
 					}
 				}
-			} else {
+			} else if (!VariadicValidator) {
 				transformedArguments = args as Array<ZrLuauArgument>;
+			}
+
+			if (args.size() > ArgumentValidators.size() && VariadicValidator) {
+				for (let i = ArgumentValidators.size(); i < args.size(); i++) {
+					const argument = args[i];
+					if (VariadicValidator.Validate(argument)) {
+						if (VariadicValidator.Transform !== undefined) {
+							transformedArguments[i] = VariadicValidator.Transform(argument) as defined;
+						} else {
+							transformedArguments[i] = argument;
+						}
+					} else {
+						if (RunService.IsServer()) {
+							emitArgumentError(this, context, i, VariadicValidator);
+							if ($env("NODE_ENV") === "development") {
+								print("Got", argument);
+							}
+						}
+						return;
+					}
+				}
 			}
 
 			/// This is not pretty, I know.
@@ -90,8 +123,15 @@ export class ZirconFunction<
 		return this.name;
 	}
 
-	private GetArgumentTypes() {
-		return this.argumentValidators.map((v) => v.Type);
+	public GetArgumentTypes() {
+		const { ArgumentValidators } = this.metadata;
+		const args = ArgumentValidators.map((v) => v.Type);
+		return args;
+	}
+
+	public GetVariadicType() {
+		const { VariadicValidator } = this.metadata;
+		return VariadicValidator?.Type;
 	}
 
 	/** @internal */
@@ -104,13 +144,17 @@ export class ZirconFunction<
 	}
 
 	public toString() {
+		const argTypes = this.GetArgumentTypes().map((typeName, argIndex) => `${typeName}`);
+		const varadicType = this.GetVariadicType();
+		if (varadicType !== undefined) {
+			argTypes.push("..." + varadicType);
+		}
+
 		return (
 			`${this.metadata.Description !== undefined ? `/* ${this.metadata.Description} */` : ""} function ${
 				this.name
 			}(` +
-			this.GetArgumentTypes()
-				.map((typeName, argIndex) => `a${argIndex}: ${typeName}`)
-				.join(", ") +
+			argTypes.join(", ") +
 			") { [ZirconFunction] }"
 		);
 	}

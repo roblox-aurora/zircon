@@ -101,20 +101,31 @@ export class ZirconConfigurationBuilder {
 		return new ZirconGroupBuilder(this, 1, ZirconDefaultGroup.User).BindToEveryone().Add();
 	}
 
-	public CreateNamespace(name: string, cb: (namespace: ZirconNamespaceBuilder) => ZirconNamespaceBuilder) {
-		return this;
-	}
-
+	/**
+	 * Adds the specified namespace to Zircon
+	 * @param namespace The namespace
+	 * @param groups The groups this namespace is available to
+	 */
 	public AddNamespace(namespace: ZirconNamespace, groups: readonly string[]) {
 		this.configuration.Registry = [...this.configuration.Registry, [namespace, groups]];
 		return this;
 	}
 
+	/**
+	 * Adds the specified enum to Zircon
+	 * @param enumType The enum
+	 * @param groups The groups this enum is available to
+	 */
 	public AddEnum<K extends string>(enumType: ZirconEnum<K>, groups: readonly string[]) {
 		this.configuration.Registry = [...this.configuration.Registry, [enumType, groups]];
 		return this;
 	}
 
+	/**
+	 * Adds the specified function to Zircon
+	 * @param functionType The function
+	 * @param groups The groups this function is available to
+	 */
 	public AddFunction<A extends readonly ZrTypeCheck[], R = unknown>(
 		functionType: ZirconFunction<A, R>,
 		groups: readonly string[],

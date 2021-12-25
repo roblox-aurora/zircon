@@ -58,8 +58,9 @@ ZirconServer.Registry.Init(
 		.AddEnum(TestEnum, [ZirconDefaultGroup.User])
 		.AddNamespace(
 			new ZirconNamespaceBuilder("example")
+				.AddHelpFunction()
 				.AddFunction(
-					new ZirconFunctionBuilder("print").Bind((context, ...args) => {
+					new ZirconFunctionBuilder("print_b").AddVariadicArgument("string").Bind((context, ...args) => {
 						Log.Info("[Example print] " + args.map((a) => tostring(a)).join(" "));
 					}),
 				)
@@ -69,6 +70,14 @@ ZirconServer.Registry.Init(
 					}),
 				)
 				.AddFunction(ZirconPrint)
+				.AddFunction(
+					new ZirconFunctionBuilder("with_varadic")
+						.AddArgument("string")
+						.AddArgument("player")
+						.AddArgument("number?")
+						.AddVariadicArgument("object")
+						.Bind(() => {}),
+				)
 				.Build(),
 			[ZirconDefaultGroup.User],
 		)

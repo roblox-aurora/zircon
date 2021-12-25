@@ -15,6 +15,10 @@ export class ZirconNamespace {
 		context.registerGlobal(this.name, namespaceObject);
 	}
 
+	public GetMembers() {
+		return this.functions as ReadonlyArray<ZirconFunction<any, any>>;
+	}
+
 	public GetName() {
 		return this.name;
 	}

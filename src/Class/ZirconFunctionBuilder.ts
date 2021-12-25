@@ -13,18 +13,13 @@ import { ZirconEnum } from "./ZirconEnum";
 
 export class ZirconFunctionBuilder<V extends ZirconValidator<unknown, unknown>[] = []> {
 	private validators = new Array<ZirconValidator<unknown, unknown>>();
+	private varadicValidator?: ZirconValidator<unknown, unknown>;
 	private hasVaradic = false;
 	private description?: string;
 
 	public constructor(private name: string) {}
 
-	/**
-	 * Adds an argnument to this zircon function
-	 * @param argValidator The argument type/validator
-	 * @param description The description for this argument
-	 * @returns The builder
-	 */
-	public AddArgument<TValidation extends Validator>(argValidator: TValidation, description?: string) {
+	private GetValidator<TValidation extends Validator>(argValidator: TValidation) {
 		let validator: ZirconValidator<unknown, unknown>;
 		if (typeIs(argValidator, "string")) {
 			validator = BuiltInValidators[argValidator as keyof BuiltInValidators];
@@ -33,18 +28,28 @@ export class ZirconFunctionBuilder<V extends ZirconValidator<unknown, unknown>[]
 		} else {
 			validator = argValidator;
 		}
+		return validator;
+	}
 
+	/**
+	 * Adds an argnument to this zircon function
+	 * @param argValidator The argument type/validator
+	 * @param description The description for this argument
+	 * @returns The builder
+	 */
+	public AddArgument<TValidation extends Validator>(argValidator: TValidation, description?: string) {
+		const validator = this.GetValidator(argValidator);
 		this.validators.push(validator);
 		return (this as unknown) as ZirconFunctionBuilder<[...V, InferValidator<TValidation>]>;
 	}
 
-	/** @internal */
-	public AddVaradicArgument<TValidation extends Validator>(arg: TValidation) {
+	public AddVariadicArgument<TValidation extends Validator>(arg: TValidation) {
 		this.hasVaradic = true;
+		this.varadicValidator = this.GetValidator(arg);
 
 		return (this as unknown) as Omit<
 			ZirconFunctionBuilder<[...V, ...InferValidator<TValidation>[]]>,
-			"AddVaradicArgument"
+			"AddVariadicArgument" | "AddArgument"
 		>;
 	}
 
@@ -59,6 +64,11 @@ export class ZirconFunctionBuilder<V extends ZirconValidator<unknown, unknown>[]
 	}
 
 	public Bind<R extends ZrValue | void>(fn: (context: ZirconContext, ...args: InferArguments<V>) => R) {
-		return new ZirconFunction(this.name, this.validators as V, fn, { Description: this.description });
+		return new ZirconFunction(this.name, fn, {
+			Description: this.description,
+			HasVaradic: this.hasVaradic,
+			VariadicValidator: this.varadicValidator,
+			ArgumentValidators: this.validators,
+		});
 	}
 }
