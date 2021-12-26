@@ -39,7 +39,7 @@ Promise.delay(5).then(() => {
 
 	Log.Debug("A debug message, yes");
 	Log.Info("Hello, {Test}! {Boolean} {Number} {Array}", "Test string", true, 10, [1, 2, 3, [4]]);
-	Log.Warn("Warining {Lol}", "LOL!");
+	Log.Warn("Warning {Lol}", "LOL!");
 
 	Log.Error("ERROR LOL {Yes}", true);
 	Log.Fatal("Fatal message here");
