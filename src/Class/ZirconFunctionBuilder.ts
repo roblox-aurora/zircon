@@ -24,7 +24,7 @@ export class ZirconFunctionBuilder<V extends ZirconValidator<unknown, unknown>[]
 		if (typeIs(argValidator, "string")) {
 			validator = BuiltInValidators[argValidator as keyof BuiltInValidators];
 		} else if (argValidator instanceof ZirconEnum) {
-			validator = argValidator.GetMemberType();
+			validator = argValidator.getMemberType();
 		} else {
 			validator = argValidator;
 		}
