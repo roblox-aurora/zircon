@@ -80,7 +80,7 @@ export class ZirconEnum<K extends string> extends ZrEnum {
 					return value as ZirconEnumItem<ZirconEnum<K>, K>;
 				}
 			},
-			Type: "ZirconEnum[" + this.getEnumName() + "]",
+			Type: this.getEnumName(),
 		};
 	}
 }
