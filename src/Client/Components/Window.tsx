@@ -173,6 +173,10 @@ export default class ZirconWindow extends Roact.Component<WindowProps, WindowSta
 		}
 	}
 
+	public willUnmount() {
+		this.maid.DoCleaning();
+	}
+
 	public render() {
 		const props = this.props;
 		const {
