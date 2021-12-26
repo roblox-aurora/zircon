@@ -5,6 +5,7 @@ import ZirconPrint from "BuiltIn/Print";
 import { ZirconEnumBuilder } from "Class/ZirconEnumBuilder";
 import { ZirconFunctionBuilder } from "Class/ZirconFunctionBuilder";
 import { ZirconNamespaceBuilder } from "Class/ZirconNamespaceBuilder";
+import { $print } from "rbxts-transform-debug";
 
 Log.SetLogger(
 	Logger.configure()
@@ -91,6 +92,8 @@ ZirconServer.Registry.Init(
 		)
 		.AddFunction(
 			new ZirconFunctionBuilder("test_enum").AddArgument(TestEnum).Bind((context, value) => {
+				$print("call to test_enum", context, value);
+				Log.Info("{Item}", value.getName());
 				value.match({
 					Value2: () => {
 						Log.Info("Got given enum item 2 (member)");
@@ -105,6 +108,9 @@ ZirconServer.Registry.Init(
 					},
 					Value2: () => {
 						Log.Info("Got given enum item 2 (parent)");
+					},
+					_: () => {
+						Log.Info("Anything else");
 					},
 				});
 			}),

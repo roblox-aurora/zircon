@@ -1,4 +1,4 @@
-import { ZrEnumItem } from "@rbxts/zirconium/out/Data/Enum";
+import { ZrEnumItem } from "@rbxts/zirconium/out/Data/EnumItem";
 import { ZrObjectUserdata } from "@rbxts/zirconium/out/Data/Userdata";
 import { ZirconEnum, EnumMatchTree } from "./ZirconEnum";
 
@@ -9,7 +9,7 @@ export class ZirconEnumItem<
 	TParent extends ZirconEnum<string> = ZirconEnum<string>,
 	K extends string = string
 > extends ZrEnumItem {
-	public constructor(private enumParent: TParent, id: number, name: K) {
+	public constructor(enumParent: TParent, id: number, name: K) {
 		super(enumParent, id, name);
 	}
 
@@ -19,5 +19,9 @@ export class ZirconEnumItem<
 	 */
 	public match<R>(matches: EnumMatchTree<TParent, K, R>) {
 		return matches[this.getName() as K](this);
+	}
+
+	public toString() {
+		return `${this.getEnum().getEnumName()}.${this.getName()}`;
 	}
 }
