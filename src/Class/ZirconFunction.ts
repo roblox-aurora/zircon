@@ -64,14 +64,16 @@ export class ZirconFunction<
 			// We'll need to type check all the arguments to ensure they're valid
 			// and transform as appropriate for the user side
 
+			const executor = context.getExecutor();
+
 			let transformedArguments = new Array<defined>();
 			if (ArgumentValidators.size() > 0) {
 				for (let i = 0; i < ArgumentValidators.size(); i++) {
 					const validator = ArgumentValidators[i];
 					const argument = args[i];
-					if (validator && validator.Validate(argument)) {
+					if (validator && validator.Validate(argument, executor)) {
 						if (validator.Transform !== undefined) {
-							transformedArguments[i] = validator.Transform(argument) as defined;
+							transformedArguments[i] = validator.Transform(argument, executor) as defined;
 						} else {
 							transformedArguments[i] = argument;
 						}
@@ -93,9 +95,9 @@ export class ZirconFunction<
 			if (args.size() > ArgumentValidators.size() && VariadicValidator) {
 				for (let i = ArgumentValidators.size(); i < args.size(); i++) {
 					const argument = args[i];
-					if (VariadicValidator.Validate(argument)) {
+					if (VariadicValidator.Validate(argument, executor)) {
 						if (VariadicValidator.Transform !== undefined) {
-							transformedArguments[i] = VariadicValidator.Transform(argument) as defined;
+							transformedArguments[i] = VariadicValidator.Transform(argument, executor) as defined;
 						} else {
 							transformedArguments[i] = argument;
 						}

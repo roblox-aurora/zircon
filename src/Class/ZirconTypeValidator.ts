@@ -1,10 +1,19 @@
+import { ZrEnum } from "@rbxts/zirconium/out/Data/Enum";
+import { ZrEnumItem } from "@rbxts/zirconium/out/Data/EnumItem";
 import { ZrValue } from "@rbxts/zirconium/out/Data/Locals";
 import ZrObject from "@rbxts/zirconium/out/Data/Object";
 import ZrUndefined from "@rbxts/zirconium/out/Data/Undefined";
 import { ZrInstanceUserdata } from "@rbxts/zirconium/out/Data/Userdata";
 import { ZirconEnum, ZirconEnumValidator } from "./ZirconEnum";
 import { ZirconEnumItem } from "./ZirconEnumItem";
-import { OptionalZirconFuzzyPlayer, ZirconFuzzyPlayer, ZirconFuzzyPlayerValidator } from "./ZirconFuzzyPlayerValidator";
+import {
+	OptionalZirconFuzzyPlayer,
+	ZirconFuzzyPlayer,
+	ZirconFuzzyPlayerValidator,
+} from "./Validators/ZirconFuzzyPlayerValidator";
+import { ZirconFuzzyPlayers } from "./Validators/ZirconFuzzyPlayersValidator";
+import ZrRange from "@rbxts/zirconium/out/Data/Range";
+import { ZirconFunction } from "./ZirconFunction";
 
 type PickFrom<T, U> = U extends never ? T : U;
 export interface ZirconValidator<T, U = never> {
@@ -15,8 +24,8 @@ export interface ZirconValidator<T, U = never> {
 	/**
 	 * The validator
 	 */
-	Validate(value: unknown): value is T;
-	Transform?(value: T): U;
+	Validate(value: unknown, player?: Player): value is T;
+	Transform?(value: T, player?: Player): U;
 }
 
 export interface ZirconArgument<T extends Validator> {
@@ -59,16 +68,30 @@ export const ZirconObject: ZirconValidator<ZrObject> = {
 	},
 };
 
+export const NativeEnum: ZirconValidator<ZrEnum> = {
+	Type: "ZrEnum",
+	Validate(value: unknown): value is ZrEnum {
+		return value instanceof ZrEnum;
+	},
+};
+
+export const NativeEnumItem: ZirconValidator<ZrEnumItem> = {
+	Type: "ZrEnumItem",
+	Validate(value: unknown): value is ZrEnumItem {
+		return value instanceof ZrEnumItem;
+	},
+};
+
 export function ZirconOptional<K extends ZirconValidator<ZrValue, unknown>>(validator: K) {
 	return {
 		Type: validator.Type + "?",
-		Validate(value: unknown): value is InferTypeFromValidator2<K> | undefined {
-			return validator.Validate(value) || value === undefined;
+		Validate(value: unknown, player?: Player): value is InferTypeFromValidator2<K> | undefined {
+			return validator.Validate(value, player) || value === undefined;
 		},
-		Transform(value: unknown) {
-			if (validator.Validate(value)) {
+		Transform(value: unknown, player?: Player) {
+			if (validator.Validate(value, player)) {
 				if (validator.Transform !== undefined) {
-					return (validator.Transform(value) ?? undefined) as InferTypeFromValidator2<K> | undefined;
+					return (validator.Transform(value, player) ?? undefined) as InferTypeFromValidator2<K> | undefined;
 				} else {
 					return value as InferTypeFromValidator2<K> | undefined;
 				}
@@ -79,10 +102,31 @@ export function ZirconOptional<K extends ZirconValidator<ZrValue, unknown>>(vali
 	};
 }
 
-export const ZirconUnknown: ZirconValidator<ZrValue> = {
+export const ZirconUnknown: ZirconValidator<ZrValue | ZrUndefined> = {
 	Type: "unknown",
-	Validate(value: unknown): value is ZrValue {
+	Validate(value: unknown): value is ZrValue | ZrUndefined {
 		return true;
+	},
+};
+
+export const ZirconDefined: ZirconValidator<ZrValue> = {
+	Type: "defined",
+	Validate(value: unknown): value is ZrValue {
+		return value !== ZrUndefined && value !== undefined;
+	},
+};
+
+export const ZirconRange: ZirconValidator<ZrRange | number, ZrRange> = {
+	Type: "ZrRange | number",
+	Validate(value: unknown): value is ZrRange | number {
+		return (typeIs(value, "number") && value % 1 === 0) || value instanceof ZrRange;
+	},
+	Transform(value: ZrRange | number) {
+		if (typeIs(value, "number")) {
+			return new ZrRange(new NumberRange(value));
+		} else {
+			return value;
+		}
 	},
 };
 
@@ -105,13 +149,22 @@ export const BuiltInValidators = {
 	number: ZirconNumber,
 	boolean: ZirconBoolean,
 	object: ZirconObject,
+	defined: ZirconDefined,
 	["object?"]: ZirconOptional(ZirconObject),
 	player: ZirconFuzzyPlayer,
+	players: ZirconFuzzyPlayers,
 	["player?"]: ZirconOptional(ZirconFuzzyPlayer),
+	["players?"]: ZirconOptional(ZirconFuzzyPlayers),
 	["string?"]: ZirconOptional(ZirconString),
 	["number?"]: ZirconOptional(ZirconNumber),
 	["boolean?"]: ZirconOptional(ZirconBoolean),
 	["unknown"]: ZirconUnknown,
+	/** @internal */
+	["ZrEnum"]: NativeEnum,
+	/** @internal */
+	["ZrEnumItem"]: NativeEnumItem,
+	["range"]: ZirconRange,
+	["range?"]: ZirconOptional(ZirconRange),
 };
 export type BuiltInValidators = typeof BuiltInValidators;
 

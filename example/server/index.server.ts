@@ -83,6 +83,40 @@ ZirconServer.Registry.Init(
 			[ZirconDefaultGroup.User],
 		)
 		.AddFunction(
+			new ZirconFunctionBuilder("range_test").AddArgument("range").Bind((_, range) => {
+				Log.Info("Got given a range with {Min} -> {Max}", range.GetMin(), range.GetMax());
+			}),
+			[ZirconDefaultGroup.User],
+		)
+		.AddFunction(
+			new ZirconFunctionBuilder("unknown_test").AddArgument("unknown").Bind((_, value) => {
+				Log.Info("Got given an unknown value: {Value}", tostring(value));
+			}),
+			[ZirconDefaultGroup.User],
+		)
+		.AddFunction(
+			new ZirconFunctionBuilder("defined_test").AddArgument("defined").Bind((_, value) => {
+				Log.Info("Got given a defined value: {Value}", value);
+			}),
+			[ZirconDefaultGroup.User],
+		)
+		.AddFunction(
+			new ZirconFunctionBuilder("players_test").AddArgument("players").Bind((_, value) => {
+				Log.Info("Got given players: {Players}", value);
+			}),
+			[ZirconDefaultGroup.User],
+		)
+		.AddFunction(
+			new ZirconFunctionBuilder("enum_test").AddArgument("ZrEnum").Bind((_, value) => {
+				Log.Info(
+					"Got given enum {Enum} with members {EnumMembers}",
+					value.getEnumName(),
+					value.getItems().map((v) => v.getName()),
+				);
+			}),
+			[ZirconDefaultGroup.User],
+		)
+		.AddFunction(
 			new ZirconFunctionBuilder("print_message")
 				.AddArgument("string")
 				.Bind((context, message) =>

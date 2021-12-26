@@ -1,6 +1,6 @@
 import { ZrInstanceUserdata } from "@rbxts/zirconium/out/Data/Userdata";
 import { OptionalValidator } from "./OptionalValidator";
-import { StatefulZirconValidator } from "./StatefulZirconValidator";
+import { StatefulZirconValidator } from "../StatefulZirconValidator";
 
 export class ZirconFuzzyPlayerValidator extends StatefulZirconValidator<
 	string | number | ZrInstanceUserdata<Player>,

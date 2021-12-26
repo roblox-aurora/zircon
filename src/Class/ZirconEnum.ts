@@ -32,7 +32,7 @@ export class ZirconEnum<K extends string> extends ZrEnum {
 	 * Gets an enum item value by key
 	 * @param key The key
 	 */
-	public getItem<TKey extends K>(key: TKey) {
+	public getItem<TKey extends K>(key: TKey): ZirconEnumItem<ZirconEnum<K>, TKey> {
 		return this.getItems().find((k) => k.getName() === key)! as ZirconEnumItem<ZirconEnum<K>, TKey>;
 	}
 
