@@ -91,7 +91,7 @@ ZirconServer.Registry.Init(
 		)
 		.AddFunction(
 			new ZirconFunctionBuilder("test_enum").AddArgument(TestEnum).Bind((context, value) => {
-				value.Match({
+				value.match({
 					Value2: () => {
 						Log.Info("Got given enum item 2 (member)");
 					},
@@ -99,7 +99,7 @@ ZirconServer.Registry.Init(
 						Log.Info("Got given enum item 1 (member)");
 					},
 				});
-				TestEnum.Match(value, {
+				TestEnum.match(value, {
 					Value1: () => {
 						Log.Info("Got given enum item 1 (parent)");
 					},

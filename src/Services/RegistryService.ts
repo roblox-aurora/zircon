@@ -31,6 +31,9 @@ export namespace ZirconRegistryService {
 			for (const value of group._getNamespaces()) {
 				yield value;
 			}
+			for (const value of group._getEnums()) {
+				yield value;
+			}
 		}
 
 		return true;

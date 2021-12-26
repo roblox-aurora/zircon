@@ -1,5 +1,6 @@
 import { RunService } from "@rbxts/services";
 import ZrContext from "@rbxts/zirconium/out/Data/Context";
+import { ZrEnum } from "@rbxts/zirconium/out/Data/Enum";
 import { ZrValue } from "@rbxts/zirconium/out/Data/Locals";
 import ZrLuauFunction from "@rbxts/zirconium/out/Data/LuauFunction";
 import ZrUndefined from "@rbxts/zirconium/out/Data/Undefined";
@@ -42,6 +43,8 @@ export enum ZirconGroupType {
 export default class ZirconUserGroup {
 	private functions = new Map<string, ZrLuauFunction>();
 	private namespaces = new Map<string, ZrObjectUserdata<defined>>();
+	private enums = new Map<string, ZrEnum>();
+
 	private permissions: ZirconPermissionSet;
 	private members = new WeakSet<Player>();
 
@@ -132,7 +135,7 @@ export default class ZirconUserGroup {
 
 	/** @internal */
 	public RegisterEnum(enumerable: ZirconEnum<any>) {
-		this.namespaces.set(enumerable.GetName(), enumerable);
+		this.enums.set(enumerable.getEnumName(), enumerable);
 	}
 
 	/** @internal */
@@ -148,5 +151,10 @@ export default class ZirconUserGroup {
 	/** @internal */
 	public _getNamespaces(): ReadonlyMap<string, ZrValue> {
 		return this.namespaces;
+	}
+
+	/** @internal */
+	public _getEnums(): ReadonlyMap<string, ZrValue> {
+		return this.enums;
 	}
 }
