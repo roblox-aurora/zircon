@@ -119,7 +119,7 @@ export const ZirconDefined: ZirconValidator<ZrValue> = {
 export const ZirconRange: ZirconValidator<ZrRange | number, ZrRange> = {
 	Type: "ZrRange | number",
 	Validate(value: unknown): value is ZrRange | number {
-		return (typeIs(value, "number") && value % 1 === 0) || value instanceof ZrRange;
+		return typeIs(value, "number") || value instanceof ZrRange;
 	},
 	Transform(value: ZrRange | number) {
 		if (typeIs(value, "number")) {
