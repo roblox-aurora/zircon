@@ -8,23 +8,7 @@ import { $env } from "rbxts-transform-env";
 import Server from "../Server";
 import { ZirconFunctionBuilder } from "./ZirconFunctionBuilder";
 import { InferArguments, Validator, ZirconValidator } from "./ZirconTypeValidator";
-
-export class ZirconContext {
-	constructor(private innerContext: ZrContext) {}
-	public GetExecutor() {
-		const executor = this.innerContext.getExecutor();
-		assert(executor);
-		return executor;
-	}
-
-	public GetOutput() {
-		return this.innerContext.getOutput();
-	}
-
-	public GetInput() {
-		return this.innerContext.getInput();
-	}
-}
+import { ZirconContext } from "./ZirconContext";
 
 export function emitArgumentError(
 	func: ZirconFunction<any, any>,
@@ -115,7 +99,7 @@ export class ZirconFunction<
 
 			/// This is not pretty, I know.
 			return this.zirconCallback(
-				new ZirconContext(context),
+				new ZirconContext(context, this),
 				...((transformedArguments as unknown) as InferArguments<V>),
 			);
 		});

@@ -51,6 +51,12 @@ ZirconServer.Registry.Init(
 		.CreateDefaultUserGroup()
 		.CreateDefaultAdminGroup()
 		.AddFunction(
+			new ZirconFunctionBuilder("ping").Bind((context) => {
+				context.LogInfo("Pong!");
+			}),
+			["User"],
+		)
+		.AddFunction(
 			new ZirconFunctionBuilder("print").Bind((context, ...args) => {
 				Log.Info(args.map((a) => tostring(a)).join(" "));
 			}),

@@ -7,7 +7,8 @@ import {
 	ZirconArgument,
 	ZirconValidator,
 } from "./ZirconTypeValidator";
-import { ZirconContext, ZirconFunction } from "./ZirconFunction";
+import { ZirconFunction } from "./ZirconFunction";
+import { ZirconContext } from "./ZirconContext";
 import { ZrValue } from "@rbxts/zirconium/out/Data/Locals";
 import { ZirconEnum } from "./ZirconEnum";
 
