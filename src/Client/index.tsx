@@ -119,6 +119,7 @@ namespace ZirconClient {
 	interface ConsoleOptions {
 		Keys?: Array<Enum.KeyCode>;
 		EnableTags?: boolean;
+		AutoFocusTextBox?: boolean;
 		ConsoleComponent?: typeof Roact.Component | ((props: defined) => Roact.Element);
 		/** @internal */
 		Theme?: keyof BuiltInThemes;
@@ -127,7 +128,13 @@ namespace ZirconClient {
 	let consoleBound = false;
 
 	function BindConsoleIntl(options: ConsoleOptions) {
-		const { Keys = [Enum.KeyCode.F10], ConsoleComponent = ZirconDockedConsole, Theme = "Plastic" } = options;
+		const {
+			Keys = [Enum.KeyCode.F10],
+			ConsoleComponent = ZirconDockedConsole,
+			Theme = "Plastic",
+			AutoFocusTextBox = true,
+			EnableTags = true,
+		} = options;
 
 		$ifEnv("NODE_ENV", "development", () => {
 			print("[zircon-debug] bindConsole called with", ...Keys);
@@ -150,8 +157,10 @@ namespace ZirconClient {
 			ZirconClientStore.dispatch({
 				type: ConsoleActionName.SetConfiguration,
 				hotkeyEnabled: true,
+				autoFocusTextBox: AutoFocusTextBox,
 				executionEnabled: permissions.has("CanExecuteZirconiumScripts"),
-				showTagsInOutput: options.EnableTags ?? false,
+				logDetailsPaneEnabled: permissions.has("CanRecieveServerLogMessages"),
+				showTagsInOutput: EnableTags,
 			});
 		});
 	}

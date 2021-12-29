@@ -293,6 +293,7 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 										OnClick={() => {}}
 									/>
 									<ZirconSyntaxTextBox
+										AutoFocus={this.props.autoFocus}
 										Size={new UDim2(1, -16 - 32 - 100, 1, 0)}
 										Position={new UDim2(0, 16, 0, 0)}
 										Focused={this.state.isVisible}
@@ -348,11 +349,13 @@ interface MappedProps {
 	executionEnabled: boolean;
 	history: string[];
 	searchQuery: string;
+	autoFocus: boolean;
 	levelFilter: Set<ZirconLogLevel>;
 }
 const mapStateToProps = (state: ConsoleReducer): MappedProps => {
 	return {
 		isVisible: state.visible,
+		autoFocus: state.autoFocusTextBox,
 		levelFilter: state.filter.Levels ?? DEFAULT_FILTER,
 		executionEnabled: state.executionEnabled,
 		searchQuery: state.filter.SearchQuery ?? "",

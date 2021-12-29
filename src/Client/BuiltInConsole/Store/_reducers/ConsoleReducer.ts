@@ -18,7 +18,9 @@ export interface ActionSetConsoleVisible extends Action<ConsoleActionName.SetCon
 export interface ActionSetConsoleConfiguration extends Action<ConsoleActionName.SetConfiguration> {
 	executionEnabled: boolean;
 	hotkeyEnabled: boolean;
+	autoFocusTextBox: boolean;
 	showTagsInOutput: boolean;
+	logDetailsPaneEnabled: boolean;
 }
 
 export interface ActionAddOutput extends Action<ConsoleActionName.AddOutput> {
@@ -60,6 +62,8 @@ export interface ConsoleReducer {
 	visible: boolean;
 	executionEnabled: boolean;
 	hotkeyEnabled: boolean;
+	autoFocusTextBox: boolean;
+	logDetailsPaneEnabled: boolean;
 	showTagsInOutput: boolean;
 	output: ConsoleMessage[];
 	history: string[];
@@ -75,9 +79,11 @@ export const DEFAULT_FILTER = new Set([
 
 const INITIAL_STATE: ConsoleReducer = {
 	visible: false,
+	autoFocusTextBox: true,
 	executionEnabled: false,
 	hotkeyEnabled: false,
-	showTagsInOutput: false,
+	logDetailsPaneEnabled: false,
+	showTagsInOutput: true,
 	output: [],
 	history: [],
 	filter: {
@@ -87,11 +93,16 @@ const INITIAL_STATE: ConsoleReducer = {
 
 const actions: Rodux.ActionHandlers<ConsoleReducer, ConsoleActions> = {
 	[ConsoleActionName.SetConsoleVisible]: (state, { visible }) => ({ ...state, visible }),
-	[ConsoleActionName.SetConfiguration]: (state, { executionEnabled, hotkeyEnabled, showTagsInOutput }) => ({
+	[ConsoleActionName.SetConfiguration]: (
+		state,
+		{ executionEnabled, hotkeyEnabled, showTagsInOutput, logDetailsPaneEnabled, autoFocusTextBox },
+	) => ({
 		...state,
 		executionEnabled,
 		hotkeyEnabled,
 		showTagsInOutput,
+		logDetailsPaneEnabled,
+		autoFocusTextBox,
 	}),
 	[ConsoleActionName.AddOutput]: (state, { message }) => {
 		return $dbg({

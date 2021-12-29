@@ -48,6 +48,7 @@
     "@rbxts/message-templates": "^0.3.2",
     "@rbxts/net": "^3.0.0-alpha.0",
     "@rbxts/roact": "1.4.0-ts.2",
+    "@rbxts/roact-hooks": "^0.3.0-ts.2",
     "@rbxts/roact-rodux": "0.2.2-ts.5",
     "@rbxts/rodux": "3.0.0-ts.3",
     "@rbxts/rust-classes": "0.11.0-beta.1",
