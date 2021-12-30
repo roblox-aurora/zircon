@@ -6,7 +6,7 @@ import { ZrRuntimeError } from "@rbxts/zirconium/out/Runtime/Runtime";
 import { ZrParserError } from "@rbxts/zirconium/out/Ast/Parser";
 import { Token } from "@rbxts/zirconium/out/Ast/Tokens/Tokens";
 import { Node } from "@rbxts/zirconium/out/Ast/Nodes/NodeTypes";
-import { $dbg } from "rbxts-transform-debug";
+import { $dbg, $print } from "rbxts-transform-debug";
 import { ZirconLogLevel } from "../Client/Types";
 import { ReadonlyZirconPermissionSet } from "./Class/ZirconGroup";
 const IsServer = RunService.IsServer();
@@ -134,7 +134,7 @@ namespace ZirconServer {
 		}
 
 		DispatchToServer.Connect((player, message) => {
-			print(player, message);
+			$print(player, message);
 			dispatch(player, message)
 				.then((output) => {
 					for (const message of output) {

@@ -16,6 +16,7 @@ import { Workspace } from "@rbxts/services";
 import Padding from "Client/Components/Padding";
 import SearchTextBox from "Client/Components/SearchTextBox";
 import MultiSelectDropdown from "Client/Components/MultiSelectDropdown";
+import { $print } from "rbxts-transform-debug";
 
 export interface DockedConsoleProps extends MappedProps, MappedDispatch {}
 interface DockedConsoleState {
@@ -293,7 +294,9 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 										OnClick={() => {}}
 									/>
 									<ZirconSyntaxTextBox
+										RefocusOnSubmit={this.props.autoFocus}
 										AutoFocus={this.props.autoFocus}
+										PlaceholderText="Enter script to execute"
 										Size={new UDim2(1, -16 - 32 - 100, 1, 0)}
 										Position={new UDim2(0, 16, 0, 0)}
 										Focused={this.state.isVisible}
@@ -305,19 +308,32 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 										}}
 										OnHistoryTraversal={(direction) => {
 											let index = this.state.historyIndex;
+
+											const history = this.props.history;
+											let text = "";
 											if (direction === "back") {
-												index = this.state.historyIndex - 1;
+												if (index <= 0) {
+													index = history.size() - 1;
+												} else {
+													index = index - 1;
+												}
+
+												text = history[index];
 											} else if (direction === "forward") {
-												index = this.state.historyIndex + 1;
+												if (index >= history.size() - 1) {
+													index = 0;
+												} else {
+													index = index + 1;
+												}
+
+												text = history[index];
 											}
 
-											print("[historyTraversal]", direction);
+											$print("[historyTraversal]", direction, text, history);
 
 											this.setState({
 												historyIndex: index,
-												source: this.props.history[
-													index < 0 ? this.props.history.size() - index : index
-												],
+												source: text,
 											});
 										}}
 									/>

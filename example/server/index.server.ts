@@ -51,8 +51,12 @@ ZirconServer.Registry.Init(
 		.CreateDefaultUserGroup()
 		.CreateDefaultAdminGroup()
 		.AddFunction(
-			new ZirconFunctionBuilder("ping").Bind((context) => {
-				context.LogInfo("Pong!");
+			new ZirconFunctionBuilder("ping").AddArgument("string?").Bind((context, response) => {
+				if (response !== undefined) {
+					context.LogInfo("Pong! with {Argument}", response);
+				} else {
+					context.LogInfo("Pong!");
+				}
 			}),
 			["User"],
 		)
@@ -78,7 +82,7 @@ ZirconServer.Registry.Init(
 				)
 				.AddFunction(ZirconPrint)
 				.AddFunction(
-					new ZirconFunctionBuilder("with_varadic")
+					new ZirconFunctionBuilder("with_variadic")
 						.AddArgument("string")
 						.AddArgument("player")
 						.AddArgument("number?")

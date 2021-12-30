@@ -6,29 +6,45 @@ import ZrLuauFunction, { ZrLuauArgument } from "@rbxts/zirconium/out/Data/LuauFu
 import ZrPlayerScriptContext from "@rbxts/zirconium/out/Runtime/PlayerScriptContext";
 import { $env } from "rbxts-transform-env";
 import Server from "../Server";
-import { ZirconFunctionBuilder } from "./ZirconFunctionBuilder";
-import { InferArguments, Validator, ZirconValidator } from "./ZirconTypeValidator";
+import { InferArguments, ZirconValidator } from "./ZirconTypeValidator";
 import { ZirconContext } from "./ZirconContext";
+import ZrUndefined from "@rbxts/zirconium/out/Data/Undefined";
+import { $print } from "rbxts-transform-debug";
+
+let zirconTypeOf: typeof import("Shared/typeId")["zirconTypeOf"] | undefined;
 
 export function emitArgumentError(
 	func: ZirconFunction<any, any>,
 	context: ZrContext,
-	arg: number,
+	arg: ZrValue | ZrUndefined,
+	index: number,
 	validator: ZirconValidator<unknown, unknown>,
 ) {
+	const err = typeIs(validator.ErrorMessage, "function")
+		? validator.ErrorMessage(arg, index, func)
+		: validator.ErrorMessage;
+
+	// Have to dynamically import
+	if (zirconTypeOf === undefined) {
+		zirconTypeOf = import("Shared/typeId").expect().zirconTypeOf;
+	}
+
 	Server.Log.WriteStructured({
-		SourceContext: tostring(func),
+		SourceContext: `(function '${func.GetName()}')`,
 		Level: LogLevel.Error,
-		Template: `Call to {FunctionName} failed - Argument#{ArgIndex} expected {ArgType}`,
+		Template: `Argument #{ArgIndex} to '{FunctionName}': ${err ?? "Expected {ValidatorType}, got {ArgType}"}`,
 		Timestamp: DateTime.now().ToIsoDate(),
 		FunctionName: func.GetName(),
-		CallingPlayer: context.getExecutor()!,
-		ArgIndex: arg + 1,
-		ArgType: validator.Type,
+		FunctionArgs: func.GetArgumentTypes(),
+		FunctionVariadicArg: func.GetVariadicType(),
+		LogToPlayer: context.getExecutor(),
+		ArgIndex: index + 1,
+		ValidatorType: validator.Type,
+		ArgType: zirconTypeOf(arg),
 	});
 }
 
-export interface ZirconFunctionMetadata<V extends readonly ZirconValidator<unknown, unknown>[]> {
+export interface ZirconFunctionMetadata {
 	readonly Description?: string;
 	readonly ArgumentValidators: ZirconValidator<unknown, unknown>[];
 	readonly VariadicValidator?: ZirconValidator<unknown, unknown>;
@@ -41,7 +57,7 @@ export class ZirconFunction<
 	public constructor(
 		private name: string,
 		private zirconCallback: (context: ZirconContext, ...args: InferArguments<V>) => R,
-		private metadata: ZirconFunctionMetadata<V>,
+		private metadata: ZirconFunctionMetadata,
 	) {
 		const { VariadicValidator, ArgumentValidators } = metadata;
 		super((context, ...args) => {
@@ -63,11 +79,8 @@ export class ZirconFunction<
 						}
 					} else {
 						if (RunService.IsServer()) {
-							emitArgumentError(this, context, i, validator);
-
-							if ($env("NODE_ENV") === "development") {
-								print("Got", argument);
-							}
+							emitArgumentError(this, context, argument, i, validator);
+							$print("Got", argument);
 						}
 						return;
 					}
@@ -87,10 +100,8 @@ export class ZirconFunction<
 						}
 					} else {
 						if (RunService.IsServer()) {
-							emitArgumentError(this, context, i, VariadicValidator);
-							if ($env("NODE_ENV") === "development") {
-								print("Got", argument);
-							}
+							emitArgumentError(this, context, argument, i, VariadicValidator);
+							$print("Got", argument);
 						}
 						return;
 					}
@@ -143,9 +154,5 @@ export class ZirconFunction<
 			argTypes.join(", ") +
 			") { [ZirconFunction] }"
 		);
-	}
-
-	public static args<V extends readonly Validator[]>(...value: V) {
-		return value;
 	}
 }

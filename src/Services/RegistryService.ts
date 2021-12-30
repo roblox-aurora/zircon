@@ -132,12 +132,10 @@ export namespace ZirconRegistryService {
 		for (const groupOrId of targetGroups) {
 			const group = typeIs(groupOrId, "string") ? groups.get(groupOrId) : groupOrId;
 			if (group) {
-				$ifEnv("NODE_ENV", "development", () =>
-					print(
-						`Add player '${player}' to groups [ ${targetGroups
-							.map((s) => (typeIs(s, "string") ? s : s.GetName()))
-							.join(", ")} ]`,
-					),
+				$print(
+					`Add player '${player}' to groups [ ${targetGroups
+						.map((s) => (typeIs(s, "string") ? s : s.GetName()))
+						.join(", ")} ]`,
 				);
 
 				group.AddMember(player);

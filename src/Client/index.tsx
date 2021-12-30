@@ -6,7 +6,7 @@ import ZirconClientStore from "./BuiltInConsole/Store";
 import { ConsoleActionName } from "./BuiltInConsole/Store/_reducers/ConsoleReducer";
 import ZirconDockedConsole, { DockedConsoleProps } from "./BuiltInConsole/UI/DockedConsole";
 import { $ifEnv } from "rbxts-transform-env";
-import { $dbg } from "rbxts-transform-debug";
+import { $dbg, $print } from "rbxts-transform-debug";
 import Lazy from "../Shared/Lazy";
 import { GetCommandService } from "../Services";
 import Remotes, { RemoteId, ZirconNetworkMessageType } from "../Shared/Remotes";
@@ -136,9 +136,7 @@ namespace ZirconClient {
 			EnableTags = true,
 		} = options;
 
-		$ifEnv("NODE_ENV", "development", () => {
-			print("[zircon-debug] bindConsole called with", ...Keys);
-		});
+		$print("[zircon-debug] bindConsole called with", ...Keys);
 		BindActivationKeys(Keys);
 		handle = Roact.mount(
 			<ThemeContext.Provider value={BuiltInThemes[Theme]}>

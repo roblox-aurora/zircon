@@ -14,6 +14,7 @@ import {
 import { ZirconFuzzyPlayers } from "./Validators/ZirconFuzzyPlayersValidator";
 import ZrRange from "@rbxts/zirconium/out/Data/Range";
 import { ZirconFunction } from "./ZirconFunction";
+import { zirconTypeOf } from "Shared/typeId";
 
 type PickFrom<T, U> = U extends never ? T : U;
 export interface ZirconValidator<T, U = never> {
@@ -26,6 +27,7 @@ export interface ZirconValidator<T, U = never> {
 	 */
 	Validate(value: unknown, player?: Player): value is T;
 	Transform?(value: T, player?: Player): U;
+	ErrorMessage?: ((arg: ZrValue | ZrUndefined, index: number, func: ZirconFunction<any, any>) => string) | string;
 }
 
 export interface ZirconArgument<T extends Validator> {
@@ -45,6 +47,7 @@ export const ZirconString: ZirconValidator<string> = {
 	Validate(value): value is string {
 		return typeIs(value, "string");
 	},
+	ErrorMessage: (value) => `Expected string, got ${zirconTypeOf(value)}`,
 };
 
 export const ZirconNumber: ZirconValidator<number> = {
@@ -52,6 +55,7 @@ export const ZirconNumber: ZirconValidator<number> = {
 	Validate(value): value is number {
 		return typeIs(value, "number");
 	},
+	ErrorMessage: (value) => `Expected number, got ${zirconTypeOf(value)}`,
 };
 
 export const ZirconBoolean: ZirconValidator<boolean> = {
@@ -59,6 +63,7 @@ export const ZirconBoolean: ZirconValidator<boolean> = {
 	Validate(value): value is boolean {
 		return typeIs(value, "number");
 	},
+	ErrorMessage: (value) => `Expected boolean, got ${zirconTypeOf(value)}`,
 };
 
 export const ZirconObject: ZirconValidator<ZrObject> = {
@@ -66,6 +71,7 @@ export const ZirconObject: ZirconValidator<ZrObject> = {
 	Validate(value): value is ZrObject {
 		return value instanceof ZrObject;
 	},
+	ErrorMessage: (value) => `Expected object, got ${zirconTypeOf(value)}`,
 };
 
 export const NativeEnum: ZirconValidator<ZrEnum> = {
@@ -73,6 +79,7 @@ export const NativeEnum: ZirconValidator<ZrEnum> = {
 	Validate(value: unknown): value is ZrEnum {
 		return value instanceof ZrEnum;
 	},
+	ErrorMessage: (value) => `Expected enum, got ${zirconTypeOf(value)}`,
 };
 
 export const NativeEnumItem: ZirconValidator<ZrEnumItem> = {
@@ -80,6 +87,7 @@ export const NativeEnumItem: ZirconValidator<ZrEnumItem> = {
 	Validate(value: unknown): value is ZrEnumItem {
 		return value instanceof ZrEnumItem;
 	},
+	ErrorMessage: (value) => `Expected enum item, got ${zirconTypeOf(value)}`,
 };
 
 export function ZirconOptional<K extends ZirconValidator<ZrValue, unknown>>(validator: K) {
@@ -114,6 +122,7 @@ export const ZirconDefined: ZirconValidator<ZrValue> = {
 	Validate(value: unknown): value is ZrValue {
 		return value !== ZrUndefined && value !== undefined;
 	},
+	ErrorMessage: (value) => `Expected defined, got ${zirconTypeOf(value)}`,
 };
 
 export const ZirconRange: ZirconValidator<ZrRange | number, ZrRange> = {
@@ -128,6 +137,7 @@ export const ZirconRange: ZirconValidator<ZrRange | number, ZrRange> = {
 			return value;
 		}
 	},
+	ErrorMessage: (value) => `Expected range, got ${zirconTypeOf(value)}`,
 };
 
 export function ZirconInstanceIsA<K extends keyof Instances>(typeName: K) {
@@ -139,6 +149,7 @@ export function ZirconInstanceIsA<K extends keyof Instances>(typeName: K) {
 		Transform(value) {
 			return value.value() as Instances[K];
 		},
+		ErrorMessage: (value) => `Expected Instance, got ${zirconTypeOf(value)}`,
 	});
 }
 

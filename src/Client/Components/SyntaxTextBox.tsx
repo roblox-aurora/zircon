@@ -4,6 +4,7 @@ import { ZrRichTextHighlighter } from "@rbxts/zirconium/out/Ast";
 import ThemeContext, { convertColorObjectToHex, ThemeSyntaxColors } from "../../Client/UIKit/ThemeContext";
 import Maid from "@rbxts/maid";
 import { UserInputService } from "@rbxts/services";
+import { $print } from "rbxts-transform-debug";
 
 interface SyntaxTextBoxState {
 	source: string;
@@ -27,6 +28,12 @@ interface SyntaxTextBoxProps {
 	 * Whether or not to auto focus this text box
 	 */
 	AutoFocus?: boolean;
+
+	/**
+	 * Whether or not to refocus this text box on submit
+	 */
+	RefocusOnSubmit?: boolean;
+
 	/**
 	 * Whether or not this textbox is multi lined
 	 */
@@ -126,6 +133,7 @@ export default class ZirconSyntaxTextBox extends Roact.Component<SyntaxTextBoxPr
 								TextSize={18}
 								TextXAlignment="Left"
 								TextYAlignment="Top"
+								ClearTextOnFocus
 								PlaceholderColor3={theme.SecondaryTextColor3}
 								PlaceholderText={this.props.PlaceholderText}
 								CursorPosition={this.state.cursorPosition}
@@ -140,13 +148,19 @@ export default class ZirconSyntaxTextBox extends Roact.Component<SyntaxTextBoxPr
 								TextTransparency={0.75}
 								Event={{
 									Focused: (textBox) => {
-										this.setState({ focused: true });
+										this.setState({ focused: true, source: "" });
 									},
 									FocusLost: (textBox, enterPressed, inputThatCausedFocusLoss) => {
 										if (enterPressed && !this.props.MultiLine) {
 											this.props.OnEnterSubmit?.(textBox.Text);
 										}
+
 										this.setState({ focused: false });
+
+										if (enterPressed && this.props.RefocusOnSubmit) {
+											// Needs to be deferred, otherwise roblox keeps the enter key there.
+											task.defer(() => textBox.CaptureFocus());
+										}
 									},
 								}}
 								TextColor3={theme.PrimaryTextColor3}

@@ -4,6 +4,7 @@ import { DestructureMode, TemplateTokenKind } from "@rbxts/message-templates/out
 import ZrContext from "@rbxts/zirconium/out/Data/Context";
 import { RbxSerializer } from "@rbxts/message-templates/out/RbxSerializer";
 import { ZirconFunction } from "./ZirconFunction";
+import { $print } from "rbxts-transform-debug";
 
 export class ZirconContext {
 	constructor(private innerContext: ZrContext, private executingFunction: ZirconFunction<any, any>) {}
@@ -23,9 +24,10 @@ export class ZirconContext {
 		import("../Services/LogService").then((log) => {
 			const message: Writable<LogEvent> = {
 				Level: level,
-				SourceContext: undefined,
+				SourceContext: `(function '${this.executingFunction.GetName()}')`,
 				Template: template,
 				Timestamp: DateTime.now().ToIsoDate(),
+				LogToPlayer: this.GetExecutor(),
 			};
 
 			const tokens = MessageTemplateParser.GetTokens(template);
@@ -46,13 +48,7 @@ export class ZirconContext {
 				}
 			}
 
-			log.ZirconLogService.WriteStructured({
-				Level: level,
-				SourceContext: `(function '${this.executingFunction.GetName()}')`,
-				LogToPlayer: this.GetExecutor(),
-				Template: template,
-				Timestamp: DateTime.now().ToIsoDate(),
-			});
+			log.ZirconLogService.WriteStructured(message);
 		});
 	}
 
