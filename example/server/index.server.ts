@@ -85,13 +85,13 @@ ZirconServer.Registry.Init(
 					new ZirconFunctionBuilder("with_variadic")
 						.AddArgument("string")
 						.AddArgument("player")
-						.AddArgument("number?")
+						.AddArgument(["number?", "string"])
 						.AddVariadicArgument("object")
-						.Bind(() => {}),
+						.Bind((c, s, p, n, o) => {}),
 				)
 				.AddFunction(
 					new ZirconFunctionBuilder("with_unions")
-						.AddVariadicArgumentUnion(["string", "number", "range"])
+						.AddVariadicArgument(["string", "number", "range"])
 						.Bind((context, ...strOrNum) => {
 							context.LogInfo("Got a {$Value}", strOrNum);
 						}),
