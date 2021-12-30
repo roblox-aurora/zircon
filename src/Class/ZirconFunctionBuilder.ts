@@ -1,16 +1,10 @@
-import {
-	BuiltInValidators,
-	InferArguments,
-	InferValidator,
-	InferValidators,
-	Validator,
-	ZirconArgument,
-	ZirconValidator,
-} from "./ZirconTypeValidator";
+import { BuiltInValidators, InferArguments, InferValidator, Validator, ZirconValidator } from "./ZirconTypeValidator";
 import { ZirconFunction } from "./ZirconFunction";
 import { ZirconContext } from "./ZirconContext";
 import { ZrValue } from "@rbxts/zirconium/out/Data/Locals";
 import { ZirconEnum } from "./ZirconEnum";
+import { ZirconTypeUnion } from "./TypeUtilities";
+import { $print } from "rbxts-transform-debug";
 
 export class ZirconFunctionBuilder<V extends ZirconValidator<unknown, unknown>[] = []> {
 	private validators = new Array<ZirconValidator<unknown, unknown>>();
@@ -44,13 +38,49 @@ export class ZirconFunctionBuilder<V extends ZirconValidator<unknown, unknown>[]
 		return (this as unknown) as ZirconFunctionBuilder<[...V, InferValidator<TValidation>]>;
 	}
 
+	/**
+	 * Adds an argument to this zircon function, that's a union of multiple types
+	 * @param argValidator The argument type/validator
+	 * @param description The description for this argument
+	 * @returns The builder
+	 * @internal
+	 */
+	public AddArgumentUnion<TValidation extends Exclude<Validator, `${string}?`>>(argValidators: TValidation[], description?: string) {
+		const union = ZirconTypeUnion(...argValidators);
+		this.validators.push(union);
+		return (this as unknown) as ZirconFunctionBuilder<[...V, InferValidator<TValidation>]>;
+	}
+
+		/**
+	 * Adds a varadic argument to this zircon function, that's a union of multiple types
+	 * @param argValidator The argument type/validator
+	 * @param description The description for this argument
+	 * @returns The builder
+	 * @internal
+	 */
+	public AddVariadicArgumentUnion<TValidation extends Exclude<Validator, `${string}?`>>(argValidators: TValidation[]) {
+		const union = ZirconTypeUnion(...argValidators);
+		this.varadicValidator = union;
+		this.hasVaradic = true;
+
+		return (this as unknown) as Omit<
+			ZirconFunctionBuilder<[...V, ...InferValidator<TValidation>[]]>,
+			"AddVariadicArgument" | "AddArgument" | "AddArgumentUnion" | "AddVariadicArgumentUnion"
+		>;
+	}
+
+	/**
+	 * Adds a varadic argument to this zircon function
+	 * @param arg 
+	 * @returns 
+	 */
 	public AddVariadicArgument<TValidation extends Validator>(arg: TValidation) {
 		this.hasVaradic = true;
 		this.varadicValidator = this.GetValidator(arg);
 
 		return (this as unknown) as Omit<
 			ZirconFunctionBuilder<[...V, ...InferValidator<TValidation>[]]>,
-			"AddVariadicArgument" | "AddArgument"
+			"AddVariadicArgument" | "AddArgument" | "AddArgumentUnion" | "AddVariadicArgumentUnion"
 		>;
 	}
 

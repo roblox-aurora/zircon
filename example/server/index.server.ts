@@ -89,6 +89,13 @@ ZirconServer.Registry.Init(
 						.AddVariadicArgument("object")
 						.Bind(() => {}),
 				)
+				.AddFunction(
+					new ZirconFunctionBuilder("with_unions")
+						.AddVariadicArgumentUnion(["string", "number", "range"])
+						.Bind((context, ...strOrNum) => {
+							context.LogInfo("Got a {$Value}", strOrNum);
+						}),
+				)
 				.Build(),
 			[ZirconDefaultGroup.User],
 		)
