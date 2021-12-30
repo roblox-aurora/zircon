@@ -7,9 +7,11 @@
     "prepare": "npm run build",
     "build": "rbxtsc --verbose",
     "dev:example": "concurrently npm:watch:example npm:serve:example",
+    "prod:example": "concurrently npm:watch-prod:example npm:serve:example",
     "build:example": "rbxtsc --type=game -p ./example -i ./include",
     "build:luau": "rbxtsc --verbose --type=model --rojo=\"luau/build.project.json\"",
     "watch:example": "cross-env NODE_ENV=development rbxtsc -w --type=game -p ./example -i ./include",
+    "watch-prod:example": "rbxtsc -w --type=game -p ./example -i ./include",
     "serve:example": "rojo serve ./example/default.project.json --port 34567"
   },
   "keywords": [
