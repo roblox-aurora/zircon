@@ -5,7 +5,7 @@
     <br/>
 </div>
 
-<img src="./assets/Example2.jpg"/>
+<img src="./assets/Example2.png"/>
 
 ## Setup
 To begin, it is recommended to do
