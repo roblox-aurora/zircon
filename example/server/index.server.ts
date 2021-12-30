@@ -134,6 +134,12 @@ ZirconServer.Registry.Init(
 			[ZirconDefaultGroup.User],
 		)
 		.AddFunction(
+			new ZirconFunctionBuilder("array_test").AddArrayArgument("string").Bind((context, myArray) => {
+				context.LogInfo("Array value {Array}", myArray.join(", "));
+			}),
+			[ZirconDefaultGroup.User],
+		)
+		.AddFunction(
 			new ZirconFunctionBuilder("print_message")
 				.AddArgument("string")
 				.Bind((context, message) =>

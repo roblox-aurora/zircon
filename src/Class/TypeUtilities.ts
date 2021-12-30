@@ -1,27 +1,42 @@
+import t from "@rbxts/t";
 import { ZirconEnum } from "./ZirconEnum";
 import {
 	BuiltInValidators,
 	InferTypeFromValidator2,
+	InferValidator,
 	InferValidators,
 	Validator,
 	ZirconValidator,
 } from "./ZirconTypeValidator";
 
+const isArray = t.array(t.any);
 type ArrayType<T> = T extends ReadonlyArray<infer U> ? U : never;
 
+export function ZirconGetValidatorType<V extends Validator>(validatorLike: V) {
+	let validator: ZirconValidator<unknown, unknown>;
+	if (typeIs(validatorLike, "string")) {
+		validator = BuiltInValidators[validatorLike as keyof BuiltInValidators];
+	} else if (validatorLike instanceof ZirconEnum) {
+		validator = validatorLike.getMemberType();
+	} else {
+		validator = validatorLike;
+	}
+	return validator;
+}
+
 export function ZirconTypeUnion<V extends ReadonlyArray<Validator>>(...validators: V) {
-	const result = (validators.map((v) => {
-		let validator: ZirconValidator<unknown, unknown>;
-		if (typeIs(v, "string")) {
-			validator = BuiltInValidators[v as keyof BuiltInValidators];
-		} else if (v instanceof ZirconEnum) {
-			validator = v.getMemberType();
-		} else {
-			validator = v;
-		}
-		return validator;
-	}) as unknown) as InferValidators<V>;
+	const result = (validators.map(ZirconGetValidatorType) as unknown) as InferValidators<V>;
 	return ZirconUnionValidator(result);
+}
+
+export function ZirconArrayType<T extends Validator>(validator: T) {
+	const arrayType = ZirconGetValidatorType(validator);
+	return identity<ZirconValidator<InferTypeFromValidator2<InferValidator<T>>[]>>({
+		Type: arrayType.Type + "[]",
+		Validate(value, player): value is InferTypeFromValidator2<InferValidator<T>>[] {
+			return isArray(value) && value.every((value) => arrayType.Validate(value, player));
+		},
+	});
 }
 
 export interface ZirconUnionValidator<T extends ReadonlyArray<unknown>, U extends ReadonlyArray<unknown>>

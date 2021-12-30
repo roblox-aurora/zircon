@@ -1,9 +1,17 @@
-import { BuiltInValidators, InferArguments, InferValidator, Validator, ZirconValidator } from "./ZirconTypeValidator";
+import {
+	BuiltInValidators,
+	InferArguments,
+	InferTypeFromValidator2,
+	InferValidator,
+	InferValidators,
+	Validator,
+	ZirconValidator,
+} from "./ZirconTypeValidator";
 import { ZirconFunction } from "./ZirconFunction";
 import { ZirconContext } from "./ZirconContext";
 import { ZrValue } from "@rbxts/zirconium/out/Data/Locals";
 import { ZirconEnum } from "./ZirconEnum";
-import { ZirconTypeUnion } from "./TypeUtilities";
+import { ZirconArrayType, ZirconTypeUnion } from "./TypeUtilities";
 import t from "@rbxts/t";
 const isArray = t.array(t.any);
 
@@ -27,6 +35,14 @@ export class ZirconFunctionBuilder<V extends ZirconValidator<unknown, unknown>[]
 		return validator;
 	}
 
+	private GetUnionableValidator<TValidation extends Validator>(argValidator: TValidation | TValidation[]) {
+		if (isArray(argValidator)) {
+			return this.GetValidator(ZirconTypeUnion(...argValidator));
+		} else {
+			return this.GetValidator(argValidator);
+		}
+	}
+
 	/**
 	 * Adds an argnument to this zircon function
 	 * @param argValidator The argument type/validator
@@ -34,15 +50,26 @@ export class ZirconFunctionBuilder<V extends ZirconValidator<unknown, unknown>[]
 	 * @returns The builder
 	 */
 	public AddArgument<TValidation extends Validator>(argValidator: TValidation | TValidation[], description?: string) {
-		let validator: ZirconValidator<any, any>;
-		if (isArray(argValidator)) {
-			validator = this.GetValidator(ZirconTypeUnion(...argValidator));
-		} else {
-			validator = this.GetValidator(argValidator);
-		}
-
+		const validator = this.GetUnionableValidator(argValidator);
 		this.validators.push(validator);
 		return (this as unknown) as ZirconFunctionBuilder<[...V, InferValidator<TValidation>]>;
+	}
+
+	/**
+	 * Adds an argnument to this zircon function
+	 * @param argValidator The argument type/validator
+	 * @param description The description for this argument
+	 * @returns The builder
+	 */
+	public AddArrayArgument<TValidation extends Validator>(
+		argValidator: TValidation | TValidation[],
+		description?: string,
+	) {
+		const validator = ZirconArrayType(this.GetUnionableValidator(argValidator));
+		this.validators.push(validator);
+		return (this as unknown) as ZirconFunctionBuilder<
+			[...V, ZirconValidator<InferTypeFromValidator2<InferValidator<TValidation>>[]>]
+		>;
 	}
 
 	/**
@@ -52,13 +79,7 @@ export class ZirconFunctionBuilder<V extends ZirconValidator<unknown, unknown>[]
 	 */
 	public AddVariadicArgument<TValidation extends Validator>(arg: TValidation | TValidation[]) {
 		this.hasVaradic = true;
-
-		let validator: ZirconValidator<any, any>;
-		if (isArray(arg)) {
-			validator = this.GetValidator(ZirconTypeUnion(...arg));
-		} else {
-			validator = this.GetValidator(arg);
-		}
+		const validator = this.GetUnionableValidator(arg);
 		this.varadicValidator = validator;
 
 		return (this as unknown) as Omit<
