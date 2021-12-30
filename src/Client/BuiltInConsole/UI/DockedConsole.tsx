@@ -118,7 +118,7 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 		return (
 			<ThemeContext.Consumer
 				render={(theme) => (
-					<screengui DisplayOrder={10000} ResetOnSpawn={false} IgnoreGuiInset>
+					<screengui ZIndexBehavior="Sibling" DisplayOrder={10000} ResetOnSpawn={false} IgnoreGuiInset>
 						<frame
 							Key="ZirconViewport"
 							Active={this.state.isFullView}
@@ -129,6 +129,23 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 							Size={sizePositionBinding.map((v) => new UDim2(1, 0, 0, v.Size))}
 							Position={sizePositionBinding.map((v) => new UDim2(0, 0, 0, -v.Size + v.Position))}
 						>
+							<frame
+								Position={this.filterSizeY.map((v) => {
+									return new UDim2(0, 0, 0, this.state.isFullView ? v : 0);
+								})}
+								Size={this.filterSizeY.map((v) => {
+									return new UDim2(
+										1,
+										0,
+										1,
+										this.props.executionEnabled ? -30 - (this.state.isFullView ? v : 0) : 0,
+									);
+								})}
+								BackgroundTransparency={1}
+							>
+								<ZirconOutput />
+							</frame>
+
 							<frame
 								Size={new UDim2(0, 100, 0, 30)}
 								Position={new UDim2(1, -100, 0, 5)}
@@ -142,6 +159,7 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 								<Padding Padding={{ Right: 25 }} />
 								<ZirconIconButton
 									Icon="Funnel"
+									ZIndex={2}
 									Floating
 									Size={new UDim2(0, 30, 0, 30)}
 									OnClick={() => this.setState({ filterVisible: true })}
@@ -247,22 +265,6 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 								</frame>
 							</frame>
 
-							<frame
-								Position={this.filterSizeY.map((v) => {
-									return new UDim2(0, 0, 0, this.state.isFullView ? v : 0);
-								})}
-								Size={this.filterSizeY.map((v) => {
-									return new UDim2(
-										1,
-										0,
-										1,
-										this.props.executionEnabled ? -30 - (this.state.isFullView ? v : 0) : 0,
-									);
-								})}
-								BackgroundTransparency={1}
-							>
-								<ZirconOutput />
-							</frame>
 							{this.props.executionEnabled && (
 								<frame
 									BorderColor3={Color3.fromRGB(40, 40, 40)}
