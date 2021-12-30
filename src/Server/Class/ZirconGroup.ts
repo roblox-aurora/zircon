@@ -84,7 +84,7 @@ export default class ZirconUserGroup {
 				if (typeIs(group.GroupRoleOrRank, "string")) {
 					canJoinGroup ||= player.GetRoleInGroup(group.GroupId) === group.GroupRoleOrRank;
 				} else {
-					canJoinGroup ||= player.GetRankInGroup(group.GroupId) === group.GroupRoleOrRank;
+					canJoinGroup ||= player.GetRankInGroup(group.GroupId) >= group.GroupRoleOrRank;
 				}
 			}
 		}
