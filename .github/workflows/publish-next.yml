@@ -1,6 +1,9 @@
 name: Publish
 
 on:
+  push:
+     branches:
+       - next
   workflow_dispatch:
 #   schedule:
 #     - cron: '0 7 * * *'
