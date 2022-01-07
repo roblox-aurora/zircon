@@ -24,8 +24,10 @@ export interface ZirconGroupConfiguration {
 
 export class ZirconGroupBuilder {
 	public permissions: ZirconPermissions = {
+		CanAccessConsole: true,
 		CanAccessFullZirconEditor: false,
 		CanExecuteZirconiumScripts: false,
+		CanViewLogMetadata: false,
 		CanRecieveServerLogMessages: false,
 	};
 
@@ -35,16 +37,38 @@ export class ZirconGroupBuilder {
 
 	public constructor(private parent: ZirconConfigurationBuilder, private rank: number, private id: string) {}
 
+	/** @deprecated @hidden */
 	public SetPermission<K extends keyof ZirconPermissions>(key: K, value: ZirconPermissions[K]) {
 		this.permissions[key] = value;
 		return this;
 	}
 
+	/**
+	 * Sets the permissions applicable to this group
+	 * @param permissions The permissions to override
+	 */
 	public SetPermissions(permissions: Partial<ZirconPermissions>) {
-		this.permissions = { ...this.permissions, ...permissions };
+		this.permissions = {
+			CanAccessConsole: permissions.CanAccessConsole ?? this.permissions.CanAccessConsole,
+			CanRecieveServerLogMessages:
+				permissions.CanRecieveServerLogMessages ?? this.permissions.CanRecieveServerLogMessages,
+			CanAccessFullZirconEditor:
+				permissions.CanAccessFullZirconEditor ?? this.permissions.CanAccessFullZirconEditor,
+			CanExecuteZirconiumScripts:
+				permissions.CanExecuteZirconiumScripts ?? this.permissions.CanExecuteZirconiumScripts,
+			CanViewLogMetadata:
+				permissions.CanViewLogMetadata ??
+				permissions.CanRecieveServerLogMessages ??
+				this.permissions.CanViewLogMetadata,
+		};
 		return this;
 	}
 
+	/**
+	 * Binds this group to the specified group, and the role
+	 * @param groupId The group id
+	 * @param groupRole The role (string)
+	 */
 	public BindToGroupRole(groupId: number, groupRole: string) {
 		this.groupLink.push({
 			GroupId: groupId,
@@ -53,6 +77,10 @@ export class ZirconGroupBuilder {
 		return this;
 	}
 
+	/**
+	 * Binds this group to the specified user ids
+	 * @param userIds The user ids
+	 */
 	public BindToUserIds(userIds: readonly number[]) {
 		this.bindType |= ZirconBindingType.UserIds;
 		for (const userId of userIds) {
@@ -61,16 +89,27 @@ export class ZirconGroupBuilder {
 		return this;
 	}
 
+	/**
+	 * Binds this group to _all players_.
+	 */
 	public BindToEveryone() {
 		this.bindType |= ZirconBindingType.Everyone;
 		return this;
 	}
 
+	/**
+	 * Binds the group to the creator of this game - either the group owner (if a group game) or the place owner.
+	 */
 	public BindToCreator() {
 		this.bindType |= ZirconBindingType.Creator;
 		return this;
 	}
 
+	/**
+	 * Binds this group to the specified group role and rank
+	 * @param groupId The group id
+	 * @param groupRank The group rank (number)
+	 */
 	public BindToGroupRank(groupId: number, groupRank: number) {
 		this.bindType |= ZirconBindingType.Group;
 		this.groupLink.push({

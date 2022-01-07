@@ -24,6 +24,15 @@ export const enum ZirconDefaultGroup {
 	Creator = "creator",
 }
 
+export interface DefaultAdminGroupOptions {
+	readonly GroupRank: number;
+	readonly GroupId?: number;
+}
+
+export interface DefaultUserGroupOptions {
+	readonly CanAccessConsole: boolean;
+}
+
 export class ZirconConfigurationBuilder {
 	public configuration: Writable<ZirconConfiguration> = {
 		Groups: [],
@@ -36,11 +45,11 @@ export class ZirconConfigurationBuilder {
 	 * Creates a group, given the specified configuration
 	 * @param rank The rank. This is used for group priority
 	 * @param id The id of the group to create
-	 * @param cb The configuration
+	 * @param configurator The configuration
 	 */
-	public CreateGroup(rank: number, id: string, cb: (group: ZirconGroupBuilder) => ZirconGroupBuilder) {
+	public CreateGroup(rank: number, id: string, configurator: (group: ZirconGroupBuilder) => ZirconGroupBuilder) {
 		const group = new ZirconGroupBuilder(this, rank, id);
-		cb(group).Add();
+		configurator(group).Add();
 		return this;
 	}
 
@@ -55,6 +64,7 @@ export class ZirconConfigurationBuilder {
 				CanAccessFullZirconEditor: true,
 				CanExecuteZirconiumScripts: true,
 				CanRecieveServerLogMessages: true,
+				CanViewLogMetadata: true,
 			})
 			.Add();
 	}
@@ -63,22 +73,32 @@ export class ZirconConfigurationBuilder {
 	 * Creates a default `admin` group.
 	 *
 	 * If this place is a group-owned place, and no arguments are provided anyone in the group
-	 * with a rank equal or higher to `250` is considered an administrator.
+	 * with a rank equal or higher to `254` is considered an administrator.
 	 *
 	 * If this isn't a group game, or you want a custom rule for `admin` you need to provide a configuration callback
 	 * @returns
 	 */
-	public CreateDefaultAdminGroup(c?: (group: ZirconGroupBuilder) => ZirconGroupBuilder) {
-		const group = new ZirconGroupBuilder(this, 250, ZirconDefaultGroup.Admin).SetPermissions({
+	public CreateDefaultAdminGroup(): ZirconConfigurationBuilder;
+	public CreateDefaultAdminGroup(
+		builder: (group: ZirconGroupBuilder) => ZirconGroupBuilder,
+	): ZirconConfigurationBuilder;
+	public CreateDefaultAdminGroup(options: DefaultAdminGroupOptions): ZirconConfigurationBuilder;
+	public CreateDefaultAdminGroup(
+		builderOrOptions?: ((group: ZirconGroupBuilder) => ZirconGroupBuilder) | DefaultAdminGroupOptions,
+	) {
+		const group = new ZirconGroupBuilder(this, 254, ZirconDefaultGroup.Admin).SetPermissions({
 			CanAccessFullZirconEditor: true,
 			CanExecuteZirconiumScripts: true,
 			CanRecieveServerLogMessages: true,
+			CanViewLogMetadata: true,
 		});
-		if (c !== undefined) {
-			c(group);
+		if (typeIs(builderOrOptions, "function")) {
+			builderOrOptions(group);
 		} else {
-			if (game.CreatorType === Enum.CreatorType.Group) {
-				group.BindToGroupRank(game.CreatorId, 250);
+			const { GroupRank = 254, GroupId = game.CreatorId } = builderOrOptions ?? {};
+
+			if (game.CreatorType === Enum.CreatorType.Group || GroupId !== game.CreatorId) {
+				group.BindToGroupRank(GroupId, GroupRank);
 			} else {
 				ZirconServer.Log.WriteStructured({
 					Level: LogLevel.Warning,
@@ -97,8 +117,13 @@ export class ZirconConfigurationBuilder {
 	 * Creates a default `user` group, this refers to _anyone_ and shouldn't be used for more sensitive things.
 	 * @returns
 	 */
-	public CreateDefaultUserGroup() {
-		return new ZirconGroupBuilder(this, 1, ZirconDefaultGroup.User).BindToEveryone().Add();
+	public CreateDefaultUserGroup(options?: DefaultUserGroupOptions) {
+		return new ZirconGroupBuilder(this, 1, ZirconDefaultGroup.User)
+			.SetPermissions({
+				CanAccessConsole: options?.CanAccessConsole ?? false,
+			})
+			.BindToEveryone()
+			.Add();
 	}
 
 	/**

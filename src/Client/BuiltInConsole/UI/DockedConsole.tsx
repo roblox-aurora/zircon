@@ -113,6 +113,118 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 		}
 	}
 
+	public renderNonExecutionBox() {
+		return (
+			<ThemeContext.Consumer
+				render={(theme) => (
+					<frame
+						BorderColor3={theme.SecondaryBackgroundColor3}
+						BackgroundColor3={theme.PrimaryBackgroundColor3}
+						Size={new UDim2(1, 0, 0, 28)}
+						Position={new UDim2(0, 0, 1, -28)}
+					>
+						<uilistlayout FillDirection="Horizontal" HorizontalAlignment="Right" />
+						<ZirconIconButton
+							Icon={this.state.isFullView ? "UpDoubleArrow" : "DownDoubleArrow"}
+							Size={new UDim2(0, 32, 0, 28)}
+							OnClick={() => {
+								this.setState({ isFullView: !this.state.isFullView });
+							}}
+						/>
+					</frame>
+				)}
+			/>
+		);
+	}
+
+	public renderExecutionBox() {
+		return (
+			<ThemeContext.Consumer
+				render={(theme) => (
+					<frame
+						BorderColor3={theme.PrimaryBackgroundColor3}
+						BackgroundColor3={theme.SecondaryBackgroundColor3}
+						Size={new UDim2(1, 0, 0, 28)}
+						Position={new UDim2(0, 0, 1, -28)}
+					>
+						<uilistlayout FillDirection="Horizontal" />
+						<Dropdown<ZirconContext>
+							Disabled
+							Items={[
+								{
+									Id: ZirconContext.Server,
+									Text: "Server",
+									Icon: "ContextServer",
+								},
+								{
+									Id: ZirconContext.Client,
+									Text: "Client",
+									Icon: "ContextClient",
+								},
+							]}
+							Position={new UDim2(1, -150, 0, 0)}
+							Size={new UDim2(0, 100, 1, 0)}
+						/>
+						<ZirconIconButton Size={new UDim2(0, 16, 0, 28)} Icon="RightArrow" OnClick={() => {}} />
+						<ZirconSyntaxTextBox
+							RefocusOnSubmit={this.props.autoFocus}
+							AutoFocus={this.props.autoFocus}
+							CancelKeyCodes={this.props.toggleKeys}
+							OnCancel={this.props.close}
+							PlaceholderText="Enter script to execute"
+							Size={new UDim2(1, -16 - 32 - 100, 1, 0)}
+							Position={new UDim2(0, 16, 0, 0)}
+							Focused={this.state.isVisible}
+							Source={this.state.source}
+							OnEnterSubmit={(input) => {
+								this.props.addMessage(input);
+								this.dispatch.SendToServer(input);
+								this.setState({ historyIndex: 0, source: "" });
+							}}
+							OnHistoryTraversal={(direction) => {
+								let index = this.state.historyIndex;
+
+								const history = this.props.history;
+								let text = "";
+								if (direction === "back") {
+									if (index <= 0) {
+										index = history.size() - 1;
+									} else {
+										index = index - 1;
+									}
+
+									text = history[index];
+								} else if (direction === "forward") {
+									if (index >= history.size() - 1) {
+										index = 0;
+									} else {
+										index = index + 1;
+									}
+
+									text = history[index];
+								}
+
+								$print("[historyTraversal]", direction, text, history);
+
+								this.setState({
+									historyIndex: index,
+									source: text,
+								});
+							}}
+						/>
+						<ZirconIconButton
+							Icon={this.state.isFullView ? "UpDoubleArrow" : "DownDoubleArrow"}
+							Size={new UDim2(0, 32, 0, 28)}
+							OnClick={() => {
+								this.setState({ isFullView: !this.state.isFullView });
+							}}
+						/>
+					</frame>
+				)}
+			/>
+		);
+	}
+
 	public render() {
 		const sizePositionBinding = Roact.joinBindings({ Size: this.sizeY, Position: this.positionY });
 		return (
@@ -134,12 +246,7 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 									return new UDim2(0, 0, 0, this.state.isFullView ? v : 0);
 								})}
 								Size={this.filterSizeY.map((v) => {
-									return new UDim2(
-										1,
-										0,
-										1,
-										this.props.executionEnabled ? -30 - (this.state.isFullView ? v : 0) : 0,
-									);
+									return new UDim2(1, 0, 1, this.state.isFullView ? v : 0);
 								})}
 								BackgroundTransparency={1}
 							>
@@ -265,89 +372,8 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 								</frame>
 							</frame>
 
-							{this.props.executionEnabled && (
-								<frame
-									BorderColor3={Color3.fromRGB(40, 40, 40)}
-									BackgroundColor3={theme.SecondaryBackgroundColor3}
-									Size={new UDim2(1, 0, 0, 28)}
-									Position={new UDim2(0, 0, 1, -28)}
-								>
-									<uilistlayout FillDirection="Horizontal" />
-									<Dropdown<ZirconContext>
-										Disabled
-										Items={[
-											{
-												Id: ZirconContext.Server,
-												Text: "Server",
-												Icon: "ContextServer",
-											},
-											{
-												Id: ZirconContext.Client,
-												Text: "Client",
-												Icon: "ContextClient",
-											},
-										]}
-										Position={new UDim2(1, -150, 0, 0)}
-										Size={new UDim2(0, 100, 1, 0)}
-									/>
-									<ZirconIconButton
-										Size={new UDim2(0, 16, 0, 28)}
-										Icon="RightArrow"
-										OnClick={() => {}}
-									/>
-									<ZirconSyntaxTextBox
-										RefocusOnSubmit={this.props.autoFocus}
-										AutoFocus={this.props.autoFocus}
-										PlaceholderText="Enter script to execute"
-										Size={new UDim2(1, -16 - 32 - 100, 1, 0)}
-										Position={new UDim2(0, 16, 0, 0)}
-										Focused={this.state.isVisible}
-										Source={this.state.source}
-										OnEnterSubmit={(input) => {
-											this.props.addMessage(input);
-											this.dispatch.SendToServer(input);
-											this.setState({ historyIndex: 0, source: "" });
-										}}
-										OnHistoryTraversal={(direction) => {
-											let index = this.state.historyIndex;
-
-											const history = this.props.history;
-											let text = "";
-											if (direction === "back") {
-												if (index <= 0) {
-													index = history.size() - 1;
-												} else {
-													index = index - 1;
-												}
-
-												text = history[index];
-											} else if (direction === "forward") {
-												if (index >= history.size() - 1) {
-													index = 0;
-												} else {
-													index = index + 1;
-												}
-
-												text = history[index];
-											}
-
-											$print("[historyTraversal]", direction, text, history);
-
-											this.setState({
-												historyIndex: index,
-												source: text,
-											});
-										}}
-									/>
-									<ZirconIconButton
-										Icon={this.state.isFullView ? "UpDoubleArrow" : "DownDoubleArrow"}
-										Size={new UDim2(0, 32, 0, 28)}
-										OnClick={() => {
-											this.setState({ isFullView: !this.state.isFullView });
-										}}
-									/>
-								</frame>
-							)}
+							{this.props.executionEnabled && this.renderExecutionBox()}
+							{!this.props.executionEnabled && this.renderNonExecutionBox()}
 						</frame>
 					</screengui>
 				)}
@@ -361,12 +387,14 @@ interface MappedDispatch {
 	updateSearchFilter: (search: string) => void;
 	updateContextFilter: (context: ZirconContext | undefined) => void;
 	updateLevelFilter: (levels: Set<ZirconLogLevel>) => void;
+	close: () => void;
 }
 interface MappedProps {
 	isVisible: boolean;
 	executionEnabled: boolean;
 	history: string[];
 	searchQuery: string;
+	toggleKeys: Enum.KeyCode[];
 	autoFocus: boolean;
 	levelFilter: Set<ZirconLogLevel>;
 }
@@ -374,6 +402,7 @@ const mapStateToProps = (state: ConsoleReducer): MappedProps => {
 	return {
 		isVisible: state.visible,
 		autoFocus: state.autoFocusTextBox,
+		toggleKeys: state.bindingKeys,
 		levelFilter: state.filter.Levels ?? DEFAULT_FILTER,
 		executionEnabled: state.executionEnabled,
 		searchQuery: state.filter.SearchQuery ?? "",
@@ -412,6 +441,7 @@ const mapPropsToDispatch = (dispatch: DispatchParam<ZirconClientStore>): MappedD
 				dispatch({ type: ConsoleActionName.RemoveFilter, filter: "Levels" });
 			}
 		},
+		close: () => dispatch({ type: ConsoleActionName.SetConsoleVisible, visible: false }),
 	};
 };
 

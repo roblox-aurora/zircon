@@ -20,6 +20,11 @@ export type ReadonlyZirconPermissionSet = ReadonlySet<keyof ZirconPermissions>;
 
 export interface ZirconPermissions {
 	/**
+	 * Whether or not this group can access the console using the shortcut key
+	 */
+	readonly CanAccessConsole: boolean;
+
+	/**
 	 * Whether or not this group can recieve `Zircon.Log*` messages from the server
 	 */
 	readonly CanRecieveServerLogMessages: boolean;
@@ -30,8 +35,14 @@ export interface ZirconPermissions {
 
 	/**
 	 * Whether or not this group has full access to the Zircon Editor for Zirconium
+	 * @deprecated @hidden
 	 */
 	readonly CanAccessFullZirconEditor: boolean;
+
+	/**
+	 * Whether or not this user can view more information about a log message by clicking on it
+	 */
+	readonly CanViewLogMetadata: boolean;
 }
 
 export enum ZirconGroupType {

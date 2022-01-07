@@ -34,6 +34,8 @@ interface SyntaxTextBoxProps {
 	 */
 	RefocusOnSubmit?: boolean;
 
+	CancelKeyCodes?: Enum.KeyCode[];
+
 	/**
 	 * Whether or not this textbox is multi lined
 	 */
@@ -50,6 +52,8 @@ interface SyntaxTextBoxProps {
 	OnEnterSubmit?: (input: string) => void;
 
 	OnHistoryTraversal?: (direction: "back" | "forward") => void;
+
+	OnCancel?: () => void;
 }
 
 /**
@@ -58,6 +62,8 @@ interface SyntaxTextBoxProps {
 export default class ZirconSyntaxTextBox extends Roact.Component<SyntaxTextBoxProps, SyntaxTextBoxState> {
 	private ref = Roact.createRef<TextBox>();
 	private maid = new Maid();
+	private focusMaid = new Maid();
+
 	public constructor(props: SyntaxTextBoxProps) {
 		super(props);
 		this.state = {
@@ -86,6 +92,7 @@ export default class ZirconSyntaxTextBox extends Roact.Component<SyntaxTextBoxPr
 
 	public willUnmount() {
 		this.maid.DoCleaning();
+		this.focusMaid.DoCleaning();
 	}
 
 	public didUpdate(prevProps: SyntaxTextBoxProps) {
@@ -147,8 +154,22 @@ export default class ZirconSyntaxTextBox extends Roact.Component<SyntaxTextBoxPr
 								}}
 								TextTransparency={0.75}
 								Event={{
-									Focused: (textBox) => {
+									Focused: (rbx) => {
 										this.setState({ focused: true, source: "" });
+
+										this.focusMaid.GiveTask(
+											UserInputService.InputBegan.Connect((io) => {
+												if (
+													io.UserInputState === Enum.UserInputState.Begin &&
+													io.UserInputType === Enum.UserInputType.Keyboard &&
+													this.props.CancelKeyCodes?.includes(io.KeyCode)
+												) {
+													this.props.OnCancel?.();
+													rbx.ReleaseFocus();
+													rbx.Text = "";
+												}
+											}),
+										);
 									},
 									FocusLost: (textBox, enterPressed, inputThatCausedFocusLoss) => {
 										if (enterPressed && !this.props.MultiLine) {
@@ -160,6 +181,16 @@ export default class ZirconSyntaxTextBox extends Roact.Component<SyntaxTextBoxPr
 										if (enterPressed && this.props.RefocusOnSubmit) {
 											// Needs to be deferred, otherwise roblox keeps the enter key there.
 											task.defer(() => textBox.CaptureFocus());
+										}
+
+										this.focusMaid.DoCleaning();
+									},
+									InputChanged: (rbx, io) => {
+										if (io.UserInputType === Enum.UserInputType.Keyboard) {
+											print("pressKey", io.KeyCode);
+											if (this.props.CancelKeyCodes?.includes(io.KeyCode)) {
+												rbx.ReleaseFocus();
+											}
 										}
 									},
 								}}

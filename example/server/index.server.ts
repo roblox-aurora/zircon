@@ -6,6 +6,7 @@ import { ZirconEnumBuilder } from "Class/ZirconEnumBuilder";
 import { ZirconFunctionBuilder } from "Class/ZirconFunctionBuilder";
 import { ZirconNamespaceBuilder } from "Class/ZirconNamespaceBuilder";
 import { $print } from "rbxts-transform-debug";
+import { $NODE_ENV } from "rbxts-transform-env";
 
 Log.SetLogger(
 	Logger.configure()
@@ -48,8 +49,23 @@ Promise.delay(5).then(() => {
 ZirconServer.Registry.Init(
 	new ZirconConfigurationBuilder()
 		.CreateDefaultCreatorGroup()
-		.CreateDefaultUserGroup()
-		.CreateDefaultAdminGroup()
+		.CreateDefaultUserGroup({
+			CanAccessConsole: true,
+		})
+		// .CreateDefaultAdminGroup()
+		// .CreateGroup(5, "debug", (group) => {
+		// 	if (($NODE_ENV as string) === "production") {
+		// 		return group;
+		// 	} else {
+		// 		return group
+		// 			.SetPermissions({
+		// 				CanAccessConsole: false,
+		// 				CanExecuteZirconiumScripts: true,
+		// 			})
+		// 			.BindToUserIds([4308133]);
+		// 		//.BindToGroupRank(2664663, 10);
+		// 	}
+		// })
 		.AddFunction(
 			new ZirconFunctionBuilder("ping").AddArgument("string?").Bind((context, response) => {
 				if (response !== undefined) {
@@ -134,7 +150,7 @@ ZirconServer.Registry.Init(
 			[ZirconDefaultGroup.User],
 		)
 		.AddFunction(
-			new ZirconFunctionBuilder("array_test").AddArrayArgument("string").Bind((context, myArray) => {
+			new ZirconFunctionBuilder("array_test").AddArrayArgument(["string"]).Bind((context, myArray) => {
 				context.LogInfo("Array value {Array}", myArray.join(", "));
 			}),
 			[ZirconDefaultGroup.User],
