@@ -1,4 +1,4 @@
-import { Players, RunService } from "@rbxts/services";
+import { Players } from "@rbxts/services";
 import ZrScriptContext from "@rbxts/zirconium/out/Runtime/ScriptContext";
 import { toArray } from "../Shared/Collections";
 import ZirconUserGroup, { ZirconPermissions } from "../Server/Class/ZirconGroup";
@@ -7,11 +7,16 @@ import ZrPlayerScriptContext from "@rbxts/zirconium/out/Runtime/PlayerScriptCont
 import { ZirconFunction } from "Class/ZirconFunction";
 import { ZirconNamespace } from "Class/ZirconNamespace";
 import { ZirconEnum } from "Class/ZirconEnum";
+import { ZirconConfiguration, ZirconConfigurationBuilder, ZirconScopedGlobal } from "Class/ZirconConfigurationBuilder";
+import Remotes, { RemoteId } from "Shared/Remotes";
+import { $print } from "rbxts-transform-debug";
 
 export namespace ZirconRegistryService {
 	const contexts = new Map<Player, Array<ZrScriptContext>>();
 	const groups = new Map<string, ZirconUserGroup>();
 	const playerGroupMap = new Map<Player, Array<ZirconUserGroup>>();
+	const unregisteredTypes = new Array<ZirconScopedGlobal>();
+	let initalized = false;
 
 	function* playerFunctionIterator(player: Player) {
 		const groups = playerGroupMap.get(player);
@@ -24,6 +29,9 @@ export namespace ZirconRegistryService {
 				yield value;
 			}
 			for (const value of group._getNamespaces()) {
+				yield value;
+			}
+			for (const value of group._getEnums()) {
 				yield value;
 			}
 		}
@@ -53,10 +61,16 @@ export namespace ZirconRegistryService {
 	 * Registers a function in the global namespace to the specified group(s)
 	 * @param func The function to register
 	 * @param groups The groups
+	 * @deprecated Use `ZirconFunctionBuilder` + the ZirconConfigurationBuilder API
 	 */
-	export function RegisterFunction(func: ZirconFunction<any, any>, groups: ZirconUserGroup[] = [Creator]) {
-		for (const group of groups) {
-			group.RegisterFunction(func);
+	export function RegisterFunction(func: ZirconFunction<any, any>, groupIds: readonly string[]) {
+		if (!initalized) {
+			unregisteredTypes.push([func, groupIds]);
+		} else {
+			$print("registered", func, "after init");
+			for (const group of GetGroups(groupIds)) {
+				group.RegisterFunction(func);
+			}
 		}
 	}
 
@@ -64,25 +78,21 @@ export namespace ZirconRegistryService {
 	 * Registers a namespace to the specified group(s)
 	 * @param namespace The namespace
 	 * @param groups The groups to register it to
+	 * @deprecated Use `ZirconNamespaceBuilder` + the ZirconConfigurationBuilder API
 	 */
-	export function RegisterNamespace(namespace: ZirconNamespace, groups: ZirconUserGroup[] = [Creator]) {
-		for (const group of groups) {
-			group.RegisterNamespace(namespace);
+	export function RegisterNamespace(namespace: ZirconNamespace, groupIds: readonly string[]) {
+		if (!initalized) {
+			unregisteredTypes.push([namespace, groupIds]);
+		} else {
+			$print("registered", namespace, "after init");
+			for (const group of GetGroups(groupIds)) {
+				group.RegisterNamespace(namespace);
+			}
 		}
 	}
 
-	/**
-	 * Registers an enum from an array of strings
-	 * @param name The name of the enum
-	 * @param values The values of the enum
-	 * @param groups The groups this enum applies to
-	 */
-	export function RegisterEnumFromArray<K extends string>(
-		name: string,
-		values: K[],
-		groups: ZirconUserGroup[] = [Creator],
-	) {
-		return RegisterEnum(new ZirconEnum(name, values), groups);
+	export function GetGroups(groupIds: readonly string[]) {
+		return groupIds.mapFiltered((groupId) => groups.get(groupId.lower()));
 	}
 
 	/**
@@ -90,63 +100,17 @@ export namespace ZirconRegistryService {
 	 * @param enumType The enumerable type
 	 * @param groups The groups to register the enum to
 	 * @returns The enum
+	 * @deprecated Use `ZirconEnumBuilder` + the ZirconConfigurationBuilder API
 	 */
-	export function RegisterEnum<K extends string>(enumType: ZirconEnum<K>, groups: ZirconUserGroup[] = [Creator]) {
-		for (const group of groups) {
-			group.RegisterEnum(enumType);
+	export function RegisterEnum<K extends string>(enumType: ZirconEnum<K>, groupIds: readonly string[]) {
+		if (!initalized) {
+			unregisteredTypes.push([enumType, groupIds]);
+		} else {
+			$print("registered", enumType, "after init");
+			for (const group of GetGroups(groupIds)) {
+				group.RegisterEnum(enumType);
+			}
 		}
-		return enumType;
-	}
-
-	/**
-	 * Registers a group to Zircon, which is used for the permissions of Zircon command execution as well as different zircon tools
-	 * @param rankInt The rank integer - a number between 0 and 255. Higher number is a higher priority group.
-	 * @param name The name of the group. Case insensitive.
-	 * @param permissions The zircon permissions of this group
-	 */
-	export function RegisterGroup(rankInt: number, name: string, permissions: Partial<ZirconPermissions>) {
-		assert(rankInt >= 0 && rankInt <= 255, "rankInt should be between 0 - 255");
-		const group = new ZirconUserGroup(rankInt, name, {
-			Permissions: {
-				CanRecieveServerLogMessages: false,
-				CanExecuteZirconiumScripts: false,
-				CanAccessFullZirconEditor: false,
-				...permissions,
-			},
-		});
-		groups.set(name.lower(), group);
-		return group;
-	}
-
-	/**
-	 * Registers a group to Zircon, which is used for the permissions of Zircon command execution as well as different zircon tools.
-	 * This function automatically binds this group to a roblox group rank
-	 * @param groupId The group's id
-	 * @param rankInt The rank integer - a number between 0 and 255. Higher number is a higher priority group. This should be the same as the roblox group rank.
-	 * @param name The name of the group. Case insensitive.
-	 * @param permissions The zircon permissions of this group
-	 */
-	export function RegisterGroupToRobloxGroup(
-		groupId: number,
-		rankInt: number,
-		name: string,
-		permissions: Partial<ZirconPermissions>,
-	) {
-		assert(rankInt >= 0 && rankInt <= 255, "rankInt should be between 0 - 255");
-		const group = new ZirconUserGroup(rankInt, name, {
-			BoundToGroup: {
-				GroupId: groupId,
-				GroupRank: rankInt,
-			},
-			Permissions: {
-				CanRecieveServerLogMessages: false,
-				CanExecuteZirconiumScripts: false,
-				CanAccessFullZirconEditor: false,
-				...permissions,
-			},
-		});
-		groups.set(name.lower(), group);
-		return group;
 	}
 
 	/**
@@ -163,17 +127,15 @@ export namespace ZirconRegistryService {
 	 * @param player The player to add to the groups
 	 * @param targetGroups The groups to add the player to
 	 */
-	export function AddPlayerToGroups(player: Player, targetGroups: Array<string | ZirconUserGroup>) {
+	function AddPlayerToGroups(player: Player, targetGroups: Array<string | ZirconUserGroup>) {
 		const playerGroups = playerGroupMap.get(player) ?? [];
 		for (const groupOrId of targetGroups) {
 			const group = typeIs(groupOrId, "string") ? groups.get(groupOrId) : groupOrId;
 			if (group) {
-				$ifEnv("NODE_ENV", "development", () =>
-					print(
-						`Add player '${player}' to groups [ ${targetGroups
-							.map((s) => (typeIs(s, "string") ? s : s.GetName()))
-							.join(", ")} ]`,
-					),
+				$print(
+					`Add player '${player}' to groups [ ${targetGroups
+						.map((s) => (typeIs(s, "string") ? s : s.GetName()))
+						.join(", ")} ]`,
 				);
 
 				group.AddMember(player);
@@ -234,65 +196,100 @@ export namespace ZirconRegistryService {
 		return group;
 	}
 
-	/**
-	 * The default `user` group. All players are a member of this group by default.
-	 */
-	export const User = RegisterGroup(1, "user", {});
-
-	/**
-	 * The default `creator` group. The group or place owner is added to this group by default.
-	 *
-	 * This group has _all_ permissions, you should use `administrator` if you want to add other people with high permissions.
-	 */
-	export const Creator = RegisterGroup(255, "creator", {
-		CanRecieveServerLogMessages: true,
-		CanExecuteZirconiumScripts: true,
-		CanAccessFullZirconEditor: true,
-	});
-
-	/**
-	 * The default `administrator` group. If this is a group place,
-	 * it will add anyone with a rank higher than 250 to this group.
-	 *
-	 * This group has high permissions, so be careful about adding anyone else to it unless you explicitly trust them.
-	 */
-	export const Administrator = RegisterGroup(250, "administrator", {
-		CanRecieveServerLogMessages: true,
-		CanExecuteZirconiumScripts: true,
-		CanAccessFullZirconEditor: true,
-	});
-
-	function getPlayerDefaultGroups(player: Player) {
-		const groups = [User];
-		if (game.CreatorType === Enum.CreatorType.Group) {
-			if (player.GetRankInGroup(game.CreatorId) >= 255) {
-				groups.push(Creator);
+	function RegisterZirconGlobal([typeId, typeGroups]: ZirconScopedGlobal) {
+		if (typeId instanceof ZirconFunction) {
+			for (const group of GetGroups(typeGroups)) {
+				group.RegisterFunction(typeId);
 			}
-		} else if (game.CreatorType === Enum.CreatorType.User && game.CreatorId === player.UserId) {
-			groups.push(Creator);
+		} else if (typeId instanceof ZirconEnum) {
+			for (const group of GetGroups(typeGroups)) {
+				group.RegisterEnum(typeId);
+			}
+		} else if (typeId instanceof ZirconNamespace) {
+			for (const group of GetGroups(typeGroups)) {
+				group.RegisterNamespace(typeId);
+			}
 		}
-
-		if (RunService.IsStudio()) {
-			groups.push(Administrator);
-		}
-
-		return groups;
 	}
 
-	Players.PlayerAdded.Connect((player) => {
-		permissionGroupCache.clear();
-		AddPlayerToGroups(player, getPlayerDefaultGroups(player));
-	});
-
-	Players.PlayerRemoving.Connect((player) => {
-		permissionGroupCache.clear();
-		contexts.delete(player);
-		playerGroupMap.delete(player);
-	});
-
-	for (const player of Players.GetPlayers()) {
-		AddPlayerToGroups(player, getPlayerDefaultGroups(player));
+	/**
+	 * Initializes Zircon as a logging console *only*.
+	 *
+	 * This is equivalent to
+	 * ```ts
+	 * ZirconServer.Registry.Init(ZirconConfigurationBuilder.logging())
+	 * ```
+	 */
+	export function InitLogging() {
+		return Init(ZirconConfigurationBuilder.logging());
 	}
+
+	/**
+	 * Initializes Zircon on the server with a given configuration if specified.
+	 *
+	 * If no configuration is passed, it will behave as a logging console _only_.
+	 * @param configuration The configuration
+	 */
+	export function Init(configuration: ZirconConfiguration) {
+		if (initalized) {
+			return;
+		}
+
+		const configurationGroups = configuration.Groups;
+		for (const group of configurationGroups) {
+			$print("register zircon group", group.Id);
+			const userGroup = new ZirconUserGroup(group.Rank, group.Id, group);
+			groups.set(group.Id.lower(), userGroup);
+		}
+
+		// Handle builder API types
+		for (const typeId of configuration.Registry) {
+			$print("register zircon global (thru new api)", typeId[0]);
+			RegisterZirconGlobal(typeId);
+		}
+
+		// Handle any types registered with the deprecated api
+		for (const typeId of unregisteredTypes) {
+			$print("register zircon global (thru deprecated api)", typeId[0]);
+			RegisterZirconGlobal(typeId);
+		}
+
+		Players.PlayerAdded.Connect((player) => {
+			permissionGroupCache.clear();
+
+			const groupsToJoin = new Array<ZirconUserGroup>();
+			for (const [, group] of groups) {
+				if (group.CanJoinGroup(player)) {
+					groupsToJoin.push(group);
+				}
+			}
+
+			AddPlayerToGroups(player, groupsToJoin);
+			Remotes.Server.Get(RemoteId.ZirconInitialized).SendToPlayer(player);
+		});
+
+		Players.PlayerRemoving.Connect((player) => {
+			permissionGroupCache.clear();
+			contexts.delete(player);
+			playerGroupMap.delete(player);
+		});
+
+		for (const player of Players.GetPlayers()) {
+			const groupsToJoin = new Array<ZirconUserGroup>();
+			for (const [, group] of groups) {
+				if (group.CanJoinGroup(player)) {
+					groupsToJoin.push(group);
+				}
+			}
+
+			AddPlayerToGroups(player, groupsToJoin);
+		}
+
+		initalized = true;
+		Remotes.Server.Get(RemoteId.ZirconInitialized).SendToAllPlayers();
+	}
+
+	Remotes.Server.OnFunction(RemoteId.GetZirconInitialized, () => initalized);
 }
 
 export type ZirconRegistryService = typeof ZirconRegistryService;

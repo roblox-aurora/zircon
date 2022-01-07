@@ -4,6 +4,7 @@ import { ZrRichTextHighlighter } from "@rbxts/zirconium/out/Ast";
 import ThemeContext, { convertColorObjectToHex, ThemeSyntaxColors } from "../../Client/UIKit/ThemeContext";
 import Maid from "@rbxts/maid";
 import { UserInputService } from "@rbxts/services";
+import { $print } from "rbxts-transform-debug";
 
 interface SyntaxTextBoxState {
 	source: string;
@@ -27,6 +28,14 @@ interface SyntaxTextBoxProps {
 	 * Whether or not to auto focus this text box
 	 */
 	AutoFocus?: boolean;
+
+	/**
+	 * Whether or not to refocus this text box on submit
+	 */
+	RefocusOnSubmit?: boolean;
+
+	CancelKeyCodes?: Enum.KeyCode[];
+
 	/**
 	 * Whether or not this textbox is multi lined
 	 */
@@ -43,6 +52,8 @@ interface SyntaxTextBoxProps {
 	OnEnterSubmit?: (input: string) => void;
 
 	OnHistoryTraversal?: (direction: "back" | "forward") => void;
+
+	OnCancel?: () => void;
 }
 
 /**
@@ -51,6 +62,8 @@ interface SyntaxTextBoxProps {
 export default class ZirconSyntaxTextBox extends Roact.Component<SyntaxTextBoxProps, SyntaxTextBoxState> {
 	private ref = Roact.createRef<TextBox>();
 	private maid = new Maid();
+	private focusMaid = new Maid();
+
 	public constructor(props: SyntaxTextBoxProps) {
 		super(props);
 		this.state = {
@@ -79,6 +92,7 @@ export default class ZirconSyntaxTextBox extends Roact.Component<SyntaxTextBoxPr
 
 	public willUnmount() {
 		this.maid.DoCleaning();
+		this.focusMaid.DoCleaning();
 	}
 
 	public didUpdate(prevProps: SyntaxTextBoxProps) {
@@ -126,6 +140,7 @@ export default class ZirconSyntaxTextBox extends Roact.Component<SyntaxTextBoxPr
 								TextSize={18}
 								TextXAlignment="Left"
 								TextYAlignment="Top"
+								ClearTextOnFocus
 								PlaceholderColor3={theme.SecondaryTextColor3}
 								PlaceholderText={this.props.PlaceholderText}
 								CursorPosition={this.state.cursorPosition}
@@ -139,14 +154,44 @@ export default class ZirconSyntaxTextBox extends Roact.Component<SyntaxTextBoxPr
 								}}
 								TextTransparency={0.75}
 								Event={{
-									Focused: (textBox) => {
-										this.setState({ focused: true });
+									Focused: (rbx) => {
+										this.setState({ focused: true, source: "" });
+
+										this.focusMaid.GiveTask(
+											UserInputService.InputBegan.Connect((io) => {
+												if (
+													io.UserInputState === Enum.UserInputState.Begin &&
+													io.UserInputType === Enum.UserInputType.Keyboard &&
+													this.props.CancelKeyCodes?.includes(io.KeyCode)
+												) {
+													this.props.OnCancel?.();
+													rbx.ReleaseFocus();
+													rbx.Text = "";
+												}
+											}),
+										);
 									},
 									FocusLost: (textBox, enterPressed, inputThatCausedFocusLoss) => {
 										if (enterPressed && !this.props.MultiLine) {
 											this.props.OnEnterSubmit?.(textBox.Text);
 										}
+
 										this.setState({ focused: false });
+
+										if (enterPressed && this.props.RefocusOnSubmit) {
+											// Needs to be deferred, otherwise roblox keeps the enter key there.
+											task.defer(() => textBox.CaptureFocus());
+										}
+
+										this.focusMaid.DoCleaning();
+									},
+									InputChanged: (rbx, io) => {
+										if (io.UserInputType === Enum.UserInputType.Keyboard) {
+											print("pressKey", io.KeyCode);
+											if (this.props.CancelKeyCodes?.includes(io.KeyCode)) {
+												rbx.ReleaseFocus();
+											}
+										}
 									},
 								}}
 								TextColor3={theme.PrimaryTextColor3}

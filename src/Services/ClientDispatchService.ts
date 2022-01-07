@@ -1,5 +1,4 @@
-import { RemoteId } from "../RemoteId";
-import Remotes from "../Shared/Remotes";
+import Remotes, { RemoteId } from "../Shared/Remotes";
 import { ZirconClientRegistryService } from "./ClientRegistryService";
 
 export enum DispatchContext {

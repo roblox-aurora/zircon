@@ -18,7 +18,10 @@ export interface ActionSetConsoleVisible extends Action<ConsoleActionName.SetCon
 export interface ActionSetConsoleConfiguration extends Action<ConsoleActionName.SetConfiguration> {
 	executionEnabled: boolean;
 	hotkeyEnabled: boolean;
+	autoFocusTextBox: boolean;
 	showTagsInOutput: boolean;
+	logDetailsPaneEnabled: boolean;
+	bindKeys: Enum.KeyCode[];
 }
 
 export interface ActionAddOutput extends Action<ConsoleActionName.AddOutput> {
@@ -60,10 +63,13 @@ export interface ConsoleReducer {
 	visible: boolean;
 	executionEnabled: boolean;
 	hotkeyEnabled: boolean;
+	autoFocusTextBox: boolean;
+	logDetailsPaneEnabled: boolean;
 	showTagsInOutput: boolean;
 	output: ConsoleMessage[];
 	history: string[];
 	filter: ConsoleFilter;
+	bindingKeys: Enum.KeyCode[];
 }
 
 export const DEFAULT_FILTER = new Set([
@@ -75,11 +81,14 @@ export const DEFAULT_FILTER = new Set([
 
 const INITIAL_STATE: ConsoleReducer = {
 	visible: false,
+	autoFocusTextBox: true,
 	executionEnabled: false,
 	hotkeyEnabled: false,
-	showTagsInOutput: false,
+	logDetailsPaneEnabled: false,
+	showTagsInOutput: true,
 	output: [],
 	history: [],
+	bindingKeys: [],
 	filter: {
 		Levels: new Set([ZirconLogLevel.Info, ZirconLogLevel.Warning, ZirconLogLevel.Error, ZirconLogLevel.Wtf]),
 	},
@@ -87,11 +96,17 @@ const INITIAL_STATE: ConsoleReducer = {
 
 const actions: Rodux.ActionHandlers<ConsoleReducer, ConsoleActions> = {
 	[ConsoleActionName.SetConsoleVisible]: (state, { visible }) => ({ ...state, visible }),
-	[ConsoleActionName.SetConfiguration]: (state, { executionEnabled, hotkeyEnabled, showTagsInOutput }) => ({
+	[ConsoleActionName.SetConfiguration]: (
+		state,
+		{ executionEnabled, hotkeyEnabled, showTagsInOutput, logDetailsPaneEnabled, autoFocusTextBox, bindKeys },
+	) => ({
 		...state,
 		executionEnabled,
 		hotkeyEnabled,
 		showTagsInOutput,
+		logDetailsPaneEnabled,
+		autoFocusTextBox,
+		bindingKeys: bindKeys,
 	}),
 	[ConsoleActionName.AddOutput]: (state, { message }) => {
 		return $dbg({

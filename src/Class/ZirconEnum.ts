@@ -1,4 +1,5 @@
-import { ZrObjectUserdata } from "@rbxts/zirconium/out/Data/Userdata";
+import { ZrEnum } from "@rbxts/zirconium/out/Data/Enum";
+import { $print } from "rbxts-transform-debug";
 import { ZirconEnumItem } from "./ZirconEnumItem";
 import { ZirconValidator } from "./ZirconTypeValidator";
 
@@ -12,45 +13,27 @@ export type ZirconEnumValidator<K extends string> = ZirconValidator<
 >;
 
 /**
- * High level Enum wrapper for Zircon
+ * An extension of the `ZrEnum` class for Zircon
  */
-export class ZirconEnum<K extends string> extends ZrObjectUserdata<readonly ZirconEnumItem[]> {
-	private name: string;
-	public constructor(name: string, private members: K[]) {
-		super(members.map((member, i) => new ZirconEnumItem(this, i, member)));
-		this.name = name;
-	}
-
-	/**
-	 * Gets the values of this EnumType
-	 * @returns The enum value
-	 */
-	public GetEnumItems() {
-		return this.value();
-	}
-
-	/**
-	 * Gets the name of this EnumType
-	 * @returns
-	 */
-	public GetName() {
-		return this.name;
+export class ZirconEnum<K extends string> extends ZrEnum {
+	public constructor(name: string, members: K[]) {
+		super(members, name, (value, index) => new ZirconEnumItem(this, index, value));
 	}
 
 	/**
 	 * Returns whether or not the specified value is an ZirconEnumItem of this type
 	 * @returns
 	 */
-	public Is(value: ZirconEnumItem<any>): value is ZirconEnumItem<ZirconEnum<K>, K> {
-		return this.value().includes(value);
+	public is(value: ZirconEnumItem<any>): value is ZirconEnumItem<ZirconEnum<K>, K> {
+		return this.getItems().includes(value);
 	}
 
 	/**
 	 * Gets an enum item value by key
 	 * @param key The key
 	 */
-	public GetItem<TKey extends K>(key: TKey) {
-		return this.value().find((k) => k.GetName() === key)! as ZirconEnumItem<ZirconEnum<K>, TKey>;
+	public getItem<TKey extends K>(key: TKey): ZirconEnumItem<ZirconEnum<K>, TKey> {
+		return this.getItems().find((k) => k.getName() === key)! as ZirconEnumItem<ZirconEnum<K>, TKey>;
 	}
 
 	/**
@@ -60,10 +43,10 @@ export class ZirconEnum<K extends string> extends ZrObjectUserdata<readonly Zirc
 	 * @param value The enum item
 	 * @param matches The matches
 	 */
-	public Match<R>(value: ZirconEnumItem, matches: EnumMatchTree<ZirconEnum<K>, K, R> & { _?: () => R }): R {
-		for (const member of this.value()) {
+	public match<R>(value: ZirconEnumItem, matches: EnumMatchTree<ZirconEnum<K>, K, R> & { _?: () => R }): R {
+		for (const member of this.getItems()) {
 			if (member === value) {
-				return matches[member.GetName() as K](value as ZirconEnumItem<ZirconEnum<K>, K>);
+				return matches[member.getName() as K](value as ZirconEnumItem<ZirconEnum<K>, K>);
 			}
 		}
 
@@ -73,36 +56,42 @@ export class ZirconEnum<K extends string> extends ZrObjectUserdata<readonly Zirc
 		throw `Invalid match`;
 	}
 
-	public GetMemberType(): ZirconEnumValidator<K> {
+	public getMemberType(): ZirconEnumValidator<K> {
 		// eslint-disable-next-line @typescript-eslint/no-this-alias
-		const thisRef = this;
+		const enumType = this;
 		return {
 			Validate(value): value is ZirconEnumItem<ZirconEnum<K>, K> | string {
-				print("validate", value, thisRef.value());
-				return (
-					(typeIs(value, "string") &&
-						thisRef.value().find((f) => f.GetName().lower() === value.lower()) !== undefined) ||
-					(typeIs(value, "number") && thisRef.value().find((f) => f.GetId() === value) !== undefined) ||
-					(value instanceof ZirconEnumItem && (value.GetEnumType() as ZirconEnum<any>) === thisRef)
-				);
+				if (typeIs(value, "string")) {
+					const strItem = enumType.getItems().find((item) => item.getName().lower() === value.lower());
+					$print("scmp", value, strItem?.getName());
+					return strItem !== undefined;
+				} else if (typeIs(value, "number")) {
+					const intItem = enumType.getItems().find((item) => item.getValue() === value);
+					$print("icmp", value, intItem?.getValue());
+					return intItem !== undefined;
+				} else if (value instanceof ZirconEnumItem) {
+					$print("instancecmp", value, enumType);
+					return value.getEnum() === enumType;
+				}
+
+				return false;
 			},
 			Transform(value) {
 				if (typeIs(value, "string")) {
-					return thisRef.value().find((v) => v.GetName().lower() === value.lower())! as ZirconEnumItem<
-						ZirconEnum<K>,
-						K
-					>;
+					const strItem = enumType.getItems().find((item) => item.getName().lower() === value.lower());
+					return strItem as ZirconEnumItem<ZirconEnum<K>, K>;
 				} else if (typeIs(value, "number")) {
-					return thisRef.value().find((v) => v.GetId() === value)! as ZirconEnumItem<ZirconEnum<K>, K>;
+					const strItem = enumType.getItems().find((item) => item.getValue() === value);
+					return strItem as ZirconEnumItem<ZirconEnum<K>, K>;
 				} else {
 					return value as ZirconEnumItem<ZirconEnum<K>, K>;
 				}
 			},
-			Type: "ZirconEnum[" + this.members.join(" | ") + "]",
+			Type: this.getEnumName(),
 		};
 	}
 
 	public toString() {
-		return `[Enum '` + this.name + "']";
+		return this.getEnumName();
 	}
 }

@@ -1,14 +1,15 @@
 import { GetCommandService } from "../Services";
 import Lazy from "../Shared/Lazy";
 import { ZirconLogData, ZirconLogLevel } from "../Client/Types";
-import { RemoteId } from "../RemoteId";
 import Remotes, {
 	ZirconStandardOutput,
 	ZirconErrorOutput,
 	ZirconNetworkMessageType,
 	ZirconStructuredLogOutput,
+	RemoteId,
 } from "../Shared/Remotes";
 import { LogEvent } from "@rbxts/log";
+import { $print } from "rbxts-transform-debug";
 
 const StandardOutput = Remotes.Server.Create(RemoteId.StandardOutput);
 const StandardError = Remotes.Server.Create(RemoteId.StandardError);
@@ -75,8 +76,14 @@ export namespace ZirconLogService {
 			time: 0,
 		});
 		outputMessages.push(outputError);
-		const loggablePlayers = Registry.InternalGetPlayersWithPermission("CanRecieveServerLogMessages");
-		StandardOutput.SendToPlayers(loggablePlayers, outputError);
+
+		if (typeIs(data.LogToPlayer, "Instance") && data.LogToPlayer.IsA("Player")) {
+			$print("Log to player", data.LogToPlayer);
+			StandardOutput.SendToPlayer(data.LogToPlayer, outputError);
+		} else {
+			const loggablePlayers = Registry.InternalGetPlayersWithPermission("CanRecieveServerLogMessages");
+			StandardOutput.SendToPlayers(loggablePlayers, outputError);
+		}
 	}
 
 	/**

@@ -7,7 +7,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'Zircon',
-  tagline: 'Sleek, elegant runtime debugging console for Roblox',
+  tagline: 'A clean, sleek, runtime debugging console for Roblox',
   url: 'https://your-docusaurus-test-site.com',
   baseUrl: '/',
   onBrokenLinks: 'throw',
@@ -37,7 +37,8 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       colorMode: {
-        disableSwitch: true
+        disableSwitch: true,
+        defaultMode: "dark"
       },
       navbar: {
         title: 'Zircon',

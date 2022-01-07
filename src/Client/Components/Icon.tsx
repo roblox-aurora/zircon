@@ -73,6 +73,7 @@ export type IconEnum = keyof typeof IconsV2;
 interface IconProps {
 	Icon: IconEnum;
 	Position?: UDim2;
+	ZIndex?: number;
 }
 
 export default class ZirconIcon extends Roact.PureComponent<IconProps> {
@@ -92,6 +93,7 @@ export default class ZirconIcon extends Roact.PureComponent<IconProps> {
 							ImageColor3={theme.IconColor3}
 							ImageRectOffset={icon.Offset}
 							Position={this.props.Position}
+							ZIndex={this.props.ZIndex}
 							ImageRectSize={new Vector2(16, 16)}
 						/>
 					);
@@ -106,14 +108,16 @@ interface IconButtonProps extends IconProps {
 	Position?: UDim2;
 	Floating?: boolean;
 	Size?: UDim2;
+	ZIndex?: number;
 }
-export function ZirconIconButton({ Icon, OnClick, Position, Size, Floating }: IconButtonProps) {
+export function ZirconIconButton({ Icon, OnClick, Position, Size, Floating, ZIndex }: IconButtonProps) {
 	return (
 		<ThemeContext.Consumer
 			render={(theme) => {
 				return (
 					<imagebutton
 						Image=""
+						ZIndex={ZIndex}
 						Position={Position}
 						Event={{ MouseButton1Down: OnClick }}
 						BackgroundTransparency={Floating ? 0 : 1}
@@ -122,7 +126,7 @@ export function ZirconIconButton({ Icon, OnClick, Position, Size, Floating }: Ic
 						Size={Size ?? new UDim2(0, 20, 0, 20)}
 					>
 						<uilistlayout VerticalAlignment="Center" HorizontalAlignment="Center" />
-						<ZirconIcon Icon={Icon} />
+						<ZirconIcon Icon={Icon} ZIndex={ZIndex} />
 					</imagebutton>
 				);
 			}}

@@ -34,7 +34,7 @@ export namespace ZirconDispatchService {
 		const Registry = GetCommandService("RegistryService");
 		return Promise.defer<ZrScript>((resolve, reject) => {
 			const [mainScript] = Registry.GetScriptContextsForPlayer(player);
-			const source = mainScript.parseSource(text, ZrScriptVersion.Zr2021);
+			const source = mainScript.parseSource(text, ZrScriptVersion.Zr2022);
 			if (source.isOk()) {
 				resolve(mainScript.createScript(source.okValue));
 			} else {

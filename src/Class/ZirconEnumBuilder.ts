@@ -27,6 +27,10 @@ export class ZirconEnumBuilder<K extends string = never> {
 		return new ZirconEnum(this.name, keysOf(enumerable));
 	}
 
+	public FromArray<K extends string>(values: K[]): ZirconEnum<K> {
+		return new ZirconEnum(this.name, values);
+	}
+
 	/** Builds the enum */
 	public Build() {
 		return new ZirconEnum<K>(this.name, this.members);

@@ -1,5 +1,5 @@
-import { StatefulZirconValidator } from "./StatefulZirconValidator";
-import { InferTypeFromValidator2, ZirconValidator } from "./ZirconTypeValidator";
+import { StatefulZirconValidator } from "../StatefulZirconValidator";
+import { InferTypeFromValidator2, ZirconValidator } from "../ZirconTypeValidator";
 
 export class OptionalValidator<T, U = T> extends StatefulZirconValidator<T | undefined, U | undefined> {
 	public constructor(private innerValidator: ZirconValidator<T, U>) {

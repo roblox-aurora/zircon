@@ -24,6 +24,7 @@ import { formatParse, formatTokens } from "Client/Format";
 import { LogLevel } from "@rbxts/log";
 import { MessageTemplateParser } from "@rbxts/message-templates";
 import { ZirconStructuredMessageTemplateRenderer } from "Client/Format/ZirconStructuredMessageTemplate";
+import { StructuredLogMessage } from "./StructuredLogMessage";
 
 function sanitise(input: string) {
 	return input.gsub("[<>]", {
@@ -38,6 +39,10 @@ interface OutputMessageProps {
 }
 function OutputMessage(props: OutputMessageProps) {
 	const output = props.Message;
+
+	if (output.type === ZirconMessageType.StructuredLog) {
+		return <StructuredLogMessage LogEvent={output.data} Context={output.context} DetailedView />;
+	}
 
 	return (
 		<ThemeContext.Consumer
@@ -57,56 +62,6 @@ function OutputMessage(props: OutputMessageProps) {
 						),
 					);
 					messages.push(message.message);
-				} else if (output.type === ZirconMessageType.StructuredLog) {
-					const {
-						data: { Template, Timestamp, Level },
-						data,
-					} = output;
-
-					const tokens = MessageTemplateParser.GetTokens(sanitise(Template));
-					const renderer = new ZirconStructuredMessageTemplateRenderer(tokens, theme);
-					const text = renderer.Render(output.data);
-
-					messages.push(
-						getRichTextColor3(
-							theme,
-							"Grey",
-							`[${
-								DateTime.fromIsoDate(Timestamp)?.FormatLocalTime(
-									"LT",
-									LocalizationService.SystemLocaleId,
-								) ?? "?"
-							}]`,
-						),
-					);
-
-					if (Level === LogLevel.Information) {
-						messages.push(getRichTextColor3(theme, "Cyan", "INFO "));
-						messages.push(getRichTextColor3(theme, "White", text));
-					} else if (Level === LogLevel.Debugging) {
-						messages.push(getRichTextColor3(theme, "Green", "DEBUG"));
-						messages.push(getRichTextColor3(theme, "White", text));
-					} else if (Level === LogLevel.Verbose) {
-						messages.push(getRichTextColor3(theme, "Grey", "VERBOSE"));
-						messages.push(getRichTextColor3(theme, "White", text));
-					} else if (Level === LogLevel.Warning) {
-						messages.push(getRichTextColor3(theme, "Yellow", "WARN "));
-						messages.push(getRichTextColor3(theme, "White", text));
-					} else if (Level === LogLevel.Error) {
-						messages.push(getRichTextColor3(theme, "Red", "ERROR "));
-						messages.push(getRichTextColor3(theme, "Yellow", text));
-					} else if (Level === LogLevel.Fatal) {
-						messages.push(getRichTextColor3(theme, "Red", "FATAL "));
-						messages.push(getRichTextColor3(theme, "Red", text));
-					}
-
-					if (props.ShowTags) {
-						if (data.SourceContext) {
-							messages.push(
-								"- " + italicize(getRichTextColor3(theme, "Grey", tostring(data.SourceContext))),
-							);
-						}
-					}
 				} else if (output.type === ZirconMessageType.ZirconLogOutputMesage) {
 					const { message } = output;
 					messages.push(

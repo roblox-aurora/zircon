@@ -1,16 +1,15 @@
 import Roact from "@rbxts/roact";
 import { ComponentInstanceHandle } from "@rbxts/roact";
 import RoactRodux from "@rbxts/roact-rodux";
-import { ContextActionService, Players, RunService, StarterGui } from "@rbxts/services";
+import { ContextActionService, Players, RunService, StarterGui, UserInputService } from "@rbxts/services";
 import ZirconClientStore from "./BuiltInConsole/Store";
 import { ConsoleActionName } from "./BuiltInConsole/Store/_reducers/ConsoleReducer";
 import ZirconDockedConsole, { DockedConsoleProps } from "./BuiltInConsole/UI/DockedConsole";
 import { $ifEnv } from "rbxts-transform-env";
-import { $dbg } from "rbxts-transform-debug";
+import { $dbg, $print } from "rbxts-transform-debug";
 import Lazy from "../Shared/Lazy";
 import { GetCommandService } from "../Services";
-import Remotes, { ZirconNetworkMessageType } from "../Shared/Remotes";
-import { RemoteId } from "../RemoteId";
+import Remotes, { RemoteId, ZirconNetworkMessageType } from "../Shared/Remotes";
 import { ZirconContext, ZirconLogData, ZirconLogLevel, ZirconMessageType } from "./Types";
 import ZirconTopBar from "./BuiltInConsole/UI/TopbarMenu";
 import { LogEvent } from "@rbxts/log";
@@ -94,38 +93,84 @@ namespace ZirconClient {
 
 	let topbarEnabledState = false;
 
-	function activateBuiltInConsole(actionName: string, state: Enum.UserInputState) {
-		const isTopbarEnabled = StarterGui.GetCore("TopbarEnabled");
-
+	function activateBuiltInConsole(_: string, state: Enum.UserInputState) {
 		const { hotkeyEnabled } = ZirconClientStore.getState();
+
+		print("test", state);
+
 		if (state === Enum.UserInputState.End && $dbg(hotkeyEnabled)) {
-			isVisible = !isVisible;
-
-			if (isVisible) {
-				if (isTopbarEnabled) {
-					topbarEnabledState = true;
-					StarterGui.SetCore("TopbarEnabled", false);
-				}
-			} else {
-				if (topbarEnabledState) {
-					StarterGui.SetCore("TopbarEnabled", true);
-				}
-			}
-
-			ZirconClientStore.dispatch({ type: ConsoleActionName.SetConsoleVisible, visible: $dbg(isVisible) });
+			SetVisible(!isVisible);
 		}
 		return Enum.ContextActionResult.Sink;
+	}
+
+	export function SetVisible(visible: boolean) {
+		const isTopbarEnabled = StarterGui.GetCore("TopbarEnabled");
+
+		if (visible) {
+			if (isTopbarEnabled) {
+				topbarEnabledState = true;
+				StarterGui.SetCore("TopbarEnabled", false);
+			}
+		} else {
+			if (topbarEnabledState) {
+				StarterGui.SetCore("TopbarEnabled", true);
+			}
+		}
+
+		ZirconClientStore.dispatch({ type: ConsoleActionName.SetConsoleVisible, visible });
+
+		isVisible = visible;
 	}
 
 	interface ConsoleOptions {
 		Keys?: Array<Enum.KeyCode>;
 		EnableTags?: boolean;
+		AutoFocusTextBox?: boolean;
 		ConsoleComponent?: typeof Roact.Component | ((props: defined) => Roact.Element);
 		/** @internal */
 		Theme?: keyof BuiltInThemes;
 	}
 
 	let consoleBound = false;
+
+	function BindConsoleIntl(options: ConsoleOptions) {
+		const {
+			Keys = [Enum.KeyCode.F10],
+			ConsoleComponent = ZirconDockedConsole,
+			Theme = "Plastic",
+			AutoFocusTextBox = true,
+			EnableTags = true,
+		} = options;
+
+		const GetPlayerOptions = Remotes.Client.WaitFor(RemoteId.GetPlayerPermissions).expect();
+		GetPlayerOptions.CallServerAsync().then((permissions) => {
+			if (permissions.has("CanAccessConsole")) {
+				BindActivationKeys(Keys);
+				handle = Roact.mount(
+					<ThemeContext.Provider value={BuiltInThemes[Theme]}>
+						<RoactRodux.StoreProvider store={ZirconClientStore}>
+							<Roact.Fragment>
+								<ZirconTopBar />
+								<ConsoleComponent />
+							</Roact.Fragment>
+						</RoactRodux.StoreProvider>
+					</ThemeContext.Provider>,
+					Players.LocalPlayer.FindFirstChildOfClass("PlayerGui"),
+				);
+			}
+
+			ZirconClientStore.dispatch({
+				type: ConsoleActionName.SetConfiguration,
+				hotkeyEnabled: permissions.has("CanAccessConsole"),
+				autoFocusTextBox: AutoFocusTextBox,
+				bindKeys: Keys,
+				executionEnabled: permissions.has("CanExecuteZirconiumScripts"),
+				logDetailsPaneEnabled: permissions.has("CanViewLogMetadata"),
+				showTagsInOutput: EnableTags,
+			});
+		});
+	}
 
 	/**
 	 * Binds the built-in Zircon console
@@ -135,42 +180,60 @@ namespace ZirconClient {
 	 *
 	 * *This is not required, you can use your own console solution!*
 	 */
-	export function BindConsole(options: ConsoleOptions = {}) {
+	export function Init(options: ConsoleOptions = {}) {
 		if (consoleBound) return;
+		const initialized = Remotes.Client.Get(RemoteId.GetZirconInitialized).CallServerAsync().expect();
+
 		consoleBound = true;
-
-		const { Keys = [Enum.KeyCode.F10], ConsoleComponent = ZirconDockedConsole, Theme = "Plastic" } = options;
-
-		$ifEnv("NODE_ENV", "development", () => {
-			print("[zircon-debug] bindConsole called with", ...Keys);
-		});
-		BindActivationKeys(Keys);
-		handle = Roact.mount(
-			<ThemeContext.Provider value={BuiltInThemes[Theme]}>
-				<RoactRodux.StoreProvider store={ZirconClientStore}>
-					<Roact.Fragment>
-						<ZirconTopBar />
-						<ConsoleComponent />
-					</Roact.Fragment>
-				</RoactRodux.StoreProvider>
-			</ThemeContext.Provider>,
-			Players.LocalPlayer.FindFirstChildOfClass("PlayerGui"),
-		);
-
-		const GetPlayerOptions = Remotes.Client.WaitFor(RemoteId.GetPlayerPermissions).expect();
-		GetPlayerOptions.CallServerAsync().then((permissions) => {
-			ZirconClientStore.dispatch({
-				type: ConsoleActionName.SetConfiguration,
-				hotkeyEnabled: true,
-				executionEnabled: permissions.has("CanExecuteZirconiumScripts"),
-				showTagsInOutput: options.EnableTags ?? false,
+		if (initialized === false) {
+			Remotes.Client.WaitFor(RemoteId.ZirconInitialized).then((remote) => {
+				const connection = remote.Connect(() => {
+					BindConsoleIntl(options);
+					connection.Disconnect();
+				});
 			});
-		});
+		} else {
+			BindConsoleIntl(options);
+		}
 	}
 
+	/** @deprecated Use `Init` */
+	export function BindConsole(options: ConsoleOptions = {}) {
+		return Init(options);
+	}
+
+	let bound = false;
 	export function BindActivationKeys(keys: Enum.KeyCode[]) {
+		// Sink
 		ContextActionService.UnbindAction(Const.ActionId);
-		ContextActionService.BindAction(Const.ActionId, activateBuiltInConsole, false, ...keys);
+		ContextActionService.BindActionAtPriority(
+			Const.ActionId,
+			(_, state, io) => {
+				if (state === Enum.UserInputState.End) {
+					SetVisible(!isVisible);
+				}
+				return Enum.ContextActionResult.Sink;
+			},
+			false,
+			Enum.ContextActionPriority.High.Value,
+			...keys,
+		);
+
+		// if (bound) {
+		// 	return;
+		// }
+
+		// UserInputService.InputEnded.Connect((io, gpe) => {
+		// 	if (
+		// 		io.UserInputType === Enum.UserInputType.Keyboard &&
+		// 		keys.includes(io.KeyCode) &&
+		// 		ZirconClientStore.getState().visible
+		// 	) {
+		// 		SetVisible(!isVisible);
+		// 	}
+		// });
+
+		bound = true;
 	}
 
 	if (IsClient) {

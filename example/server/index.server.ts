@@ -1,10 +1,12 @@
 import Log, { Logger } from "@rbxts/log";
 import { Workspace } from "@rbxts/services";
-import Zircon, { ZirconServer } from "@zircon";
+import Zircon, { ZirconConfigurationBuilder, ZirconDefaultGroup, ZirconServer } from "@zircon";
 import ZirconPrint from "BuiltIn/Print";
 import { ZirconEnumBuilder } from "Class/ZirconEnumBuilder";
 import { ZirconFunctionBuilder } from "Class/ZirconFunctionBuilder";
 import { ZirconNamespaceBuilder } from "Class/ZirconNamespaceBuilder";
+import { $print } from "rbxts-transform-debug";
+import { $NODE_ENV } from "rbxts-transform-env";
 
 Log.SetLogger(
 	Logger.configure()
@@ -14,92 +16,7 @@ Log.SetLogger(
 		.Create(),
 );
 
-enum ExistingEnumType {
-	EnumA,
-	EnumB,
-}
-
-const TestEnum = ZirconServer.Registry.RegisterEnumFromArray(
-	"TestEnum",
-	["Value1", "Value2"],
-	[ZirconServer.Registry.User],
-);
-
-const ExistingEnum = ZirconServer.Registry.RegisterEnum(new ZirconEnumBuilder("test").FromEnum(ExistingEnumType), [
-	ZirconServer.Registry.User,
-]);
-
-ZirconServer.Registry.RegisterFunction(
-	new ZirconFunctionBuilder("kill")
-		.AddArgument("player?")
-		.AddDescription("testing lol")
-		.Bind((context, player) => {
-			const target = player ?? context.GetExecutor();
-			target.Character?.BreakJoints();
-			Log.Info("Killed {target}", target);
-		}),
-	[ZirconServer.Registry.User],
-);
-
-ZirconServer.Registry.RegisterFunction(
-	new ZirconFunctionBuilder("test_enum").AddArgument(TestEnum).Bind((context, value) => {
-		value.Match({
-			Value2: () => {
-				Log.Info("Got given enum item 2 (member)");
-			},
-			Value1: () => {
-				Log.Info("Got given enum item 1 (member)");
-			},
-		});
-		TestEnum.Match(value, {
-			Value1: () => {
-				Log.Info("Got given enum item 1 (parent)");
-			},
-			Value2: () => {
-				Log.Info("Got given enum item 2 (parent)");
-			},
-		});
-	}),
-	[ZirconServer.Registry.User],
-);
-
-ZirconServer.Registry.RegisterFunction(
-	new ZirconFunctionBuilder("test_enum2").AddArgument(ExistingEnum.GetMemberType()).Bind((context, value) => {
-		Log.Info("Got {NumberValue} ({StringValue})", ExistingEnumType[value.GetName()], value.GetName());
-	}),
-	[ZirconServer.Registry.User],
-);
-
-ZirconServer.Registry.RegisterFunction(
-	new ZirconFunctionBuilder("print_message")
-		.AddArgument("string")
-		.Bind((context, message) => Log.Info("Zircon says {Message} from {Player}", message, context.GetExecutor())),
-	[ZirconServer.Registry.User],
-);
-
-ZirconServer.Registry.RegisterNamespace(
-	new ZirconNamespaceBuilder("example")
-		.AddFunction(
-			new ZirconFunctionBuilder("print").Bind((context, ...args) => {
-				Log.Info("[Example print] " + args.map((a) => tostring(a)).join(" "));
-			}),
-		)
-		.AddFunction(
-			new ZirconFunctionBuilder("test").Bind((context) => {
-				Log.Info("Test!");
-			}),
-		)
-		.AddFunction(ZirconPrint)
-		.Build(),
-	[ZirconServer.Registry.User],
-);
-
-ZirconServer.Registry.RegisterFunction(
-	new ZirconFunctionBuilder("print").Bind((context, ...args) => {
-		Log.Info(args.map((a) => tostring(a)).join(" "));
-	}),
-	[ZirconServer.Registry.User],
-);
+const TestEnum = new ZirconEnumBuilder("TestEnum").FromArray(["Value1", "Value2"]);
 
 class Example {
 	private _logger = Log.ForContext(Example);
@@ -123,16 +40,166 @@ Promise.delay(5).then(() => {
 
 	Log.Debug("A debug message, yes");
 	Log.Info("Hello, {Test}! {Boolean} {Number} {Array}", "Test string", true, 10, [1, 2, 3, [4]]);
-	Log.Warn("Warining {Lol}", "LOL!");
+	Log.Warn("Warning {Lol}", "LOL!");
 
 	Log.Error("ERROR LOL {Yes}", true);
 	Log.Fatal("Fatal message here");
 });
 
-// game.GetService("Players").PlayerAdded.Connect((player) => {
-// 	ZirconServer.Registry.AddPlayerToGroups(player, ["creator"]);
-// });
+ZirconServer.Registry.Init(
+	new ZirconConfigurationBuilder()
+		.CreateDefaultCreatorGroup()
+		.CreateDefaultUserGroup({
+			CanAccessConsole: true,
+		})
+		// .CreateDefaultAdminGroup()
+		// .CreateGroup(5, "debug", (group) => {
+		// 	if (($NODE_ENV as string) === "production") {
+		// 		return group;
+		// 	} else {
+		// 		return group
+		// 			.SetPermissions({
+		// 				CanAccessConsole: false,
+		// 				CanExecuteZirconiumScripts: true,
+		// 			})
+		// 			.BindToUserIds([4308133]);
+		// 		//.BindToGroupRank(2664663, 10);
+		// 	}
+		// })
+		.AddFunction(
+			new ZirconFunctionBuilder("ping").AddArgument("string?").Bind((context, response) => {
+				if (response !== undefined) {
+					context.LogInfo("Pong! with {Argument}", response);
+				} else {
+					context.LogInfo("Pong!");
+				}
+			}),
+			["User"],
+		)
+		.AddFunction(
+			new ZirconFunctionBuilder("print").Bind((context, ...args) => {
+				Log.Info(args.map((a) => tostring(a)).join(" "));
+			}),
+			["User"],
+		)
+		.AddEnum(TestEnum, [ZirconDefaultGroup.User])
+		.AddNamespace(
+			new ZirconNamespaceBuilder("example")
+				.AddHelpFunction()
+				.AddFunction(
+					new ZirconFunctionBuilder("print_b").AddVariadicArgument("string").Bind((context, ...args) => {
+						Log.Info("[Example print] " + args.map((a) => tostring(a)).join(" "));
+					}),
+				)
+				.AddFunction(
+					new ZirconFunctionBuilder("test").Bind((context) => {
+						Log.Info("Test!");
+					}),
+				)
+				.AddFunction(ZirconPrint)
+				.AddFunction(
+					new ZirconFunctionBuilder("with_variadic")
+						.AddArgument("string")
+						.AddArgument("player")
+						.AddArgument(["number?", "string"])
+						.AddVariadicArgument("object")
+						.Bind((c, s, p, n, o) => {}),
+				)
+				.AddFunction(
+					new ZirconFunctionBuilder("with_unions")
+						.AddVariadicArgument(["string", "number", "range"])
+						.Bind((context, ...strOrNum) => {
+							context.LogInfo("Got a {$Value}", strOrNum);
+						}),
+				)
+				.Build(),
+			[ZirconDefaultGroup.User],
+		)
+		.AddFunction(
+			new ZirconFunctionBuilder("range_test").AddArgument("range").Bind((_, range) => {
+				Log.Info("Got given a range with {Min} -> {Max}", range.GetMin(), range.GetMax());
+			}),
+			[ZirconDefaultGroup.User],
+		)
+		.AddFunction(
+			new ZirconFunctionBuilder("unknown_test").AddArgument("unknown").Bind((_, value) => {
+				Log.Info("Got given an unknown value: {Value}", tostring(value));
+			}),
+			[ZirconDefaultGroup.User],
+		)
+		.AddFunction(
+			new ZirconFunctionBuilder("defined_test").AddArgument("defined").Bind((_, value) => {
+				Log.Info("Got given a defined value: {Value}", value);
+			}),
+			[ZirconDefaultGroup.User],
+		)
+		.AddFunction(
+			new ZirconFunctionBuilder("players_test").AddArgument("players").Bind((_, value) => {
+				Log.Info("Got given players: {Players}", value);
+			}),
+			[ZirconDefaultGroup.User],
+		)
+		.AddFunction(
+			new ZirconFunctionBuilder("enum_test").AddArgument("ZrEnum").Bind((_, value) => {
+				Log.Info(
+					"Got given enum {Enum} with members {EnumMembers}",
+					value.getEnumName(),
+					value.getItems().map((v) => v.getName()),
+				);
+			}),
+			[ZirconDefaultGroup.User],
+		)
+		.AddFunction(
+			new ZirconFunctionBuilder("array_test").AddArrayArgument(["string"]).Bind((context, myArray) => {
+				context.LogInfo("Array value {Array}", myArray.join(", "));
+			}),
+			[ZirconDefaultGroup.User],
+		)
+		.AddFunction(
+			new ZirconFunctionBuilder("print_message")
+				.AddArgument("string")
+				.Bind((context, message) =>
+					Log.Info("Zircon says {Message} from {Player}", message, context.GetExecutor()),
+				),
+			[ZirconDefaultGroup.User],
+		)
+		.AddFunction(
+			new ZirconFunctionBuilder("test_enum").AddArgument(TestEnum).Bind((context, value) => {
+				$print("call to test_enum", context, value);
+				Log.Info("{Item}", value.getName());
+				value.match({
+					Value2: () => {
+						Log.Info("Got given enum item 2 (member)");
+					},
+					Value1: () => {
+						Log.Info("Got given enum item 1 (member)");
+					},
+				});
+				TestEnum.match(value, {
+					Value1: () => {
+						Log.Info("Got given enum item 1 (parent)");
+					},
+					Value2: () => {
+						Log.Info("Got given enum item 2 (parent)");
+					},
+					_: () => {
+						Log.Info("Anything else");
+					},
+				});
+			}),
+			[ZirconDefaultGroup.User],
+		)
+		.Build(),
+);
 
-// for (const player of game.GetService("Players").GetPlayers()) {
-// 	Zircon.Server.Registry.AddPlayerToGroups(player, ["creator"]);
-// }
+ZirconServer.Registry.RegisterFunction(
+	new ZirconFunctionBuilder("kill")
+		.AddArgument("player?")
+		.AddDescription("testing lol")
+		.Bind((context, player) => {
+			const target = player ?? context.GetExecutor();
+			target.Character?.BreakJoints();
+			Log.Info("Killed {target}", target);
+		}),
+	[ZirconDefaultGroup.User],
+);

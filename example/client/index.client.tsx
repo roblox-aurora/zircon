@@ -11,7 +11,7 @@ Log.SetLogger(Logger.configure().WriteTo(Zircon.Log.Console()).EnrichWithPropert
 ZirconClient.BindConsole({
 	Theme: "Plastic",
 	EnableTags: true,
-	Keys: [Enum.KeyCode.Backquote],
+	Keys: [Enum.KeyCode.Backquote, Enum.KeyCode.F10],
 });
 
 delayAsync(10).then(() => {

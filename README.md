@@ -1,9 +1,11 @@
-<div align="center">
-    <img src="https://i.imgur.com/YgpbX7G.png"/>
-    <h2>A clean, sleek, runtime debugging console for Roblox</h2>
+<div>
+    <img src="https://i.imgur.com/YgpbX7G.png" align="left" width="128"/>
+    <h1>Zircon (Beta)</h1>
+    <h3>A clean, sleek, runtime debugging console for Roblox</h3>
+    <br/>
 </div>
 
-<img src="./assets/Example2.jpg"/>
+<img src="./assets/Example2.png"/>
 
 ## Setup
 To begin, it is recommended to do
@@ -55,19 +57,44 @@ This will install both Zircon, as well as the logging support. It is recommended
 Below is an example of how to register a command in Zircon:
 
 ```ts
-import { ZirconServer, ZirconFunctionBuilder } from "@rbxts/zircon";
+import { 
+    ZirconServer,
+    ZirconFunctionBuilder,
+    ZirconDefaultGroup,
+    ZirconConfigurationBuilder
+} from "@rbxts/zircon";
 import Log from "@rbxts/log";
 
-ZirconServer.Registry.RegisterFunction(
-    new ZirconFunctionBuilder("print_message")
-        .AddArguments("string")
-        .Bind((context, message) => Log.Info(
-                "Zircon says {Message} from {Player}", 
-                message,
-                context.GetExecutor()
-        )),
-    [ZirconServer.Registry.User]
-)
+const PrintMessage = new ZirconFunctionBuilder("print_message")
+    .AddArguments("string")
+    .Bind((context, message) => Log.Info(
+            "Zircon says {Message} from {Player}", 
+            message,
+            context.GetExecutor()
+    ));
+
+const CreatorCommand = new ZirconFunctionBuilder("kill")
+    .AddArguments("player")
+    .Bind((context, player) => {
+        const character = player.Character;
+        if (character) {
+            character.BreakJoints()
+        }
+    });
+
+ZirconServer.Registry.Init(
+    new ZirconConfigurationBuilder()
+        // Creates a 'creator' group
+        .CreateDefaultCreatorGroup()
+        // Creates a 'user' group
+        .CreateDefaultUserGroup()
+        // Adds an executable function called 'print_message', allowed to be executed by `User` (everyone)
+        .AddFunction(PrintMessage, [ZirconDefaultGroup.User])
+        // Adds an executable function called 'kill' that can only be executed by a creator of the place.
+        .AddFunction(CreatorCommand, [ZirconDefaultGroup.Creator])
+        // Builds the configuration for Zircon
+        .Build()
+);
 ```
 
 This will create a global `print_message` that all players can run.
@@ -77,3 +104,7 @@ Then if run in Zircon:
 <img src="./assets/Example1.png"/>
 
 The first argument of `RegisterFunction` takes a `ZirconFunctionBuilder` - which is the easiest way to build a function. `AddArguments` takes any number of arguments for types you want, in built types in Zircon you can use a string for. Otherwise you supply the type validator object.
+
+# More Help & Links
+
+[Australis OSS Community](https://discord.gg/SvUcvTRjPZ)
