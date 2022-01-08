@@ -1,10 +1,11 @@
 import Roact from "@rbxts/roact";
-import Zircon, { ZirconClient } from "@zircon";
+import Zircon, { ZirconClient, ZirconFunctionBuilder } from "@zircon";
 import delayAsync from "./Client/BuiltInConsole/DelayAsync";
 import ZirconDockedConsole from "./Client/BuiltInConsole/UI/DockedConsole";
 import ThemeContext, { ZirconDarkPlastic, makeTheme, ZirconFrost } from "./Client/UIKit/ThemeContext";
 import { Players } from "@rbxts/services";
 import Log, { Logger } from "@rbxts/log";
+import { ZirconClientConfigurationBuilder } from "Class/ZirconClientConfigurationBuilder";
 
 Log.SetLogger(Logger.configure().WriteTo(Zircon.Log.Console()).EnrichWithProperty("Version", PKG_VERSION).Create());
 
@@ -33,3 +34,11 @@ delayAsync(10).then(() => {
 	Log.Error("test error lol");
 	Log.Fatal("wtf lol");
 });
+
+ZirconClient.Registry.Init(
+	new ZirconClientConfigurationBuilder().AddFunction(
+		new ZirconFunctionBuilder("version").Bind((context) => {
+			context.LogInfo(PKG_VERSION);
+		}),
+	),
+);

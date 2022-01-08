@@ -10,6 +10,7 @@ export const enum ConsoleActionName {
 	SetFilter = "SetFilter",
 	UpdateFilter = "UpdateFilter",
 	RemoveFilter = "RemoveFilter",
+	SetClientExecutionEnabled = "SetClientExecutionEnabled",
 }
 
 export interface ActionSetConsoleVisible extends Action<ConsoleActionName.SetConsoleVisible> {
@@ -26,6 +27,10 @@ export interface ActionSetConsoleConfiguration extends Action<ConsoleActionName.
 
 export interface ActionAddOutput extends Action<ConsoleActionName.AddOutput> {
 	message: ConsoleMessage;
+}
+
+export interface ActionSetClientExecutionEnabled extends Action<ConsoleActionName.SetClientExecutionEnabled> {
+	enabled: boolean;
 }
 
 export interface ActionAddHistory extends Action<ConsoleActionName.AddHistory> {
@@ -49,7 +54,8 @@ export type ConsoleActions =
 	| ActionAddHistory
 	| ActionSetFilter
 	| ActionUpdateFilter
-	| ActionRemoveFilter;
+	| ActionRemoveFilter
+	| ActionSetClientExecutionEnabled;
 
 export interface ConsoleFilter {
 	Context?: ZirconContext;
@@ -69,6 +75,7 @@ export interface ConsoleReducer {
 	output: ConsoleMessage[];
 	history: string[];
 	filter: ConsoleFilter;
+	canExecuteLocalScripts: boolean;
 	bindingKeys: Enum.KeyCode[];
 }
 
@@ -84,6 +91,7 @@ const INITIAL_STATE: ConsoleReducer = {
 	autoFocusTextBox: true,
 	executionEnabled: false,
 	hotkeyEnabled: false,
+	canExecuteLocalScripts: false,
 	logDetailsPaneEnabled: false,
 	showTagsInOutput: true,
 	output: [],
@@ -108,6 +116,9 @@ const actions: Rodux.ActionHandlers<ConsoleReducer, ConsoleActions> = {
 		autoFocusTextBox,
 		bindingKeys: bindKeys,
 	}),
+	[ConsoleActionName.SetClientExecutionEnabled]: (state, { enabled }) => {
+		return { ...state, canExecuteLocalScripts: enabled };
+	},
 	[ConsoleActionName.AddOutput]: (state, { message }) => {
 		return $dbg({
 			...state,

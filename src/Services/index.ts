@@ -40,7 +40,7 @@ function GetServiceInt<K extends keyof ServiceMap>(service: K, importingFrom?: k
 
 		const serviceMaster = TSRequire(script, service) as Map<string, ServiceMap[K]>;
 
-		const importId = IS_SERVER ? `Zircon${service}` : `ZirconClient${service}`;
+		const importId = IS_SERVER ? `Zircon${service}` : `Zircon${service}`;
 		svcImport = serviceMaster.get(importId) as ServiceMap[K];
 		if (svcImport === undefined) {
 			throw `Tried importing service: ${service}, but no matching ${importId} declaration.`;
