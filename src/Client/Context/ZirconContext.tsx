@@ -1,7 +1,7 @@
 import Roact from "@rbxts/roact";
 import { ZirconClientDispatchService } from "../../Services/ClientDispatchService";
 import { ZirconClientRegistryService } from "../../Services/ClientRegistryService";
-import Zircon from "../../index";
+import { ZirconClient } from "../../index";
 
 interface Contexts {
 	_zrso4dispatcher: ZirconClientDispatchService;
@@ -17,8 +17,8 @@ class ZirconProvider extends Roact.Component {
 
 	public constructor(props: {}) {
 		super(props);
-		this.__addContext("_zrso4dispatcher", Zircon.Client.Dispatch);
-		this.__addContext("_zrso4registry", Zircon.Client.Registry);
+		this.__addContext("_zrso4dispatcher", ZirconClient.Dispatch);
+		this.__addContext("_zrso4registry", ZirconClient.Registry);
 	}
 
 	public render() {

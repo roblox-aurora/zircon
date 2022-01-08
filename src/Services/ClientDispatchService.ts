@@ -5,7 +5,9 @@ import ZrScript from "@rbxts/zirconium/out/Runtime/Script";
 import ZirconClientStore from "Client/BuiltInConsole/Store";
 import { ConsoleActionName } from "Client/BuiltInConsole/Store/_reducers/ConsoleReducer";
 import { ZirconContext, ZirconMessageType, ZrErrorMessage } from "Client/Types";
+import { ZirconClient } from "index";
 import { GetCommandService } from "Services";
+import { ZirconDebug } from "Shared/Debugging";
 import Remotes, { RemoteId, ZirconNetworkMessageType } from "../Shared/Remotes";
 import { ZirconClientRegistryService } from "./ClientRegistryService";
 
@@ -67,13 +69,8 @@ export namespace ZirconClientDispatchService {
 				if (typeIs(err, "table")) {
 					const messages = err as Array<ZrParserError | ZrRuntimeError>;
 					for (const message of messages) {
-						Log({
-							Template: `error {ErrCode}: ${message.message}`,
-							Timestamp: DateTime.now().ToIsoDate(),
-							Level: LogLevel.Error,
-							SourceContext: "Client Script",
-							ErrCode: message.code,
-						});
+						const errMsg = ZirconDebug.GetMessageForError(text, message);
+						ZirconClient.ZirconErrorLog(errMsg);
 					}
 				}
 			});

@@ -17,7 +17,7 @@ export namespace ZirconClientRegistryService {
 	 * NOTE: This is 100% insecure because it's on the client, and thus shouldn't use any elevated functions
 	 * (WIP client)
 	 * @param configuration
-	 * @hidden @deprecated
+	 * @hidden @deprecated @internal
 	 */
 	export function Init(configuration: ZirconClientConfigurationBuilder) {
 		const conf = configuration.Build();

@@ -9,7 +9,13 @@ import { $ifEnv } from "rbxts-transform-env";
 import { $dbg, $print } from "rbxts-transform-debug";
 import Lazy from "../Shared/Lazy";
 import { GetCommandService } from "../Services";
-import Remotes, { RemoteId, ZirconNetworkMessageType } from "../Shared/Remotes";
+import Remotes, {
+	RemoteId,
+	ZirconErrorOutput,
+	ZirconiumParserErrorMessage,
+	ZirconiumRuntimeErrorMessage,
+	ZirconNetworkMessageType,
+} from "../Shared/Remotes";
 import { ZirconContext, ZirconLogData, ZirconLogLevel, ZirconMessageType } from "./Types";
 import ZirconTopBar from "./BuiltInConsole/UI/TopbarMenu";
 import { LogEvent } from "@rbxts/log";
@@ -43,6 +49,7 @@ namespace ZirconClient {
 		return GetCommandService("ClientDispatchService");
 	});
 
+	/** @internal */
 	export function StructuredLog(data: LogEvent) {
 		ZirconClientStore.dispatch({
 			type: ConsoleActionName.AddOutput,
@@ -54,41 +61,16 @@ namespace ZirconClient {
 		});
 	}
 
-	/** @deprecated */
-	export function Log(level: ZirconLogLevel, tag: string, message: string, data: ZirconLogData) {
-		if (level === ZirconLogLevel.Error || level === ZirconLogLevel.Wtf) {
-			ZirconClientStore.dispatch({
-				type: ConsoleActionName.AddOutput,
-				message: {
-					type: ZirconMessageType.ZirconLogErrorMessage,
-					error: {
-						data: data,
-						type: ZirconNetworkMessageType.ZirconStandardErrorMessage,
-						time: DateTime.now().UnixTimestamp,
-						message,
-						level,
-						tag,
-					},
-					context: ZirconContext.Client,
-				},
-			});
-		} else {
-			ZirconClientStore.dispatch({
-				type: ConsoleActionName.AddOutput,
-				message: {
-					type: ZirconMessageType.ZirconLogOutputMesage,
-					message: {
-						data: data ?? {},
-						type: ZirconNetworkMessageType.ZirconStandardOutputMessage,
-						time: DateTime.now().UnixTimestamp,
-						message,
-						level,
-						tag,
-					},
-					context: ZirconContext.Client,
-				},
-			});
-		}
+	/** @internal */
+	export function ZirconErrorLog(data: ZirconiumRuntimeErrorMessage | ZirconiumParserErrorMessage) {
+		ZirconClientStore.dispatch({
+			type: ConsoleActionName.AddOutput,
+			message: {
+				type: ZirconMessageType.ZirconiumError,
+				error: data,
+				context: ZirconContext.Client,
+			},
+		});
 	}
 
 	let topbarEnabledState = false;
