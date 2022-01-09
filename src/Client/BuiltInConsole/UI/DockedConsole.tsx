@@ -17,6 +17,8 @@ import Padding from "Client/Components/Padding";
 import SearchTextBox from "Client/Components/SearchTextBox";
 import MultiSelectDropdown from "Client/Components/MultiSelectDropdown";
 import { $print } from "rbxts-transform-debug";
+import { $NODE_ENV } from "rbxts-transform-env";
+import { GetCommandService } from "Services";
 
 export interface DockedConsoleProps extends MappedProps, MappedDispatch {}
 interface DockedConsoleState {
@@ -28,6 +30,7 @@ interface DockedConsoleState {
 	filterVisible?: boolean;
 	historyIndex: number;
 	searchQuery: string;
+	context: ZirconContext;
 }
 
 const MAX_SIZE = 28 * 10; // 18
@@ -59,6 +62,7 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 			searchQuery: props.searchQuery,
 			source: "",
 			sizeY: MAX_SIZE,
+			context: !props.executionEnabled ? ZirconContext.Client : ZirconContext.Server,
 		};
 
 		// Initialization
@@ -104,6 +108,16 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 			this.setState({ isVisible: this.props.isVisible });
 		}
 
+		if (prevProps.clientExecutionEnabled !== this.props.clientExecutionEnabled) {
+			if (!this.props.executionEnabled) {
+				this.setState({ context: ZirconContext.Client });
+			}
+		}
+
+		if (prevProps.executionEnabled !== this.props.executionEnabled) {
+			this.setState({ context: this.props.executionEnabled ? ZirconContext.Server : ZirconContext.Client });
+		}
+
 		if (prevProps.levelFilter !== this.props.levelFilter) {
 			this.setState({ levelFilter: this.props.levelFilter });
 		}
@@ -138,6 +152,8 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 	}
 
 	public renderExecutionBox() {
+		const showDropdown = this.props.executionEnabled;
+
 		return (
 			<ThemeContext.Consumer
 				render={(theme) => (
@@ -148,23 +164,27 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 						Position={new UDim2(0, 0, 1, -28)}
 					>
 						<uilistlayout FillDirection="Horizontal" />
-						<Dropdown<ZirconContext>
-							Disabled
-							Items={[
-								{
-									Id: ZirconContext.Server,
-									Text: "Server",
-									Icon: "ContextServer",
-								},
-								{
-									Id: ZirconContext.Client,
-									Text: "Client",
-									Icon: "ContextClient",
-								},
-							]}
-							Position={new UDim2(1, -150, 0, 0)}
-							Size={new UDim2(0, 100, 1, 0)}
-						/>
+						{showDropdown && (
+							<Dropdown<ZirconContext>
+								Disabled={!this.props.clientExecutionEnabled || !this.props.executionEnabled}
+								Items={[
+									{
+										Id: ZirconContext.Server,
+										Text: "Server",
+										Icon: "ContextServer",
+									},
+									{
+										Id: ZirconContext.Client,
+										Text: "Client",
+										Icon: "ContextClient",
+									},
+								]}
+								SelectedItemId={this.state.context}
+								Position={new UDim2(1, -150, 0, 0)}
+								Size={new UDim2(0, 100, 1, 0)}
+								ItemSelected={(value) => this.setState({ context: value.Id })}
+							/>
+						)}
 						<ZirconIconButton Size={new UDim2(0, 16, 0, 28)} Icon="RightArrow" OnClick={() => {}} />
 						<ZirconSyntaxTextBox
 							RefocusOnSubmit={this.props.autoFocus}
@@ -172,13 +192,22 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 							CancelKeyCodes={this.props.toggleKeys}
 							OnCancel={this.props.close}
 							PlaceholderText="Enter script to execute"
-							Size={new UDim2(1, -16 - 32 - 100, 1, 0)}
+							Size={new UDim2(1, -16 - 32 - (showDropdown ? 100 : 0), 1, 0)}
 							Position={new UDim2(0, 16, 0, 0)}
 							Focused={this.state.isVisible}
 							Source={this.state.source}
 							OnEnterSubmit={(input) => {
 								this.props.addMessage(input);
-								this.dispatch.SendToServer(input);
+
+								switch (this.state.context) {
+									case ZirconContext.Server:
+										this.dispatch.SendToServer(input);
+										break;
+									case ZirconContext.Client:
+										GetCommandService("ClientDispatchService").ExecuteScript(input);
+										break;
+								}
+
 								this.setState({ historyIndex: 0, source: "" });
 							}}
 							OnHistoryTraversal={(direction) => {
@@ -226,6 +255,8 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 	}
 
 	public render() {
+		const canExec = this.props.clientExecutionEnabled || this.props.executionEnabled;
+
 		const sizePositionBinding = Roact.joinBindings({ Size: this.sizeY, Position: this.positionY });
 		return (
 			<ThemeContext.Consumer
@@ -246,7 +277,7 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 									return new UDim2(0, 0, 0, this.state.isFullView ? v : 0);
 								})}
 								Size={this.filterSizeY.map((v) => {
-									return new UDim2(1, 0, 1, this.state.isFullView ? v : 0);
+									return new UDim2(1, 0, 1, this.state.isFullView ? v - 30 : -30);
 								})}
 								BackgroundTransparency={1}
 							>
@@ -372,8 +403,8 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 								</frame>
 							</frame>
 
-							{this.props.executionEnabled && this.renderExecutionBox()}
-							{!this.props.executionEnabled && this.renderNonExecutionBox()}
+							{canExec && this.renderExecutionBox()}
+							{!canExec && this.renderNonExecutionBox()}
 						</frame>
 					</screengui>
 				)}
@@ -392,6 +423,7 @@ interface MappedDispatch {
 interface MappedProps {
 	isVisible: boolean;
 	executionEnabled: boolean;
+	clientExecutionEnabled: boolean;
 	history: string[];
 	searchQuery: string;
 	toggleKeys: Enum.KeyCode[];
@@ -406,6 +438,7 @@ const mapStateToProps = (state: ConsoleReducer): MappedProps => {
 		levelFilter: state.filter.Levels ?? DEFAULT_FILTER,
 		executionEnabled: state.executionEnabled,
 		searchQuery: state.filter.SearchQuery ?? "",
+		clientExecutionEnabled: state.canExecuteLocalScripts,
 		history: state.history,
 	};
 };

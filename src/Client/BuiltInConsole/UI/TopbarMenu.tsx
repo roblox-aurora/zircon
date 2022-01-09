@@ -53,7 +53,7 @@ class ZirconTopbarMenuComponent extends Roact.Component<TopbarProps, TopbarState
 							/>
 							<frame Size={new UDim2(0, 32, 0, 32)} BackgroundTransparency={1}>
 								<uilistlayout VerticalAlignment="Center" HorizontalAlignment="Center" />
-								<ZirconIcon Icon="Zirconium" />
+								{/* <ZirconIcon Icon="Zirconium" /> */}
 							</frame>
 						</frame>
 					</screengui>

@@ -5,6 +5,7 @@ import ZrContext from "@rbxts/zirconium/out/Data/Context";
 import { RbxSerializer } from "@rbxts/message-templates/out/RbxSerializer";
 import { ZirconFunction } from "./ZirconFunction";
 import { $print } from "rbxts-transform-debug";
+import { RunService } from "@rbxts/services";
 
 export class ZirconContext {
 	constructor(private innerContext: ZrContext, private executingFunction: ZirconFunction<any, any>) {}
@@ -21,35 +22,47 @@ export class ZirconContext {
 	 * @param args The arguments to the template string
 	 */
 	private Log(level: LogLevel, template: string, ...args: unknown[]) {
-		import("../Services/LogService").then((log) => {
-			const message: Writable<LogEvent> = {
-				Level: level,
-				SourceContext: `(function '${this.executingFunction.GetName()}')`,
-				Template: template,
-				Timestamp: DateTime.now().ToIsoDate(),
-				LogToPlayer: this.GetExecutor(),
-			};
+		if (RunService.IsServer()) {
+			import("../Services/LogService").then((log) => {
+				const message: Writable<LogEvent> = {
+					Level: level,
+					SourceContext: `(function '${this.executingFunction.GetName()}')`,
+					Template: template,
+					Timestamp: DateTime.now().ToIsoDate(),
+					LogToPlayer: this.GetExecutor(),
+				};
 
-			const tokens = MessageTemplateParser.GetTokens(template);
-			const propertyTokens = tokens.filter((t): t is PropertyToken => t.kind === TemplateTokenKind.Property);
+				const tokens = MessageTemplateParser.GetTokens(template);
+				const propertyTokens = tokens.filter((t): t is PropertyToken => t.kind === TemplateTokenKind.Property);
 
-			let idx = 0;
-			for (const token of propertyTokens) {
-				const arg = args[idx++];
+				let idx = 0;
+				for (const token of propertyTokens) {
+					const arg = args[idx++];
 
-				if (idx <= args.size()) {
-					if (arg !== undefined) {
-						if (token.destructureMode === DestructureMode.ToString) {
-							message[token.propertyName] = tostring(arg);
-						} else {
-							message[token.propertyName] = typeIs(arg, "table") ? arg : RbxSerializer.Serialize(arg);
+					if (idx <= args.size()) {
+						if (arg !== undefined) {
+							if (token.destructureMode === DestructureMode.ToString) {
+								message[token.propertyName] = tostring(arg);
+							} else {
+								message[token.propertyName] = typeIs(arg, "table") ? arg : RbxSerializer.Serialize(arg);
+							}
 						}
 					}
 				}
-			}
 
-			log.ZirconLogService.WriteStructured(message);
-		});
+				log.ZirconLogService.WriteStructured(message);
+			});
+		} else {
+			import("../Client/index").then(({ default: client }) => {
+				client.StructuredLog({
+					Level: level,
+					SourceContext: `(function '${this.executingFunction.GetName()}')`,
+					Template: template,
+					Timestamp: DateTime.now().ToIsoDate(),
+					LogToPlayer: this.GetExecutor(),
+				});
+			});
+		}
 	}
 
 	/**

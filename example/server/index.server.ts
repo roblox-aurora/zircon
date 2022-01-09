@@ -48,7 +48,7 @@ Promise.delay(5).then(() => {
 
 ZirconServer.Registry.Init(
 	new ZirconConfigurationBuilder()
-		.CreateDefaultCreatorGroup()
+		// .CreateDefaultCreatorGroup()
 		.CreateDefaultUserGroup({
 			CanAccessConsole: true,
 		})
