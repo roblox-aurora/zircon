@@ -106,6 +106,12 @@ Then if run in Zircon:
 
 The first argument of `RegisterFunction` takes a `ZirconFunctionBuilder` - which is the easiest way to build a function. `AddArguments` takes any number of arguments for types you want, in built types in Zircon you can use a string for. Otherwise you supply the type validator object.
 
+# Troubleshooting
+### Attempted to call AsyncFunction 'ZrSOi4/GetZirconInit' - which has no user defined callback
+- You need to call `ZirconServer.Registry.Init` - an example of that can be found [here](https://github.com/roblox-aurora/zircon-example/blob/master/src/server/main.server.ts#L20)
+### Unhandled promise rejection: ... Component returned invalid children ...
+- You need to update your version of roact to the latest. That can be done via `npm i @rbxts/roact@latest`.
+
 # More Help & Links
 
 [Australis OSS Community](https://discord.gg/SvUcvTRjPZ)
