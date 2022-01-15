@@ -90,7 +90,7 @@ class StructuredLogMessageComponent extends Roact.Component<StructuredLogMessage
 						messages.push(getRichTextColor3(theme, "Red", text));
 					}
 
-					if (SourceContext !== undefined) {
+					if (SourceContext !== undefined && this.props.showTagsInOutput) {
 						messages.push(
 							"- " + italicize(getRichTextColor3(theme, "Grey", tostring(LogEvent.SourceContext))),
 						);
@@ -193,10 +193,12 @@ class StructuredLogMessageComponent extends Roact.Component<StructuredLogMessage
 
 export interface MappedProps {
 	readonly logDetailsPaneEnabled: boolean;
+	readonly showTagsInOutput: boolean;
 }
 const mapStateToProps = (props: ConsoleReducer): MappedProps => {
 	return {
 		logDetailsPaneEnabled: props.logDetailsPaneEnabled,
+		showTagsInOutput: props.showTagsInOutput,
 	};
 };
 
