@@ -4,7 +4,6 @@ import { ZrRichTextHighlighter } from "@rbxts/zirconium/out/Ast";
 import ThemeContext, { convertColorObjectToHex, ThemeSyntaxColors } from "../../Client/UIKit/ThemeContext";
 import Maid from "@rbxts/maid";
 import { UserInputService } from "@rbxts/services";
-import { $print } from "rbxts-transform-debug";
 
 interface SyntaxTextBoxState {
 	source: string;
@@ -187,7 +186,6 @@ export default class ZirconSyntaxTextBox extends Roact.Component<SyntaxTextBoxPr
 									},
 									InputChanged: (rbx, io) => {
 										if (io.UserInputType === Enum.UserInputType.Keyboard) {
-											print("pressKey", io.KeyCode);
 											if (this.props.CancelKeyCodes?.includes(io.KeyCode)) {
 												rbx.ReleaseFocus();
 											}

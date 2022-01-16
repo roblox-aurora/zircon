@@ -1,15 +1,13 @@
 import { LogEvent, LogLevel } from "@rbxts/log";
-import { MessageTemplateParser } from "@rbxts/message-templates";
+import { MessageTemplateParser, PlainTextMessageTemplateRenderer } from "@rbxts/message-templates";
 import Roact from "@rbxts/roact";
-import RoactHooks from "@rbxts/roact-hooks";
 import { ZirconStructuredMessageTemplateRenderer } from "Client/Format/ZirconStructuredMessageTemplate";
 import { ZirconContext } from "Client/Types";
 import ThemeContext, { getRichTextColor3, italicize } from "Client/UIKit/ThemeContext";
-import Flipper from "@rbxts/flipper";
+import Flipper, { Instant } from "@rbxts/flipper";
 import Padding from "./Padding";
 import { formatRichText } from "Client/Format";
-import RoactRodux, { connect } from "@rbxts/roact-rodux";
-import ZirconClientStore from "Client/BuiltInConsole/Store";
+import { connect } from "@rbxts/roact-rodux";
 import { ConsoleReducer } from "Client/BuiltInConsole/Store/_reducers/ConsoleReducer";
 
 function sanitise(input: string) {
@@ -26,6 +24,7 @@ export interface StructuredLogMessageProps extends MappedProps {
 }
 export interface StructuredLogMessageState {
 	viewDetails: boolean;
+	minHeight: number;
 }
 
 const keys: (keyof LogEvent)[] = ["Template", "Level", "Timestamp"];
@@ -47,9 +46,29 @@ class StructuredLogMessageComponent extends Roact.Component<StructuredLogMessage
 
 	public constructor(props: StructuredLogMessageProps) {
 		super(props);
-		[this.height, this.setHeight] = Roact.createBinding(25);
+		this.state = {
+			viewDetails: false,
+			minHeight: 25,
+		};
+
+		[this.height, this.setHeight] = Roact.createBinding(this.state.minHeight);
 		this.heightMotor = new Flipper.SingleMotor(this.height.getValue());
 		this.heightMotor.onStep((value) => this.setHeight(value));
+	}
+
+	public didMount() {
+		const logEvent = this.props.LogEvent;
+		const tokens = MessageTemplateParser.GetTokens(logEvent.Template);
+		const plainText = new PlainTextMessageTemplateRenderer(tokens);
+		const result = plainText.Render(logEvent);
+
+		this.setState({ minHeight: result.split("\n").size() * 25 });
+	}
+
+	public didUpdate(_: {}, prevState: StructuredLogMessageState) {
+		if (prevState.minHeight !== this.state.minHeight) {
+			this.heightMotor.setGoal(new Instant(this.state.minHeight));
+		}
 	}
 
 	public willUnmount() {
@@ -67,8 +86,12 @@ class StructuredLogMessageComponent extends Roact.Component<StructuredLogMessage
 		return (
 			<ThemeContext.Consumer
 				render={(theme) => {
-					const renderer = new ZirconStructuredMessageTemplateRenderer(tokens, theme);
-					const text = renderer.Render(LogEvent);
+					const highlightRenderer = new ZirconStructuredMessageTemplateRenderer(tokens, theme);
+					const text = highlightRenderer
+						.Render(LogEvent)
+						.split("\n")
+						.map((f, i) => (i > 0 ? `${" ".rep(6)}${f}` : f))
+						.join("\n");
 
 					if (Level === LogLevel.Information) {
 						messages.push(getRichTextColor3(theme, "Cyan", "INFO "));
@@ -108,9 +131,11 @@ class StructuredLogMessageComponent extends Roact.Component<StructuredLogMessage
 									if (!this.props.logDetailsPaneEnabled) return;
 
 									if (this.state.viewDetails) {
-										this.heightMotor.setGoal(new Flipper.Spring(25));
+										this.heightMotor.setGoal(new Flipper.Spring(this.state.minHeight));
 									} else {
-										this.heightMotor.setGoal(new Flipper.Spring(25 + evtProps.size() * 30 + 5));
+										this.heightMotor.setGoal(
+											new Flipper.Spring(this.state.minHeight + evtProps.size() * 30 + 5),
+										);
 									}
 
 									this.setState({ viewDetails: !this.state.viewDetails });
@@ -129,7 +154,7 @@ class StructuredLogMessageComponent extends Roact.Component<StructuredLogMessage
 							<textlabel
 								RichText
 								Position={new UDim2(0, 10, 0, 0)}
-								Size={new UDim2(1, -15, 0, 25)}
+								Size={new UDim2(1, -15, 0, this.state.minHeight)}
 								Text={messages.join(" ")}
 								BackgroundTransparency={1}
 								Font={theme.ConsoleFont}
@@ -138,17 +163,13 @@ class StructuredLogMessageComponent extends Roact.Component<StructuredLogMessage
 								TextSize={20}
 							/>
 							<frame
-								Position={new UDim2(0, 30, 0, 25)}
+								Position={new UDim2(0, 30, 0, this.state.minHeight)}
 								ClipsDescendants
 								BorderSizePixel={0}
 								BackgroundTransparency={1}
 								Size={this.height.map((v) => new UDim2(1, -35, 0, v - 25))}
 							>
 								<uilistlayout Padding={new UDim(0, 5)} />
-								{/* <uigridlayout
-									CellPadding={new UDim2(0, 5, 0, 5)}
-									CellSize={new UDim2(0.5, -5, 0, 25)}
-								/> */}
 								{this.props.logDetailsPaneEnabled &&
 									this.state.viewDetails &&
 									evtProps.map(([key, value]) => {

@@ -73,6 +73,7 @@ export type IconEnum = keyof typeof IconsV2;
 interface IconProps {
 	Icon: IconEnum;
 	Position?: UDim2;
+	Size?: UDim2;
 	ZIndex?: number;
 }
 
@@ -82,24 +83,56 @@ export default class ZirconIcon extends Roact.PureComponent<IconProps> {
 	}
 	public render() {
 		const icon = IconsV2[this.props.Icon];
-		return (
-			<ThemeContext.Consumer
-				render={(theme) => {
-					return (
-						<imagelabel
-							Size={new UDim2(0, 16, 0, 16)}
-							BackgroundTransparency={1}
-							Image={theme.IconAssetUri}
-							ImageColor3={theme.IconColor3}
-							ImageRectOffset={icon.Offset}
-							Position={this.props.Position}
-							ZIndex={this.props.ZIndex}
-							ImageRectSize={new Vector2(16, 16)}
-						/>
-					);
-				}}
-			/>
-		);
+
+		if (this.props.Size) {
+			return (
+				<ThemeContext.Consumer
+					render={(theme) => {
+						return (
+							<imagebutton
+								Image=""
+								BackgroundTransparency={1}
+								BackgroundColor3={theme.PrimaryBackgroundColor3}
+								BorderColor3={theme.SecondaryBackgroundColor3}
+								Size={this.props.Size}
+								ZIndex={this.props.ZIndex}
+								Position={this.props.Position}
+							>
+								<uilistlayout VerticalAlignment="Center" HorizontalAlignment="Center" />
+								<imagelabel
+									Size={new UDim2(0, 16, 0, 16)}
+									BackgroundTransparency={1}
+									Image={theme.IconAssetUri}
+									ImageColor3={theme.IconColor3}
+									ImageRectOffset={icon.Offset}
+									ZIndex={this.props.ZIndex}
+									ImageRectSize={new Vector2(16, 16)}
+								/>
+							</imagebutton>
+						);
+					}}
+				/>
+			);
+		} else {
+			return (
+				<ThemeContext.Consumer
+					render={(theme) => {
+						return (
+							<imagelabel
+								Size={new UDim2(0, 16, 0, 16)}
+								BackgroundTransparency={1}
+								Image={theme.IconAssetUri}
+								ImageColor3={theme.IconColor3}
+								ImageRectOffset={icon.Offset}
+								Position={this.props.Position}
+								ZIndex={this.props.ZIndex}
+								ImageRectSize={new Vector2(16, 16)}
+							/>
+						);
+					}}
+				/>
+			);
+		}
 	}
 }
 

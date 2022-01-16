@@ -3,7 +3,7 @@ import { SingleMotor, Spring } from "@rbxts/flipper";
 import { connect } from "@rbxts/roact-rodux";
 import { ConsoleActionName, ConsoleReducer, DEFAULT_FILTER } from "../Store/_reducers/ConsoleReducer";
 import ZirconSyntaxTextBox from "../../Components/SyntaxTextBox";
-import { ZirconIconButton } from "../../Components/Icon";
+import ZirconIcon, { ZirconIconButton } from "../../Components/Icon";
 import Remotes, { RemoteId } from "../../../Shared/Remotes";
 import { ClientSenderEvent } from "@rbxts/net/out/client/ClientEvent";
 import ZirconOutput from "../../../Client/Components/Output";
@@ -185,7 +185,8 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 								ItemSelected={(value) => this.setState({ context: value.Id })}
 							/>
 						)}
-						<ZirconIconButton Size={new UDim2(0, 16, 0, 28)} Icon="RightArrow" OnClick={() => {}} />
+						{/* <ZirconIconButton Size={new UDim2(0, 16, 0, 28)} Icon="Zirconium" OnClick={() => {}} /> */}
+						<ZirconIcon Size={new UDim2(0, 16, 0, 28)} Icon="RightArrow" />
 						<ZirconSyntaxTextBox
 							RefocusOnSubmit={this.props.autoFocus}
 							AutoFocus={this.props.autoFocus}

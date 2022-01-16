@@ -1,12 +1,12 @@
 <div>
     <img src="https://i.imgur.com/YgpbX7G.png" align="left" width="128"/>
-    <h1>Zircon (Beta)</h1>
+    <h1>ZIRCON</h1>
     <h3>A clean, sleek, runtime debugging console for Roblox</h3>
     <a href="https://npmjs.com/package/@rbxts/zircon"><img src="https://badge.fury.io/js/@rbxts%2Fzircon.svg"/></a>
     <br/>
 </div>
 
-<img src="./assets/Example2.png"/>
+<img src="https://raw.githubusercontent.com/roblox-aurora/zircon/master/assets/Example2.png"/>
 
 ## Setup
 To begin, it is recommended to do
@@ -102,7 +102,7 @@ This will create a global `print_message` that all players can run.
 
 Then if run in Zircon:
 
-<img src="./assets/Example1.png"/>
+<img src="https://raw.githubusercontent.com/roblox-aurora/zircon/master/assets/Example1.png"/>
 
 The first argument of `RegisterFunction` takes a `ZirconFunctionBuilder` - which is the easiest way to build a function. `AddArguments` takes any number of arguments for types you want, in built types in Zircon you can use a string for. Otherwise you supply the type validator object.
 
