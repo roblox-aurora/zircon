@@ -128,7 +128,20 @@ namespace ZirconClient {
 		const GetPlayerOptions = Remotes.Client.WaitFor(RemoteId.GetPlayerPermissions).expect();
 		GetPlayerOptions.CallServerAsync().then((permissions) => {
 			if (permissions.has("CanAccessConsole")) {
-				BindActivationKeys(Keys);
+				ContextActionService.UnbindAction(Const.ActionId);
+				ContextActionService.BindActionAtPriority(
+					Const.ActionId,
+					(_, state, io) => {
+						if (state === Enum.UserInputState.End) {
+							SetVisible(!isVisible);
+						}
+						return Enum.ContextActionResult.Sink;
+					},
+					false,
+					Enum.ContextActionPriority.High.Value,
+					...Keys,
+				);
+
 				handle = Roact.mount(
 					<ThemeContext.Provider value={BuiltInThemes[Theme]}>
 						<RoactRodux.StoreProvider store={ZirconClientStore}>
@@ -185,36 +198,9 @@ namespace ZirconClient {
 	}
 
 	let bound = false;
+	/** @hidden @deprecated No longer works - use `Keys` option to {@link Init} */
 	export function BindActivationKeys(keys: Enum.KeyCode[]) {
 		// Sink
-		ContextActionService.UnbindAction(Const.ActionId);
-		ContextActionService.BindActionAtPriority(
-			Const.ActionId,
-			(_, state, io) => {
-				if (state === Enum.UserInputState.End) {
-					SetVisible(!isVisible);
-				}
-				return Enum.ContextActionResult.Sink;
-			},
-			false,
-			Enum.ContextActionPriority.High.Value,
-			...keys,
-		);
-
-		// if (bound) {
-		// 	return;
-		// }
-
-		// UserInputService.InputEnded.Connect((io, gpe) => {
-		// 	if (
-		// 		io.UserInputType === Enum.UserInputType.Keyboard &&
-		// 		keys.includes(io.KeyCode) &&
-		// 		ZirconClientStore.getState().visible
-		// 	) {
-		// 		SetVisible(!isVisible);
-		// 	}
-		// });
-
 		bound = true;
 	}
 

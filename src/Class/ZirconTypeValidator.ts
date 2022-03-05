@@ -62,7 +62,7 @@ export const ZirconNumber: ZirconValidator<number> = {
 export const ZirconBoolean: ZirconValidator<boolean> = {
 	Type: "boolean",
 	Validate(value): value is boolean {
-		return typeIs(value, "number");
+		return typeIs(value, "boolean");
 	},
 	ErrorMessage: (value) => `Expected boolean, got ${zirconTypeOf(value)}`,
 };
