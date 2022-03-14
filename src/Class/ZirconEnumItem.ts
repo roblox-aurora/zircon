@@ -21,6 +21,14 @@ export class ZirconEnumItem<
 		return matches[this.getName() as K](this);
 	}
 
+	public getName(): K {
+		return super.getName() as K;
+	}
+
+	public getEnum(): TParent {
+		return super.getEnum() as TParent;
+	}
+
 	public toString() {
 		return `${this.getEnum().getEnumName()}.${this.getName()}`;
 	}
