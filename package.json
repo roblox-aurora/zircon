@@ -58,7 +58,7 @@
     "@rbxts/signal": "^1.0.3",
     "@rbxts/snapdragon": "2.0.0-beta.1",
     "@rbxts/string-utils": "^1.0.3",
-    "@rbxts/t": "^1.3.5",
+    "@rbxts/t": "^3.0.0",
     "@rbxts/zirconium": "^1.1.0"
   }
 }

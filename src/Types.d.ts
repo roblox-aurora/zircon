@@ -1,4 +1,4 @@
-import t from "@rbxts/t";
+import { t } from "@rbxts/t";
 
 interface ValidationSuccessResult {
 	success: true;
