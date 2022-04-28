@@ -11,4 +11,4 @@ import { ZirconClient } from "@rbxts/zircon";
 ZirconClient.Init();
 ```
 
-Then by default, your console
+Then by default, your console shortcut is F10.
