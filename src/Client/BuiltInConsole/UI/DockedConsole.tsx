@@ -2,7 +2,7 @@ import Roact from "@rbxts/roact";
 import { SingleMotor, Spring } from "@rbxts/flipper";
 import { connect } from "@rbxts/roact-rodux";
 import { ConsoleActionName, ConsoleReducer, DEFAULT_FILTER } from "../Store/_reducers/ConsoleReducer";
-import ZirconSyntaxTextBox from "../../Components/SyntaxTextBox";
+import ZirconSyntaxTextBox, { HistoryTraversalDirection } from "../../Components/SyntaxTextBox";
 import ZirconIcon, { ZirconIconButton } from "../../Components/Icon";
 import Remotes, { RemoteId } from "../../../Shared/Remotes";
 import { ClientSenderEvent } from "@rbxts/net/out/client/ClientEvent";
@@ -197,6 +197,19 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 							Position={new UDim2(0, 16, 0, 0)}
 							Focused={this.state.isVisible}
 							Source={this.state.source}
+							OnControlKey={(key, io) => {
+								if (key === Enum.KeyCode.E) {
+									if (!this.props.clientExecutionEnabled || !this.props.executionEnabled) {
+										return;
+									}
+
+									if (this.state.context === ZirconContext.Client) {
+										this.setState({ context: ZirconContext.Server });
+									} else {
+										this.setState({ context: ZirconContext.Client });
+									}
+								}
+							}}
 							OnEnterSubmit={(input) => {
 								this.props.addMessage(input);
 
@@ -216,7 +229,7 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 
 								const history = this.props.history;
 								let text = "";
-								if (direction === "back") {
+								if (direction === HistoryTraversalDirection.Back) {
 									if (index <= 0) {
 										index = history.size() - 1;
 									} else {
@@ -224,7 +237,7 @@ class ZirconConsoleComponent extends Roact.Component<DockedConsoleProps, DockedC
 									}
 
 									text = history[index];
-								} else if (direction === "forward") {
+								} else if (direction === HistoryTraversalDirection.Forward) {
 									if (index >= history.size() - 1) {
 										index = 0;
 									} else {

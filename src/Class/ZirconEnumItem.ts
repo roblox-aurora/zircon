@@ -1,5 +1,4 @@
 import { ZrEnumItem } from "@rbxts/zirconium/out/Data/EnumItem";
-import { ZrObjectUserdata } from "@rbxts/zirconium/out/Data/Userdata";
 import { ZirconEnum, EnumMatchTree } from "./ZirconEnum";
 
 /**

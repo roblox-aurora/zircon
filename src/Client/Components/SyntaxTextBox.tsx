@@ -5,6 +5,11 @@ import ThemeContext, { convertColorObjectToHex, ThemeSyntaxColors } from "../../
 import Maid from "@rbxts/maid";
 import { UserInputService } from "@rbxts/services";
 
+export const enum HistoryTraversalDirection {
+	Back = -1,
+	Forward = 1,
+}
+
 interface SyntaxTextBoxState {
 	source: string;
 	cursorPosition: number;
@@ -50,9 +55,11 @@ interface SyntaxTextBoxProps {
 	 */
 	OnEnterSubmit?: (input: string) => void;
 
-	OnHistoryTraversal?: (direction: "back" | "forward") => void;
+	OnHistoryTraversal?: (direction: HistoryTraversalDirection) => void;
 
 	OnCancel?: () => void;
+
+	OnControlKey?: (keyCode: Enum.KeyCode, io: InputObject) => void;
 }
 
 /**
@@ -79,9 +86,9 @@ export default class ZirconSyntaxTextBox extends Roact.Component<SyntaxTextBoxPr
 				UserInputService.InputEnded.Connect((io, gameProcessed) => {
 					if (this.state.focused) {
 						if (io.KeyCode === Enum.KeyCode.Up) {
-							this.props.OnHistoryTraversal?.("back");
+							this.props.OnHistoryTraversal?.(HistoryTraversalDirection.Back);
 						} else if (io.KeyCode === Enum.KeyCode.Down) {
-							this.props.OnHistoryTraversal?.("forward");
+							this.props.OnHistoryTraversal?.(HistoryTraversalDirection.Forward);
 						}
 					}
 				}),
@@ -106,6 +113,7 @@ export default class ZirconSyntaxTextBox extends Roact.Component<SyntaxTextBoxPr
 
 		if (this.props.Source !== prevProps.Source) {
 			this.setState({ source: this.props.Source });
+			task.defer(() => this.setState({ cursorPosition: this.props.Source.size() + 1 }));
 		}
 	}
 
@@ -160,12 +168,15 @@ export default class ZirconSyntaxTextBox extends Roact.Component<SyntaxTextBoxPr
 											UserInputService.InputBegan.Connect((io) => {
 												if (
 													io.UserInputState === Enum.UserInputState.Begin &&
-													io.UserInputType === Enum.UserInputType.Keyboard &&
-													this.props.CancelKeyCodes?.includes(io.KeyCode)
+													io.UserInputType === Enum.UserInputType.Keyboard
 												) {
-													this.props.OnCancel?.();
-													rbx.ReleaseFocus();
-													rbx.Text = "";
+													if (this.props.CancelKeyCodes?.includes(io.KeyCode)) {
+														this.props.OnCancel?.();
+														rbx.ReleaseFocus();
+														rbx.Text = "";
+													} else if (io.IsModifierKeyDown(Enum.ModifierKey.Ctrl)) {
+														this.props.OnControlKey?.(io.KeyCode, io);
+													}
 												}
 											}),
 										);

@@ -16,6 +16,7 @@ import ZrRange from "@rbxts/zirconium/out/Data/Range";
 import { ZirconFunction } from "./ZirconFunction";
 import { zirconTypeOf } from "Shared/typeId";
 import { OptionalValidator } from "./Validators/OptionalValidator";
+import { ZirconUnionValidator } from "./TypeUtilities";
 
 type PickFrom<T, U> = U extends never ? T : U;
 export interface ZirconValidator<T, U = never> {
@@ -173,12 +174,13 @@ export const BuiltInValidators = {
 	["string?"]: ZirconOptionalValidator(ZirconString),
 	["number?"]: ZirconOptionalValidator(ZirconNumber),
 	["boolean?"]: ZirconOptionalValidator(ZirconBoolean),
-	["unknown"]: ZirconUnknown,
+	// primtive: ZirconUnionValidator([ZirconString, ZirconNumber, ZirconBoolean]),
+	unknown: ZirconUnknown,
 	/** @internal */
-	["ZrEnum"]: NativeEnum,
+	ZrEnum: NativeEnum,
 	/** @internal */
-	["ZrEnumItem"]: NativeEnumItem,
-	["range"]: ZirconRange,
+	ZrEnumItem: NativeEnumItem,
+	range: ZirconRange,
 	["range?"]: ZirconOptionalValidator(ZirconRange),
 };
 export type BuiltInValidators = typeof BuiltInValidators;

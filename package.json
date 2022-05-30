@@ -1,6 +1,6 @@
 {
   "name": "@rbxts/zircon",
-  "version": "1.0.6",
+  "version": "1.0.8",
   "description": "",
   "main": "out/init.lua",
   "scripts": {
@@ -49,7 +49,7 @@
     "@rbxts/maid": "^1.0.0-ts.1",
     "@rbxts/message-templates": "^0.3.2",
     "@rbxts/net": "^3.0.0-alpha.0",
-    "@rbxts/roact": "=1.4.0-ts.2",
+    "@rbxts/roact": ">=1.4.0-ts < 1.5.0-ts",
     "@rbxts/roact-hooks": "=0.3.0-ts.2",
     "@rbxts/roact-rodux": "=0.2.2-ts.5",
     "@rbxts/rodux": "=3.0.0-ts.3",

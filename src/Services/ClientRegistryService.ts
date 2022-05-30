@@ -1,6 +1,10 @@
 import { Players } from "@rbxts/services";
 import ZrPlayerScriptContext from "@rbxts/zirconium/out/Runtime/PlayerScriptContext";
-import { ZirconClientConfigurationBuilder, ZirconClientScopedGlobal } from "Class/ZirconClientConfigurationBuilder";
+import {
+	ZirconClientConfiguration,
+	ZirconClientConfigurationBuilder,
+	ZirconClientScopedGlobal,
+} from "Class/ZirconClientConfigurationBuilder";
 import { ZirconEnum } from "Class/ZirconEnum";
 import { ZirconFunction } from "Class/ZirconFunction";
 import ZirconClientStore from "Client/BuiltInConsole/Store";
@@ -17,9 +21,8 @@ export namespace ZirconClientRegistryService {
 	 * @param configuration
 	 * @hidden @deprecated
 	 */
-	export function Init(configuration: ZirconClientConfigurationBuilder) {
-		const conf = configuration.Build();
-		for (const global of conf.Registry) {
+	export function Init(configuration: ZirconClientConfiguration) {
+		for (const global of configuration.Registry) {
 			globals.push(global);
 		}
 		initialized = true;

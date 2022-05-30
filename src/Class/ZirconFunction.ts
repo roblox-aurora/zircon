@@ -10,6 +10,7 @@ import { InferArguments, ZirconValidator } from "./ZirconTypeValidator";
 import { ZirconContext } from "./ZirconContext";
 import ZrUndefined from "@rbxts/zirconium/out/Data/Undefined";
 import { $print } from "rbxts-transform-debug";
+import { ZirconNamespace } from "./ZirconNamespace";
 
 let zirconTypeOf: typeof import("Shared/typeId")["zirconTypeOf"] | undefined;
 
@@ -48,7 +49,7 @@ export interface ZirconFunctionMetadata {
 	readonly Description?: string;
 	readonly ArgumentValidators: ZirconValidator<unknown, unknown>[];
 	readonly VariadicValidator?: ZirconValidator<unknown, unknown>;
-	readonly HasVaradic: boolean;
+	readonly HasVariadic: boolean;
 }
 export class ZirconFunction<
 	V extends readonly ZirconValidator<unknown, unknown>[],

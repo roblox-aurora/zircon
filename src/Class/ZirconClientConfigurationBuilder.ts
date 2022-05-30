@@ -1,14 +1,17 @@
 import { LogLevel } from "@rbxts/log";
 import { NamespaceBuilder } from "@rbxts/net/out/definitions/NamespaceBuilder";
+import { ZrValue } from "@rbxts/zirconium/out/Data/Locals";
 import ZirconServer from "Server";
-import ZirconFunction, { ZrTypeCheck } from "Server/Class/ZirconFunction";
+import { ZrTypeCheck } from "Server/Class/ZirconFunction";
 import { ZirconPermissions } from "Server/Class/ZirconGroup";
 import { ZirconEnum } from "./ZirconEnum";
+import { ZirconFunction } from "./ZirconFunction";
 import { ZirconGroupBuilder, ZirconGroupConfiguration } from "./ZirconGroupBuilder";
 import { ZirconNamespace } from "./ZirconNamespace";
 import { ZirconNamespaceBuilder } from "./ZirconNamespaceBuilder";
+import { ZirconValidator } from "./ZirconTypeValidator";
 
-export type ZirconClientScopedGlobal = ZirconNamespace | ZirconEnum<any> | ZirconFunction<any>;
+export type ZirconClientScopedGlobal = ZirconNamespace | ZirconEnum<any> | ZirconFunction<any, any>;
 
 export interface ZirconClientConfiguration {
 	readonly Groups: readonly ZirconGroupConfiguration[];
@@ -40,7 +43,9 @@ export class ZirconClientConfigurationBuilder {
 	 * Do not use it for anything important. Important stuff should be a server function
 	 * @param functionType The function
 	 */
-	public AddFunction<A extends readonly ZrTypeCheck[], R = unknown>(functionType: ZirconFunction<A, R>) {
+	public AddFunction<A extends readonly ZirconValidator<unknown, unknown>[], R extends void | ZrValue>(
+		functionType: ZirconFunction<A, R>,
+	) {
 		this.configuration.Registry = [...this.configuration.Registry, functionType];
 		return this;
 	}

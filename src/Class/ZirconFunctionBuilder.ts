@@ -18,7 +18,7 @@ const isArray = t.array(t.any);
 export class ZirconFunctionBuilder<V extends ZirconValidator<unknown, unknown>[] = []> {
 	private validators = new Array<ZirconValidator<unknown, unknown>>();
 	private varadicValidator?: ZirconValidator<unknown, unknown>;
-	private hasVaradic = false;
+	private hasVariadic = false;
 	private description?: string;
 
 	public constructor(private name: string) {}
@@ -28,7 +28,7 @@ export class ZirconFunctionBuilder<V extends ZirconValidator<unknown, unknown>[]
 		if (typeIs(argValidator, "string")) {
 			validator = BuiltInValidators[argValidator as keyof BuiltInValidators];
 		} else if (argValidator instanceof ZirconEnum) {
-			validator = argValidator.getMemberType();
+			validator = argValidator.getValidator();
 		} else {
 			validator = argValidator;
 		}
@@ -78,7 +78,7 @@ export class ZirconFunctionBuilder<V extends ZirconValidator<unknown, unknown>[]
 	 * @returns
 	 */
 	public AddVariadicArgument<TValidation extends Validator>(arg: TValidation | TValidation[]) {
-		this.hasVaradic = true;
+		this.hasVariadic = true;
 		const validator = this.GetUnionableValidator(arg);
 		this.varadicValidator = validator;
 
@@ -101,7 +101,7 @@ export class ZirconFunctionBuilder<V extends ZirconValidator<unknown, unknown>[]
 	public Bind<R extends ZrValue | void>(fn: (context: ZirconContext, ...args: InferArguments<V>) => R) {
 		return new ZirconFunction(this.name, fn, {
 			Description: this.description,
-			HasVaradic: this.hasVaradic,
+			HasVariadic: this.hasVariadic,
 			VariadicValidator: this.varadicValidator,
 			ArgumentValidators: this.validators,
 		});

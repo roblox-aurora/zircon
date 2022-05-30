@@ -1,5 +1,6 @@
 import { ZrEnum } from "@rbxts/zirconium/out/Data/Enum";
 import { $print } from "rbxts-transform-debug";
+import { zirconTypeId, zirconTypeOf } from "Shared/typeId";
 import { ZirconEnumItem } from "./ZirconEnumItem";
 import { ZirconValidator } from "./ZirconTypeValidator";
 
@@ -7,10 +8,10 @@ export type EnumMatchTree<TEnum extends ZirconEnum<any>, K extends string, R> = 
 	[P in K]: (value: ZirconEnumItem<TEnum, P>) => R;
 };
 
-export type ZirconEnumValidator<K extends string> = ZirconValidator<
-	string | number | ZirconEnumItem,
-	ZirconEnumItem<ZirconEnum<K>, K>
->;
+export interface ZirconEnumValidator<K extends string>
+	extends ZirconValidator<string | number | ZirconEnumItem, ZirconEnumItem<ZirconEnum<K>, K>> {
+	Enum: ZirconEnum<K>;
+}
 
 /**
  * An extension of the `ZrEnum` class for Zircon
@@ -56,11 +57,11 @@ export class ZirconEnum<K extends string> extends ZrEnum {
 		throw `Invalid match`;
 	}
 
-	public getMemberType(): ZirconEnumValidator<K> {
-		// eslint-disable-next-line @typescript-eslint/no-this-alias
-		const enumType = this;
+	public getValidator(): ZirconEnumValidator<K> {
 		return {
+			Enum: this,
 			Validate(value): value is ZirconEnumItem<ZirconEnum<K>, K> | string {
+				const enumType = this.Enum;
 				if (typeIs(value, "string")) {
 					const strItem = enumType.getItems().find((item) => item.getName().lower() === value.lower());
 					$print("scmp", value, strItem?.getName());
@@ -77,6 +78,7 @@ export class ZirconEnum<K extends string> extends ZrEnum {
 				return false;
 			},
 			Transform(value) {
+				const enumType = this.Enum;
 				if (typeIs(value, "string")) {
 					const strItem = enumType.getItems().find((item) => item.getName().lower() === value.lower());
 					return strItem as ZirconEnumItem<ZirconEnum<K>, K>;
@@ -88,6 +90,7 @@ export class ZirconEnum<K extends string> extends ZrEnum {
 				}
 			},
 			Type: this.getEnumName(),
+			ErrorMessage: (value) => `${zirconTypeId(value)} is not castable to Enum '${this.getEnumName()}'`,
 		};
 	}
 

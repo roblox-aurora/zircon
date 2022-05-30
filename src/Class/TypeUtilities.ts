@@ -17,7 +17,7 @@ export function ZirconGetValidatorType<V extends Validator>(validatorLike: V) {
 	if (typeIs(validatorLike, "string")) {
 		validator = BuiltInValidators[validatorLike as keyof BuiltInValidators];
 	} else if (validatorLike instanceof ZirconEnum) {
-		validator = validatorLike.getMemberType();
+		validator = validatorLike.getValidator();
 	} else {
 		validator = validatorLike;
 	}

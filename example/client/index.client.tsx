@@ -36,9 +36,11 @@ delayAsync(10).then(() => {
 });
 
 ZirconClient.Registry.Init(
-	new ZirconClientConfigurationBuilder().AddFunction(
-		new ZirconFunctionBuilder("version").Bind((context) => {
-			context.LogInfo(PKG_VERSION);
-		}),
-	),
+	new ZirconClientConfigurationBuilder()
+		.AddFunction(
+			new ZirconFunctionBuilder("version").Bind((context) => {
+				context.LogInfo(PKG_VERSION);
+			}),
+		)
+		.Build(),
 );

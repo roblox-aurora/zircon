@@ -2,6 +2,7 @@ import Log, { Logger } from "@rbxts/log";
 import { Workspace } from "@rbxts/services";
 import Zircon, { ZirconConfigurationBuilder, ZirconDefaultGroup, ZirconServer } from "@zircon";
 import ZirconPrint from "BuiltIn/Print";
+import { ExecutionAction } from "Class/ZirconConfigurationBuilder";
 import { ZirconEnumBuilder } from "Class/ZirconEnumBuilder";
 import { ZirconFunctionBuilder } from "Class/ZirconFunctionBuilder";
 import { ZirconNamespaceBuilder } from "Class/ZirconNamespaceBuilder";
@@ -48,7 +49,7 @@ Promise.delay(5).then(() => {
 
 ZirconServer.Registry.Init(
 	new ZirconConfigurationBuilder()
-		// .CreateDefaultCreatorGroup()
+		.CreateDefaultCreatorGroup()
 		.CreateDefaultUserGroup({
 			CanAccessConsole: true,
 		})
@@ -189,6 +190,12 @@ ZirconServer.Registry.Init(
 			}),
 			[ZirconDefaultGroup.User],
 		)
+		.AddHook("BeforeExecute", (context) => {
+			return ExecutionAction.Execute;
+		})
+		.AddHook("AfterExecute", (context) => {
+			context.GetLogs().map(Zircon.LogEventToString);
+		})
 		.Build(),
 );
 

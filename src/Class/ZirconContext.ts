@@ -4,10 +4,26 @@ import { DestructureMode, TemplateTokenKind } from "@rbxts/message-templates/out
 import ZrContext from "@rbxts/zirconium/out/Data/Context";
 import { RbxSerializer } from "@rbxts/message-templates/out/RbxSerializer";
 import { ZirconFunction } from "./ZirconFunction";
-import { $print } from "rbxts-transform-debug";
 import { RunService } from "@rbxts/services";
+import { ZrInputStream, ZrOutputStream } from "@rbxts/zirconium/out/Data/Stream";
 
-export class ZirconContext {
+export interface ReadonlyZirconContext {
+	GetExecutor(): Player;
+	GetFunctionName(): string;
+}
+
+export interface ZirconBeforeContext extends ReadonlyZirconContext {
+	GetInput(): ZrInputStream;
+}
+export interface ZirconAfterContext extends ReadonlyZirconContext {
+	GetInput(): ZrInputStream;
+	GetOutput(): ZrOutputStream;
+	GetLogs(): ReadonlyArray<LogEvent>;
+}
+
+export class ZirconContext implements ReadonlyZirconContext, ZirconBeforeContext, ZirconAfterContext {
+	private logs = new Array<LogEvent>();
+
 	constructor(private innerContext: ZrContext, private executingFunction: ZirconFunction<any, any>) {}
 	public GetExecutor() {
 		const executor = this.innerContext.getExecutor();
@@ -51,16 +67,19 @@ export class ZirconContext {
 				}
 
 				log.ZirconLogService.WriteStructured(message);
+				this.logs.push(message);
 			});
 		} else {
 			import("../Client/index").then(({ default: client }) => {
-				client.StructuredLog({
+				const log: LogEvent = {
 					Level: level,
 					SourceContext: `(function '${this.executingFunction.GetName()}')`,
 					Template: template,
 					Timestamp: DateTime.now().ToIsoDate(),
 					LogToPlayer: this.GetExecutor(),
-				});
+				};
+				client.StructuredLog(log);
+				this.logs.push(log);
 			});
 		}
 	}
@@ -90,6 +109,10 @@ export class ZirconContext {
 	 */
 	public LogError(template: string, ...args: unknown[]) {
 		this.Log(LogLevel.Error, template, ...args);
+	}
+
+	public GetLogs(): ReadonlyArray<LogEvent> {
+		return this.logs;
 	}
 
 	/**

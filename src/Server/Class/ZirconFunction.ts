@@ -3,6 +3,7 @@ import { ZrValue } from "@rbxts/zirconium/out/Data/Locals";
 import ZrLuauFunction from "@rbxts/zirconium/out/Data/LuauFunction";
 import ZrObject from "@rbxts/zirconium/out/Data/Object";
 import ZrUndefined from "@rbxts/zirconium/out/Data/Undefined";
+import { ZirconContext } from "Class/ZirconContext";
 
 export type ZrTypeCheck = (value: ZrValue | ZrUndefined) => value is ZrValue | ZrUndefined;
 type ZrInferValue<T> = T extends (value: unknown) => value is infer A ? A : never;
@@ -14,8 +15,9 @@ export interface CommandDeclaration<A extends ReadonlyArray<ZrTypeCheck>, R> {
 	Execute: (this: void, context: ZrContext, ...args: InferArguments<A>) => R;
 }
 
+/** @deprecated */
 export default class ZirconFunction<A extends readonly ZrTypeCheck[], R = unknown> extends ZrLuauFunction {
-	private constructor(declaration: CommandDeclaration<A, R>) {
+	private constructor(private declaration: CommandDeclaration<A, R>) {
 		super((ctx, ...args) => {
 			for (let i = 0; i < args.size(); i++) {
 				const argCheck = declaration.Arguments[i];

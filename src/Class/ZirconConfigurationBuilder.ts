@@ -1,21 +1,42 @@
 import { LogLevel } from "@rbxts/log";
 import { NamespaceBuilder } from "@rbxts/net/out/definitions/NamespaceBuilder";
+import { ZrValue } from "@rbxts/zirconium/out/Data/Locals";
 import ZirconServer from "Server";
-import ZirconFunction, { ZrTypeCheck } from "Server/Class/ZirconFunction";
+import { ZrTypeCheck } from "Server/Class/ZirconFunction";
 import { ZirconPermissions } from "Server/Class/ZirconGroup";
+import { ZirconAfterContext, ZirconBeforeContext, ZirconContext } from "./ZirconContext";
 import { ZirconEnum } from "./ZirconEnum";
+import { ZirconFunction } from "./ZirconFunction";
 import { ZirconGroupBuilder, ZirconGroupConfiguration } from "./ZirconGroupBuilder";
 import { ZirconNamespace } from "./ZirconNamespace";
 import { ZirconNamespaceBuilder } from "./ZirconNamespaceBuilder";
+import { ZirconValidator } from "./ZirconTypeValidator";
+
+export type ZirconGlobal = ZirconNamespace | ZirconEnum<any> | ZirconFunction<any, any>;
 
 export type ZirconScopedGlobal = readonly [
-	type: ZirconNamespace | ZirconEnum<any> | ZirconFunction<any>,
+	type: ZirconNamespace | ZirconEnum<any> | ZirconFunction<any, any>,
 	groups: readonly string[],
 ];
 
+export enum ExecutionAction {
+	Execute,
+	Skip,
+}
+
+export interface Hooks {
+	BeforeExecute: (context: ZirconBeforeContext) => ExecutionAction;
+	AfterExecute: (context: ZirconAfterContext) => void;
+}
+
+type MappedArray<T> = { [P in keyof T]: ReadonlyArray<T[P]> };
+
 export interface ZirconConfiguration {
 	readonly Groups: readonly ZirconGroupConfiguration[];
+	/** @deprecated */
 	readonly Registry: ZirconScopedGlobal[];
+	readonly GroupGlobalsMap: ReadonlyMap<string, ZirconGlobal>;
+	readonly Hooks: MappedArray<Hooks>;
 }
 
 export const enum ZirconDefaultGroup {
@@ -37,6 +58,11 @@ export class ZirconConfigurationBuilder {
 	public configuration: Writable<ZirconConfiguration> = {
 		Groups: [],
 		Registry: [],
+		GroupGlobalsMap: new Map(),
+		Hooks: {
+			BeforeExecute: [],
+			AfterExecute: [],
+		},
 	};
 
 	public constructor() {}
@@ -151,11 +177,34 @@ export class ZirconConfigurationBuilder {
 	 * @param functionType The function
 	 * @param groups The groups this function is available to
 	 */
-	public AddFunction<A extends readonly ZrTypeCheck[], R = unknown>(
+	public AddFunction<A extends readonly ZirconValidator<any, any>[], R extends ZrValue | void = void>(
 		functionType: ZirconFunction<A, R>,
 		groups: readonly string[],
 	) {
 		this.configuration.Registry = [...this.configuration.Registry, [functionType, groups]];
+		return this;
+	}
+
+	/**
+	 * Adds the specified function to Zircon
+	 * @param functionType The function
+	 * @param groupIds The groups this function is available to
+	 * @deprecated
+	 */
+	public AddFunctionsToGroups(functions: readonly ZirconFunction<any, any>[], groupIds: readonly string[]) {
+		const registry = [...this.configuration.Registry];
+		for (const func of functions) {
+			registry.push([func, groupIds]);
+		}
+
+		this.configuration.Registry = registry;
+		return this;
+	}
+
+	/** @internal */
+	public AddHook<K extends keyof Hooks>(hookName: K, hookCallback: Hooks[K]) {
+		const hooks = [...this.configuration.Hooks[hookName], hookCallback];
+		this.configuration.Hooks[hookName] = hooks as MappedArray<Hooks>[K];
 		return this;
 	}
 
