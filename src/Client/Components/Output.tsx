@@ -92,8 +92,9 @@ class OutputComponent extends Roact.Component<OutputProps, OutputState> {
 							AutoScrollToEnd
 							Padding={{ PaddingHorizontal: 5, PaddingVertical: 5 }}
 							ItemPadding={new UDim(0, 5)}
+							SortOrder={ Enum.SortOrder.Name }
 						>
-							{this.state.output.map((output) => {
+							{this.state.output.reduce<Map<string, Roact.Element>>((map, output, index) => {
 								if (
 									output.type === ZirconMessageType.ZirconiumError ||
 									output.type === "luau:error" ||
@@ -102,11 +103,13 @@ class OutputComponent extends Roact.Component<OutputProps, OutputState> {
 									output.type === ZirconMessageType.ZirconiumOutput ||
 									output.type === ZirconMessageType.StructuredLog
 								) {
-									return <ZirconOutputMessage ShowTags={this.props.showTags} Message={output} />;
+									map.set(string.format("%03d", index), <ZirconOutputMessage ShowTags={this.props.showTags} Message={output} />);
 								} else {
-									return <OutputPlain Message={output} />;
+									map.set(string.format("%03d", index), <OutputPlain Message={output} />)
 								}
-							})}
+
+								return map
+							}, new Map<string, Roact.Element>())}
 						</ScrollView>
 					);
 				}}
@@ -123,6 +126,8 @@ const mapStateToProps = (state: ConsoleReducer): MappedProps => {
 	const { filter } = state;
 
 	let output = state.output;
+
+	print(output)
 
 	if (filter) {
 		if (filter.Context !== undefined) {
