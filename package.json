@@ -1,13 +1,13 @@
 {
   "name": "@rbxts/zircon",
-  "version": "1.0.8",
+  "version": "1.0.10",
   "description": "",
   "main": "out/init.lua",
   "scripts": {
-    "prepare": "npm run build",
+    "prepare": "pnpm run build",
     "build": "rbxtsc --verbose",
-    "dev:example": "concurrently npm:watch:example npm:serve:example",
-    "prod:example": "concurrently npm:watch-prod:example npm:serve:example",
+    "dev:example": "concurrently pnpm:watch:example pnpm:serve:example",
+    "prod:example": "concurrently pnpm:watch-prod:example pnpm:serve:example",
     "build:example": "rbxtsc --type=game -p ./example -i ./include",
     "build:luau": "rbxtsc --verbose --type=model --rojo=\"luau/build.project.json\"",
     "watch:example": "cross-env NODE_ENV=development rbxtsc -w --type=game -p ./example -i ./include",
@@ -46,19 +46,19 @@
   "dependencies": {
     "@rbxts/flipper": "^2.0.1",
     "@rbxts/log": "^0.6.3",
-    "@rbxts/maid": "^1.0.0-ts.1",
+    "@rbxts/maid": "^1.0.0",
     "@rbxts/message-templates": "^0.3.2",
     "@rbxts/net": "^3.0.3",
     "@rbxts/roact": ">=1.4.0-ts < 1.5.0-ts",
-    "@rbxts/roact-hooks": "=0.3.0-ts.2",
+    "@rbxts/roact-hooks": "^0.4.1-ts.3",
     "@rbxts/roact-rodux": "=0.2.2-ts.5",
     "@rbxts/rodux": "=3.0.0-ts.3",
-    "@rbxts/rust-classes": "=0.11.2",
+    "@rbxts/rust-classes": "^0.12.0",
     "@rbxts/services": "^1.2.0",
     "@rbxts/signal": "^1.0.3",
     "@rbxts/snapdragon": "2.0.0-beta.1",
     "@rbxts/string-utils": "^1.0.3",
-    "@rbxts/t": "^1.3.5",
+    "@rbxts/t": "^3.1.0",
     "@rbxts/zirconium": "^1.1.0"
   }
 }

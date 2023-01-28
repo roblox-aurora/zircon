@@ -1,4 +1,4 @@
-import t from "@rbxts/t";
+import { t } from "@rbxts/t";
 import { ZrEnum } from "@rbxts/zirconium/out/Data/Enum";
 import { ZrEnumItem } from "@rbxts/zirconium/out/Data/EnumItem";
 import { ZrValue } from "@rbxts/zirconium/out/Data/Locals";

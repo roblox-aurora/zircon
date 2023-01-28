@@ -1,4 +1,4 @@
-import t from "@rbxts/t";
+import { t } from "@rbxts/t";
 import { ZirconEnum } from "./ZirconEnum";
 import {
 	BuiltInValidators,
@@ -8,7 +8,6 @@ import {
 	Validator,
 	ZirconValidator,
 } from "./ZirconTypeValidator";
-
 const isArray = t.array(t.any);
 type ArrayType<T> = T extends ReadonlyArray<infer U> ? U : never;
 
