@@ -4,7 +4,7 @@
   "description": "",
   "main": "out/init.lua",
   "scripts": {
-    "prepare": "pnpm run build",
+    "prepare": "pnpm build",
     "build": "rbxtsc --verbose",
     "dev:example": "concurrently pnpm:watch:example pnpm:serve:example",
     "prod:example": "concurrently pnpm:watch-prod:example pnpm:serve:example",
