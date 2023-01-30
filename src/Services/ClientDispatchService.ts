@@ -1,7 +1,9 @@
 import { LogEvent, LogLevel } from "@rbxts/log";
+import { SourceFile } from "@rbxts/zirconium/out/Ast/Nodes/NodeTypes";
 import { ZrParserError, ZrScriptMode, ZrScriptVersion } from "@rbxts/zirconium/out/Ast/Parser";
 import { ZrRuntimeError } from "@rbxts/zirconium/out/Runtime/Runtime";
 import ZrScript from "@rbxts/zirconium/out/Runtime/Script";
+import { ZrScriptCreateResult } from "@rbxts/zirconium/out/Runtime/ScriptContext";
 import ZirconClientStore from "Client/BuiltInConsole/Store";
 import { ConsoleActionName } from "Client/BuiltInConsole/Store/_reducers/ConsoleReducer";
 import { ZirconContext, ZirconMessageType, ZrErrorMessage } from "Client/Types";
@@ -46,11 +48,11 @@ export namespace ZirconClientDispatchService {
 		return Promise.defer<ZrScript>((resolve, reject) => {
 			const mainScript = Registry.GetScriptContextsForLocalPlayer();
 			const source = mainScript.parseSource(text, ZrScriptVersion.Zr2022, ZrScriptMode.CommandLike);
-			if (source.isOk()) {
-				resolve(mainScript.createScript(source.okValue));
-			} else {
-				reject(source.unwrapErr().errors);
-			}
+			source.match((val) => {
+				resolve(mainScript.createScript(val));
+			}, (err) => {
+				reject(err);
+			});
 		})
 			.then((scr) => {
 				return scr.execute();

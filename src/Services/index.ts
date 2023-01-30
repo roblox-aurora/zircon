@@ -1,4 +1,4 @@
-import t from "@rbxts/t";
+import { t } from "@rbxts/t";
 import Lazy from "../Shared/Lazy";
 import TSRequire from "../Shared/tsImportShim";
 import { ZirconClientDispatchService } from "./ClientDispatchService";

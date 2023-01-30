@@ -12,7 +12,7 @@ import { ZirconContext } from "./ZirconContext";
 import { ZrValue } from "@rbxts/zirconium/out/Data/Locals";
 import { ZirconEnum } from "./ZirconEnum";
 import { ZirconArrayType, ZirconTypeUnion } from "./TypeUtilities";
-import t from "@rbxts/t";
+import { t } from "@rbxts/t";
 const isArray = t.array(t.any);
 
 export class ZirconFunctionBuilder<V extends ZirconValidator<unknown, unknown>[] = []> {
