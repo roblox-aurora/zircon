@@ -6,14 +6,14 @@ import { ExecutionAction } from "Class/ZirconConfigurationBuilder";
 import { ZirconEnumBuilder } from "Class/ZirconEnumBuilder";
 import { ZirconFunctionBuilder } from "Class/ZirconFunctionBuilder";
 import { ZirconNamespaceBuilder } from "Class/ZirconNamespaceBuilder";
-import { $print } from "rbxts-transform-debug";
-import { $NODE_ENV } from "rbxts-transform-env";
+import { ZirconOptionalValidator, ZirconString } from "Class/ZirconTypeValidator";
+import { $package, $print } from "rbxts-transform-debug";
 
 Log.SetLogger(
 	Logger.configure()
 		.WriteTo(Log.RobloxOutput())
 		.WriteTo(Zircon.Log.Console())
-		.EnrichWithProperty("Version", PKG_VERSION)
+		.EnrichWithProperty("Version", $package.version)
 		.Create(),
 );
 
@@ -210,3 +210,8 @@ ZirconServer.Registry.RegisterFunction(
 		}),
 	[ZirconDefaultGroup.User],
 );
+
+
+const test = ZirconOptionalValidator(ZirconString);
+
+test.Validate()

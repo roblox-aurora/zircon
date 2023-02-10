@@ -5,8 +5,7 @@ import { ContextActionService, Players, RunService, StarterGui, UserInputService
 import ZirconClientStore from "./BuiltInConsole/Store";
 import { ConsoleActionName } from "./BuiltInConsole/Store/_reducers/ConsoleReducer";
 import ZirconDockedConsole, { DockedConsoleProps } from "./BuiltInConsole/UI/DockedConsole";
-import { $ifEnv } from "rbxts-transform-env";
-import { $dbg, $print } from "rbxts-transform-debug";
+import { $dbg, $package } from "rbxts-transform-debug";
 import Lazy from "../Shared/Lazy";
 import { GetCommandService } from "../Services";
 import Remotes, {
@@ -251,7 +250,7 @@ namespace ZirconClient {
 					context: ZirconContext.Client,
 					message: {
 						type: ZirconNetworkMessageType.ZirconStandardOutputMessage,
-						message: `Loaded Zircon v${PKG_VERSION}`,
+						message: `Loaded Zircon v${$package.version}`,
 						level: ZirconLogLevel.Debug,
 						time: DateTime.now().UnixTimestamp,
 						tag: "INIT",

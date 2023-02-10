@@ -35,7 +35,7 @@ export function setsEqual<TValue>(
 	return true;
 }
 
-export function last<TValue>(collection: Array<TValue>, amount: number): Array<TValue> {
+export function last<TValue extends defined>(collection: Array<TValue>, amount: number): Array<TValue> {
 	const amountCalculated = math.min(amount, collection.size());
 	const newArray = new Array<TValue>(amountCalculated);
 	for (let start = collection.size() - amountCalculated; start < collection.size(); start++) {
