@@ -145,8 +145,8 @@ namespace ZirconClient {
 					<ThemeContext.Provider value={BuiltInThemes[Theme]}>
 						<RoactRodux.StoreProvider store={ZirconClientStore}>
 							<Roact.Fragment>
-								<ZirconTopBar />
-								<ConsoleComponent />
+								<ZirconTopBar Key="ZirconTopBar" />
+								<ConsoleComponent Key="ZirconConsole" />
 							</Roact.Fragment>
 						</RoactRodux.StoreProvider>
 					</ThemeContext.Provider>,
