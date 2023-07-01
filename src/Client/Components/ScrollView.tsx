@@ -10,7 +10,7 @@ interface ScrollViewEvents {
 	CanvasPositionChanged?: (position: Vector2, view: ScrollView<never>) => void;
 }
 
-export type InferEnumNames<T> = T extends { EnumType: Enum.EnumType<infer A> } ? A["Name"] : never;
+export type InferEnumNames<T> = T extends { EnumType: Enum, Name: infer A } ? A : never;
 interface ScrollViewProps extends ScrollViewEvents {
 	Size?: UDim2;
 	Position?: UDim2;

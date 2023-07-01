@@ -2,7 +2,6 @@ import { Players } from "@rbxts/services";
 import ZrScriptContext from "@rbxts/zirconium/out/Runtime/ScriptContext";
 import { toArray } from "../Shared/Collections";
 import ZirconUserGroup, { ZirconPermissions } from "../Server/Class/ZirconGroup";
-import { $ifEnv } from "rbxts-transform-env";
 import ZrPlayerScriptContext from "@rbxts/zirconium/out/Runtime/PlayerScriptContext";
 import { ZirconFunction } from "Class/ZirconFunction";
 import { ZirconNamespace } from "Class/ZirconNamespace";

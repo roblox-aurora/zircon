@@ -92,17 +92,17 @@ export const NativeEnumItem: ZirconValidator<ZrEnumItem> = {
 	ErrorMessage: (value) => `Expected enum item, got ${zirconTypeOf(value)}`,
 };
 
-export interface ZirconOptionalValidator<T, U = T> extends ZirconValidator<T | undefined, U | undefined> {}
+export interface ZirconOptionalValidator<T, U = T> extends ZirconValidator<T | ZrUndefined, U | undefined> {}
 export function ZirconOptionalValidator<I, O>(validator: ZirconValidator<I, O>) {
 	return {
 		Type: validator.Type + "?",
-		Validate(value: unknown, player?: Player): value is I | undefined {
-			return validator.Validate(value, player) || value === undefined;
+		Validate(value: unknown, player?: Player): value is I | ZrUndefined {
+			return validator.Validate(value, player) || value === ZrUndefined;
 		},
 		Transform(value: unknown, player?: Player) {
 			if (validator.Validate(value, player)) {
 				if (validator.Transform !== undefined) {
-					return (validator.Transform(value, player) ?? undefined) as O | undefined;
+					return value !== ZrUndefined ? (validator.Transform(value, player) ?? undefined) as O : undefined;
 				} else {
 					return (value as unknown) as O | undefined;
 				}
