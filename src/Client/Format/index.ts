@@ -1,5 +1,5 @@
 import { MessageTemplateParser, TemplateTokenKind } from "@rbxts/message-templates";
-import t from "@rbxts/t";
+import {t} from "@rbxts/t";
 import ZrTextStream from "@rbxts/zirconium/out/Ast/TextStream";
 import { getRichTextColor3, ZirconTheme, ZirconThemeDefinition } from "Client/UIKit/ThemeContext";
 interface PlainTextToken {
