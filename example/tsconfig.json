@@ -12,6 +12,7 @@
             "../node_modules/@rbxts"
         ],
         "removeComments": true,
+        "moduleDetection": "force",
 
         "rootDirs": [
             "server",
