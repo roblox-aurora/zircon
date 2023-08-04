@@ -1,6 +1,7 @@
 import Rodux, { Action, createReducer } from "@rbxts/rodux";
 import { $dbg } from "rbxts-transform-debug";
-import { ConsoleMessage, ZirconContext, ZirconLogLevel } from "../../../../Client/Types";
+import { ConsoleMessage, ZirconContext, ZirconLogLevel } from "../../../Types";
+import KeyCode = Enum.KeyCode;
 
 export const enum ConsoleActionName {
 	SetConsoleVisible = "SetConsoleVisible",
@@ -22,7 +23,7 @@ export interface ActionSetConsoleConfiguration extends Action<ConsoleActionName.
 	autoFocusTextBox: boolean;
 	showTagsInOutput: boolean;
 	logDetailsPaneEnabled: boolean;
-	bindKeys: Enum.KeyCode[];
+	bindKeys: KeyCode[];
 }
 
 export interface ActionAddOutput extends Action<ConsoleActionName.AddOutput> {
@@ -76,7 +77,7 @@ export interface ConsoleReducer {
 	history: string[];
 	filter: ConsoleFilter;
 	canExecuteLocalScripts: boolean;
-	bindingKeys: Enum.KeyCode[];
+	bindingKeys: KeyCode[];
 }
 
 export const DEFAULT_FILTER = new Set([

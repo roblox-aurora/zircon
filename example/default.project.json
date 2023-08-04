@@ -10,12 +10,15 @@
         },
         "ReplicatedStorage": {
             "$className": "ReplicatedStorage",
-            "TS": {
+            "rbxts_include": {
                 "$path": "../include",
                 "node_modules": {
-                    "$path": "../node_modules/@rbxts",
+                    "$className": "Folder",
                     "zircon": {
                         "$path": "build/src"
+                    },
+                    "@rbxts": {
+                        "$path": "../node_modules/@rbxts"
                     }
                 }
             }

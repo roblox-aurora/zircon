@@ -1,47 +1,50 @@
 {
-    "compilerOptions": {
-        // required
-        "allowSyntheticDefaultImports": true,
-        "downlevelIteration": true,
-        "noLib": true,
-        "strict": true,
-        "module": "CommonJS",
-        "target": "ESNext",
-        "moduleResolution": "Node",
-        "typeRoots": [
-            "../node_modules/@rbxts"
-        ],
-        "removeComments": true,
+  "compilerOptions": {
+    // required
+    "allowSyntheticDefaultImports": true,
+    "downlevelIteration": true,
+    "jsx": "react",
+    "jsxFactory": "Roact.createElement",
+    "jsxFragmentFactory": "Roact.createFragment",
+    "module": "commonjs",
+    "moduleResolution": "Node",
+    "noLib": true,
+    "resolveJsonModule": true,
+    "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleDetection": "force",
+    "strict": true,
+    "target": "ESNext",
+    "typeRoots": ["../node_modules/@rbxts"],
 
-        "rootDirs": [
-            "server",
-            "client",
-            "../src",
-        ],
-
-        "outDir": "build",
-        "baseUrl": "../src",
-
-        "paths": {
-            "@zircon": ["../src"],
-            "@zircon/*": ["../src/*"]
-        },
-        "jsx": "react",
-        "jsxFactory": "Roact.createElement",
-        "plugins": [
-			{
-				"transform": "rbxts-transform-env"
-			},
-			{
-				"transform": "rbxts-transform-debug",
-                "environmentRequires": {
-					"NODE_ENV": "development"
-				}
-			}
-		]
+    // configurable
+    "rootDirs": [
+      "server",
+      "client",
+      "../src",
+    ],
+    "outDir": "build",
+    "baseUrl": "../src",
+    "incremental": true,
+    "tsBuildInfoFile": "build/tsconfig.tsbuildinfo",
+    "paths": {
+      "@zircon": ["../src"],
+      "@zircon/*": ["../src/*"]
     },
-    "include": [
-        "**/*",
-        "../src/**/*"
+    "plugins": [
+      {
+        "transform": "rbxts-transform-env"
+      },
+      {
+        "transform": "rbxts-transform-debug",
+        "environmentRequires": {
+          "NODE_ENV": "development"
+        }
+      }
     ]
+  },
+  "include": [
+    "**/*",
+    "../src/**/*"
+  ]
 }
