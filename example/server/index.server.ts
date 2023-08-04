@@ -6,7 +6,6 @@ import { ExecutionAction } from "Class/ZirconConfigurationBuilder";
 import { ZirconEnumBuilder } from "Class/ZirconEnumBuilder";
 import { ZirconFunctionBuilder } from "Class/ZirconFunctionBuilder";
 import { ZirconNamespaceBuilder } from "Class/ZirconNamespaceBuilder";
-import { ZirconOptionalValidator, ZirconString } from "Class/ZirconTypeValidator";
 import { $package, $print } from "rbxts-transform-debug";
 
 Log.SetLogger(
@@ -198,20 +197,3 @@ ZirconServer.Registry.Init(
 		})
 		.Build(),
 );
-
-ZirconServer.Registry.RegisterFunction(
-	new ZirconFunctionBuilder("kill")
-		.AddArgument("player?")
-		.AddDescription("testing lol")
-		.Bind((context, player) => {
-			const target = player ?? context.GetExecutor();
-			target.Character?.BreakJoints();
-			Log.Info("Killed {target}", target);
-		}),
-	[ZirconDefaultGroup.User],
-);
-
-
-const test = ZirconOptionalValidator(ZirconString);
-
-test.Validate()
